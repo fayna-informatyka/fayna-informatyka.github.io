@@ -91,7 +91,7 @@ button.cell{cursor:pointer;padding:0;color:inherit;font:inherit}
 /* about */
 .about{background:var(--ink);color:var(--bg);border-radius:32px;padding:34px 28px;margin-bottom:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px}
 .about h3{font-size:1.05rem;color:var(--sun);margin-bottom:6px}
-.about p{margin:0}
+.about p{margin:0}.about p+p{margin-top:10px}.about .mail{display:inline-block;background:var(--sun);color:#1F2A5C;font-weight:800;text-decoration:none;border-radius:999px;padding:8px 14px;overflow-wrap:anywhere}.about .mail:hover{filter:brightness(1.08)}.about .addr{font-size:.9rem;opacity:.85;overflow-wrap:anywhere}footer a{color:inherit}
 footer{padding:0 0 36px;color:var(--muted);text-align:center;font-weight:700}
 
 @media (max-width:760px){
@@ -180,9 +180,10 @@ button,.chip,.btn,.go,a{touch-action:manipulation}
       <div><h3>Для 1–4 класів</h3><p>Прості правила, великі кнопки й завдання, які можна виконати за кілька хвилин.</p></div>
       <div><h3>Грай і вчись</h3><p>Кожен додаток вчить одного: команди, логіку, клавіатуру чи безпеку в інтернеті.</p></div>
       <div><h3>Нові щотижня</h3><p>Фанні додає нові ігри. Заглядай частіше!</p></div>
+      <div id="contact"><h3>Зворотний зв’язок</h3><p>Маєш питання чи ідею, або щось не працює? Напиши вчителю!</p><p><a class="mail" href="mailto:vitaliytraschenko@gmail.com?subject=%D0%A4%D0%B0%D0%B9%D0%BD%D0%B0%20%D0%86%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0%3A%20%D0%B7%D0%B2%D0%BE%D1%80%D0%BE%D1%82%D0%BD%D0%B8%D0%B9%20%D0%B7%D0%B2%E2%80%99%D1%8F%D0%B7%D0%BE%D0%BA">✉️ Написати листа</a></p><p class="addr">vitaliytraschenko@gmail.com</p></div>
     </section>
   </main>
-  <footer>Файна Інформатика · інформатика для початкової школи</footer>
+  <footer>Файна Інформатика · інформатика для початкової школи · <a href="#contact">✉️ Зворотний зв’язок</a></footer>
 </div>
 
 <div class="modal" id="modal" hidden><div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mhead"><h3 id="mt"></h3><button class="theme" id="mx" type="button" aria-label="Закрити">✕ Закрити</button></div><div id="mb"></div></div></div>
