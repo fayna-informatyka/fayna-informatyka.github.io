@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'self'; connect-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'self'; connect-src https://vitaliytraschenko.goatcounter.com">
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="light dark">
 <meta name="format-detection" content="telephone=no">
@@ -135,6 +135,10 @@ button,.chip,.btn,.go,a{touch-action:manipulation}
 .gap.ok{background:#CFF6E4;color:#0E5C3A;border-bottom-color:#1B9E5A}.gap.bad{background:#FFD5DB;color:#9B1C31;animation:gshk .3s}
 @keyframes gshk{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 </style>
+<!-- Статистика відвідувань (GoatCounter, без cookies). Рахує лише на fayna-informatyka.github.io -->
+<script>
+if(location.hostname==="fayna-informatyka.github.io"){var gcs=document.createElement("script");gcs.async=true;gcs.src="https://gc.zgo.at/count.js";gcs.setAttribute("data-goatcounter","https://vitaliytraschenko.goatcounter.com/count");document.head.appendChild(gcs)}
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -497,7 +501,7 @@ function cards(){
 chips(); cards();
 
 var md=H("modal"),cl=null;
-function openG(t){stop();WHO="";H("mt").textContent=t;var mb=H("mb");mb.innerHTML="";mb.className="";GAMES[t](mb);md.hidden=false;var f=md.requestFullscreen&&md.requestFullscreen();if(f&&f.catch)f.catch(function(){});H("mx").focus()}
+function openG(t){stop();WHO="";try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:"гра: "+t,title:t,event:true})}catch(e){}H("mt").textContent=t;var mb=H("mb");mb.innerHTML="";mb.className="";GAMES[t](mb);md.hidden=false;var f=md.requestFullscreen&&md.requestFullscreen();if(f&&f.catch)f.catch(function(){});H("mx").focus()}
 function closeG(){stop();md.hidden=true;H("mb").innerHTML="";if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen()}
 grid.addEventListener("click",function(e){var t=e.target.closest("[data-g]");if(t)openG(t.getAttribute("data-g"))});
 H("mx").onclick=closeG;md.addEventListener("click",function(e){if(e.target===md)closeG()});
