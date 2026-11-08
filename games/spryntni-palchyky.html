@@ -241,7 +241,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.1
 <body>
 
 <!-- ============ SPLASH ============ -->
-<div class="splash" id="splash" role="dialog" aria-label="Заставка VitalityLabs">
+<div class="splash" id="splash" role="dialog" aria-label="Заставка VitalityLabs" hidden>
   <div class="inner">
     <svg class="logo" viewBox="0 0 120 120" aria-hidden="true">
       <circle class="ring" cx="60" cy="60" r="50" transform="rotate(-90 60 60)"/>
@@ -260,7 +260,7 @@ h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.1
 <!-- ============ APP ============ -->
 <div class="wrap" id="app" hidden>
   <header class="top">
-    <button class="brand" id="brand" title="Показати заставку" aria-label="VitalityLabs, показати заставку">
+    <button class="brand" id="brand" title="На головну" aria-label="VitalityLabs, на головну">
       <svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" fill="none" stroke="#1FBF9B" stroke-width="9"/><path d="M16 64 H38 L48 42 L60 86 L71 52 L78 64 H92" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M84 36 C84 20 96 12 108 12 C108 26 100 36 84 36 Z" fill="#1FBF9B"/></svg>
       <span>Vitality<b>Labs</b></span>
     </button>
@@ -387,7 +387,7 @@ function showSplash(){
 }
 function enterApp(){clearTimeout(splashTimer);splash.hidden=true;app.hidden=false;renderHome();window.scrollTo(0,0)}
 $('#goBtn').addEventListener('click',()=>{tone(660,.1,'triangle');tone(990,.15,'triangle',.08);enterApp()});
-$('#brand').addEventListener('click',()=>{exitGame();showSplash()});
+$('#brand').addEventListener('click',()=>{exitGame();window.scrollTo(0,0)});
 
 function setSound(){const b=$('#soundBtn');b.textContent=S.sound?'🔊':'🔇';b.setAttribute('aria-pressed',S.sound)}
 $('#soundBtn').addEventListener('click',()=>{S.sound=!S.sound;store.set('sound',S.sound);setSound();sfx.ok()});
@@ -796,8 +796,7 @@ const GAMES=[
 
 /* ---------- boot ---------- */
 setSound();
-if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches){/* animations are shortened by CSS */}
-showSplash();
+enterApp();
 window.__sp={startGame:id=>startGame(GAMES.find(g=>g.id===id)),S,enterApp};
 })();
 </script>
