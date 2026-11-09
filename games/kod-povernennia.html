@@ -44,13 +44,17 @@ button:focus-visible{outline:2px solid var(--neon);outline-offset:2px}
 #hud>*{pointer-events:auto}
 .iconbtn{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--glass);border:1px solid var(--line)}
 .iconbtn svg{width:20px;height:20px}
+.sndbtn{color:var(--neon)}
+.menu-top .sndbtn{margin-left:auto}
+.menu-top .lang+.sndbtn{margin-left:0}
 .langbtn .lt{font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--neon)}
-.menu-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.menu-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.menu-top .eyebrow{flex:1 1 auto}
 .lang{display:inline-flex;padding:3px;border-radius:10px;background:rgba(13,19,33,.8);border:1px solid var(--line)}
 .lang button{padding:6px 10px;border-radius:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
 .lang button[aria-pressed="true"]{background:var(--neon);color:#04121a}
 .hud-title{flex:1;min-width:0}
-.hud-level{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.01em}
+.hud-level{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.01em;white-space:nowrap}
 .hud-stage{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hud-stats{display:flex;gap:6px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-weight:700;font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap}
@@ -230,6 +234,7 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
       <button id="btnMenu" class="iconbtn" data-i18n-aria="menuAria" aria-label="До меню рівнів"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg></button>
       <div class="hud-title"><div class="hud-level" id="hudLevel">Рівень 1</div><div class="hud-stage" id="hudStage"></div></div>
       <button class="iconbtn langbtn" data-langtoggle aria-label="English / Українська"><span class="lt"></span></button>
+      <button class="iconbtn sndbtn" data-soundtoggle aria-label="Вимкнути звук"></button>
       <div class="hud-stats"><span class="chip" id="hudParts"><i></i><span>0/1</span></span><span class="chip" id="hudTick">Такт 0</span></div>
     </div>
     <div id="toast" hidden><p id="toastText"></p><button id="toastClose" data-i18n="gotIt">Зрозуміло</button></div>
@@ -247,7 +252,7 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
   </section>
   <div id="menu" hidden>
     <div class="menu-sheet">
-      <div class="menu-top"><p class="eyebrow" data-i18n="eyebrow">Море Спокою · Позивний Інженер-01</p><div class="lang" role="group" data-i18n-aria="langAria" aria-label="Мова гри"><button data-lang="uk">УКР</button><button data-lang="en">ENG</button></div></div>
+      <div class="menu-top"><p class="eyebrow" data-i18n="eyebrow">Море Спокою · Позивний Інженер-01</p><div class="lang" role="group" data-i18n-aria="langAria" aria-label="Мова гри"><button data-lang="uk">УКР</button><button data-lang="en">ENG</button></div><button class="iconbtn sndbtn" data-soundtoggle aria-label="Вимкнути звук"></button></div>
       <h1 data-i18n-html="h1">Код <em>повернення</em></h1>
       <p class="lede" data-i18n="lede">Космонавт застряг на Місяці. Програмуй його маршрут, збери 100 деталей нової ракети й поверни його на Землю.</p>
       <div class="progress"><div class="pbar"><i id="pfill"></i></div><span id="ptext"></span></div>
@@ -729,7 +734,7 @@ const I18N = {
     partsCount: d => `<b>${d}</b> / 100 деталей`, watchLaunch: 'Переглянути запуск ще раз', cont: n => `Продовжити · Рівень ${n}`, startMission: 'Почати місію',
     stage: 'Етап', goal: 'Мета', gameplay: 'Геймплей', reward: 'Нагорода', showAssembly: 'Показати збирання етапу',
     lvDone: d => `, пройдено, зірок ${d}`, lvLocked: ', закрито', resetQ: 'Скинути прогрес?', resetP: 'Усі пройдені рівні, зірки й зібрані деталі ракети буде видалено з цього браузера.',
-    cancel: 'Скасувати', resetBtn: 'Скинути', langAria: 'Мова гри',
+    cancel: 'Скасувати', resetBtn: 'Скинути', langAria: 'Мова гри', soundOn: 'Увімкнути звук', soundOff: 'Вимкнути звук',
   },
   en: {
     title: 'Return Code', h1: 'Return <em>Code</em>', menuAria: 'Level menu', level: 'Level', tick: 'Tick', gotIt: 'Got it', programAria: 'Astronaut’s program', clear: 'Clear',
@@ -750,7 +755,7 @@ const I18N = {
     partsCount: d => `<b>${d}</b> / 100 parts`, watchLaunch: 'Watch the launch again', cont: n => `Continue · Level ${n}`, startMission: 'Start mission',
     stage: 'Stage', goal: 'Goal', gameplay: 'Gameplay', reward: 'Reward', showAssembly: 'Show stage assembly',
     lvDone: d => `, completed, ${d} stars`, lvLocked: ', locked', resetQ: 'Reset progress?', resetP: 'All completed levels, stars and collected rocket parts will be deleted from this browser.',
-    cancel: 'Cancel', resetBtn: 'Reset', langAria: 'Game language',
+    cancel: 'Cancel', resetBtn: 'Reset', langAria: 'Game language', soundOn: 'Turn sound on', soundOff: 'Turn sound off',
   },
 };
 const t = (k, ...a) => { const v = I18N[LANG][k]; return typeof v === 'function' ? v(...a) : v; };
@@ -765,6 +770,97 @@ const CMD = {
 };
 const icon = c => CMD[c].txt ? `<span class="fn">${CMD[c].txt}</span>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${CMD[c].svg}</svg>`;
 
+
+/* ---------------- sound effects (synthesised with Web Audio, no files) ---------------- */
+const SFX = (() => {
+  const KEY = 'moon-builder-sound';
+  let ctx = null, master = null, noiseBuf = null, on = true;
+  try { on = localStorage.getItem(KEY) !== '0'; } catch (e) { }
+  function ensure() {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      try { ctx = new AC(); } catch (e) { return null; }
+      const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+      master = ctx.createGain(); master.gain.value = .5; master.connect(comp); comp.connect(ctx.destination);
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ctx.state === 'suspended') ctx.resume().catch(() => { });
+    return ctx;
+  }
+  function env(g, t0, a, d, v) { g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(v, t0 + a); g.gain.exponentialRampToValueAtTime(.0001, t0 + d); }
+  function tone(f, d, o = {}) {
+    const c = ensure(); if (!c || !on) return; const t0 = c.currentTime + (o.t || 0);
+    const osc = c.createOscillator(), g = c.createGain(); osc.type = o.type || 'sine';
+    osc.frequency.setValueAtTime(f, t0); if (o.f2) osc.frequency.exponentialRampToValueAtTime(o.f2, t0 + d);
+    env(g, t0, o.a || .005, d, o.v || .25); osc.connect(g);
+    if (o.lp) { const fl = c.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = o.lp; g.connect(fl); fl.connect(master); } else g.connect(master);
+    osc.start(t0); osc.stop(t0 + d + .05);
+  }
+  function noise(d, o = {}) {
+    const c = ensure(); if (!c || !on) return null; const t0 = c.currentTime + (o.t || 0);
+    const src = c.createBufferSource(); src.buffer = noiseBuf; src.loop = d > 1.9;
+    const fl = c.createBiquadFilter(); fl.type = o.type || 'lowpass'; fl.Q.value = o.q || 1;
+    fl.frequency.setValueAtTime(o.f || 800, t0); if (o.f2) fl.frequency.exponentialRampToValueAtTime(o.f2, t0 + d);
+    const g = c.createGain(); env(g, t0, o.a || .005, d, o.v || .25);
+    src.connect(fl); fl.connect(g); g.connect(master); src.start(t0, Math.random()); src.stop(t0 + d + .05); return g;
+  }
+  const NOTE = { F: 660, L: 520, R: 580, J: 780, W: 440, F1: 880, F2: 990 };
+  const S = {
+    ui: () => tone(720, .06, { type: 'triangle', v: .12 }),
+    add: c => { tone(NOTE[c] || 660, .09, { type: 'triangle', v: .2 }); tone((NOTE[c] || 660) * 1.5, .06, { type: 'sine', v: .08, t: .02 }); },
+    remove: () => tone(420, .1, { type: 'triangle', v: .16, f2: 300 }),
+    full: () => { tone(160, .14, { type: 'square', v: .08, lp: 900 }); tone(150, .14, { type: 'square', v: .08, lp: 900, t: .12 }); },
+    select: () => tone(900, .05, { type: 'sine', v: .1 }),
+    clear: () => noise(.25, { type: 'bandpass', f: 3000, f2: 600, q: 1.2, v: .12 }),
+    run: () => { tone(440, .1, { type: 'triangle', v: .18 }); tone(660, .1, { type: 'triangle', v: .18, t: .08 }); tone(990, .16, { type: 'triangle', v: .18, t: .16 }); },
+    stop: () => { tone(660, .1, { type: 'triangle', v: .15 }); tone(440, .14, { type: 'triangle', v: .15, t: .08 }); },
+    step: () => { noise(.09, { f: 380, v: .22, q: .7 }); tone(110, .07, { v: .12, f2: 70 }); },
+    turn: () => noise(.2, { type: 'bandpass', f: 900, f2: 2600, q: 2, v: .12, a: .04 }),
+    wait: () => { tone(1200, .04, { v: .08 }); tone(1200, .04, { v: .06, t: .18 }); },
+    jump: () => tone(280, .28, { type: 'sine', f2: 760, v: .22, a: .01 }),
+    land: () => { noise(.12, { f: 300, v: .28 }); tone(90, .12, { v: .18, f2: 55 }); },
+    bump: () => { tone(120, .16, { type: 'square', v: .12, lp: 500, f2: 80 }); noise(.08, { f: 600, v: .15 }); },
+    crack: () => { noise(.35, { type: 'bandpass', f: 1800, f2: 300, q: .8, v: .3 }); noise(.5, { f: 260, v: .2, t: .08 }); },
+    fall: () => { tone(900, .9, { type: 'sine', f2: 120, v: .16, a: .02 }); noise(.4, { f: 200, v: .25, t: .75 }); },
+    zap: () => { tone(1400, .35, { type: 'sawtooth', f2: 200, v: .1, lp: 3000 }); noise(.3, { type: 'highpass', f: 2500, v: .1 }); },
+    pulse: () => tone(300, .18, { type: 'sawtooth', v: .05, lp: 1200, f2: 180 }),
+    creak: () => tone(140, .22, { type: 'sawtooth', v: .06, lp: 700, f2: 90 }),
+    pickup: () => [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, .22, { type: 'triangle', v: .16, t: i * .055 })),
+    fail: () => { tone(392, .22, { type: 'triangle', v: .2 }); tone(311, .36, { type: 'triangle', v: .2, t: .2 }); },
+    success: () => [523, 659, 784, 1047].forEach((f, i) => { tone(f, .5, { type: 'triangle', v: .18, t: i * .11 }); tone(f / 2, .5, { type: 'sine', v: .1, t: i * .11 }); }),
+    star: i => tone(1320 + i * 220, .3, { type: 'sine', v: .16, t: .35 + i * .18 }),
+    attach: i => { tone(500 + i * 40, .08, { type: 'square', v: .06, lp: 2000 }); tone(1000 + i * 60, .18, { type: 'sine', v: .1, t: .03 }); },
+    whoosh: () => noise(.5, { type: 'bandpass', f: 400, f2: 2400, q: 1.5, v: .1, a: .2 }),
+    stageDone: () => [392, 494, 587, 784].forEach(f => { tone(f, 1.4, { type: 'triangle', v: .12, a: .03 }); tone(f * 2, 1.2, { type: 'sine', v: .05, a: .03, t: .1 }); }),
+    beep: () => tone(880, .18, { type: 'sine', v: .22 }),
+    liftoff: () => {
+      tone(1320, .4, { type: 'sine', v: .22 });
+      noise(6, { f: 120, v: .55, a: 1.2 }); noise(5, { type: 'bandpass', f: 500, f2: 1400, q: .6, v: .18, a: 1.5, t: .3 });
+      tone(55, 5, { type: 'sawtooth', v: .12, a: 1, lp: 200 });
+    },
+  };
+  return {
+    play(name, arg) { try { if (on && S[name]) S[name](arg); } catch (e) { } },
+    unlock: ensure,
+    get on() { return on; },
+    toggle() { on = !on; try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) { } if (on) { ensure(); S.ui(); } return on; },
+  };
+})();
+const SND_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const SND_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="m17 9 5 6M22 9l-5 6"/></svg>';
+function renderSoundBtns() { document.querySelectorAll('[data-soundtoggle]').forEach(b => { b.innerHTML = SFX.on ? SND_ON : SND_OFF; b.setAttribute('aria-label', t(SFX.on ? 'soundOff' : 'soundOn')); b.setAttribute('aria-pressed', String(!SFX.on)); }); }
+document.querySelectorAll('[data-soundtoggle]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); SFX.toggle(); renderSoundBtns(); }));
+window.addEventListener('pointerdown', () => SFX.unlock(), { capture: true });
+window.addEventListener('keydown', () => SFX.unlock(), { capture: true });
+// generic soft click for menu and dialog buttons; game controls have their own sounds
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('button'); if (!b || b.disabled) return;
+  if (b.closest('#palette, #rows') || ['btnRun', 'btnClear', 'btnSpeed'].includes(b.id) || b.hasAttribute('data-soundtoggle')) return;
+  SFX.play('ui');
+});
+renderSoundBtns();
+
 /* ---------------- storage ---------------- */
 const SAVE_KEY = 'moon-builder-v1';
 let save = { done: {}, drafts: {} };
@@ -777,6 +873,7 @@ function applyStatic() {
   document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
   document.querySelectorAll('.lang [data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
   document.querySelectorAll('[data-langtoggle] .lt').forEach(el => el.textContent = LANG === 'uk' ? 'EN' : 'УК');
+  if (typeof renderSoundBtns === 'function') renderSoundBtns();
 }
 function setLang(l) {
   if (l === LANG) return; LANG = l;
@@ -790,7 +887,8 @@ document.querySelectorAll('[data-langtoggle]').forEach(b => b.onclick = () => se
 applyStatic();
 const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) { } };
 const doneCount = () => Object.keys(save.done).length;
-const unlocked = n => n === 1 || !!save.done[n - 1];
+// The first level of every stage (1, 21, 41, 61, 81) is always open; the rest unlock one by one.
+const unlocked = n => n % 20 === 1 || !!save.done[n - 1];
 const nextLevel = () => { for (let n = 1; n <= 100; n++) if (!save.done[n]) return n; return 100; };
 const stageProgress = s => { let c = 0; for (let n = s * 20 + 1; n <= s * 20 + 20; n++) if (save.done[n]) c++; return c / 20; };
 
@@ -1440,6 +1538,7 @@ function updateChevron(st) {
   chevron.rotation.set(0, [Math.PI / 2, 0, -Math.PI / 2, Math.PI][st.dir], 0);
 }
 function setHazards(t, instant) {
+  if (!instant && running) { let rad = false, pl = false; for (const rec of tiles.values()) if (rec.c.p && danger(rec.c, t)) { if (rec.beamMat) rad = true; else pl = true; } if (rad) SFX.play('pulse'); if (pl) SFX.play('creak'); }
   for (const rec of tiles.values()) {
     const c = rec.c; if (!c.p) continue;
     const dng = danger(c, t);
@@ -1489,14 +1588,14 @@ function renderProgram() {
     const row = document.createElement('div'); row.className = 'prow' + (r === activeRow ? ' active' : ''); row.dataset.row = r;
     const lab = document.createElement('button'); lab.className = 'plabel'; lab.setAttribute('aria-label', r === 'main' ? t('editMain') : t('editFn', r));
     lab.innerHTML = `<b style="color:${r === 'main' ? 'var(--ink)' : CMD[r].c}">${r === 'main' ? t('mainLabel') : r}</b><span>${program[r].length}/${lim}</span>`;
-    lab.onclick = () => { activeRow = r; renderProgram(); };
+    lab.onclick = () => { SFX.play('select'); activeRow = r; renderProgram(); };
     const slots = document.createElement('div'); slots.className = 'slots';
     for (let i = 0; i < lim; i++) {
       const c = program[r][i], s = document.createElement('button');
       s.className = 'slot' + (c ? ' filled' : ''); if (c) { s.style.setProperty('--c', CMD[c].c); s.innerHTML = icon(c); s.setAttribute('aria-label', cmdName(c) + t('remove')); }
       else s.setAttribute('aria-label', t('emptySlot'));
       if (execMark && execMark.row === r && execMark.idx === i) s.classList.add('exec');
-      s.onclick = () => { if (running) return; activeRow = r; if (c) { program[r].splice(i, 1); saveDraft(); } renderProgram(); };
+      s.onclick = () => { if (running) return; activeRow = r; if (c) { SFX.play('remove'); program[r].splice(i, 1); saveDraft(); } else SFX.play('select'); renderProgram(); };
       slots.appendChild(s);
     }
     row.onclick = e => { if (e.target === row || e.target === slots) { activeRow = r; renderProgram(); } };
@@ -1511,8 +1610,8 @@ function renderPalette() {
     b.disabled = running || (activeRow === 'F1' && c === 'F1') || (activeRow === 'F2' && (c === 'F1' || c === 'F2'));
     b.onclick = () => {
       const lim = level.limits[activeRow];
-      if (program[activeRow].length >= lim) { const row = document.querySelector(`.prow[data-row="${activeRow}"]`); row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); return; }
-      program[activeRow].push(c); saveDraft(); renderProgram();
+      if (program[activeRow].length >= lim) { SFX.play('full'); const row = document.querySelector(`.prow[data-row="${activeRow}"]`); row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); return; }
+      SFX.play('add', c); program[activeRow].push(c); saveDraft(); renderProgram();
     };
     p.appendChild(b);
   }
@@ -1546,24 +1645,26 @@ async function animStep(res, id) {
   const p0 = cellPos(res.from.x, res.from.z, res.from.h);
   const rot0 = A.root.rotation.y;
   if (res.cmd === 'L' || res.cmd === 'R') {
+    SFX.play('turn');
     let rot1 = [Math.PI / 2, 0, -Math.PI / 2, Math.PI][res.to.dir], dr = ((rot1 - rot0 + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
     await tween(d, k => A.root.rotation.y = rot0 + dr * k);
     return;
   }
-  if (res.cmd === 'W') { await tween(d, k => { A.root.scale.y = 1 - Math.sin(k * Math.PI) * .05; }); A.root.scale.y = 1; return; }
+  if (res.cmd === 'W') { SFX.play('wait'); await tween(d, k => { A.root.scale.y = 1 - Math.sin(k * Math.PI) * .05; }); A.root.scale.y = 1; return; }
   const p1 = cellPos(res.to.x, res.to.z, res.to.h);
   const fail = res.fail && res.fail.type;
   const blockFail = fail === 'rock' || fail === 'wall' || fail === 'ledge' || fail === 'jump';
   const fallFail = fail === 'void' || fail === 'crater' || fail === 'broken';
   if (blockFail) {
-    A.moving = 1;
+    A.moving = 1; setTimeout(() => SFX.play('bump'), d * 450);
     await tween(d * .45, k => { A.root.position.lerpVectors(p0, p1, k * .32); A.walk += .25; });
     await tween(d * .45, k => { A.root.position.lerpVectors(p0, p1, (1 - k) * .32); A.root.position.x += Math.sin(k * 30) * .02 * (1 - k); });
     A.moving = 0; return;
   }
   const jump = res.cmd === 'J', top = Math.max(p0.y, p1.y) + .45;
   A.moving = jump ? 0 : 1;
-  if (jump) await tween(d * .2, k => A.root.scale.y = 1 - .12 * k);
+  if (jump) { SFX.play('jump'); await tween(d * .2, k => A.root.scale.y = 1 - .12 * k); }
+  else if (!fallFail) { SFX.play('step'); setTimeout(() => SFX.play('step'), d * 500); }
   if (id !== runId) return;
   await tween(fallFail ? d * .75 : d, k => {
     const q = fallFail ? k * .78 : k;
@@ -1572,20 +1673,24 @@ async function animStep(res, id) {
     else A.walk += .22 * sp;
   }, jump ? ease.io : ease.lin);
   A.moving = 0; A.cheer = 0; A.root.scale.y = 1;
+  if (jump && !fallFail) SFX.play('land');
   if (res.broke) breakTile(res.broke);
 }
 function breakTile(k) {
   const rec = tiles.get(k); if (!rec || !rec.plates) return;
+  SFX.play('crack');
   burst(rec.g.position.clone().add(new THREE.Vector3(0, TOP(rec.c.h), 0)), 0xffa64a, 18, 1.2, .1);
   rec.plates.forEach((p, i) => { const y0 = p.position.y, rx = (Math.random() - .5) * 2; tween(.9, k2 => { p.position.y = y0 - k2 * k2 * 2.2; p.rotation.x = p.userData.base.rx + rx * k2; }, ease.lin).then(() => p.visible = false); });
 }
 async function failAnim(res) {
   const t = res.fail.type;
   if (t === 'void' || t === 'crater' || t === 'broken' || t === 'plate') {
+    SFX.play('fall');
     const p = A.root.position.clone(), dx = (Math.random() - .5);
     await tween(.9, k => { A.root.position.y = p.y - k * k * (t === 'crater' ? 1.4 : 4); A.root.rotation.x = k * dx * 2; A.root.scale.setScalar(1 - k * .6); }, ease.lin);
     A.root.visible = false;
   } else if (t === 'radiation') {
+    SFX.play('zap');
     burst(A.root.position.clone().add(new THREE.Vector3(0, .5, 0)), 0xc070ff, 50, 2.6, .16);
     await tween(.8, k => { A.root.scale.setScalar(1 + Math.sin(k * 20) * .05 * (1 - k)); });
   } else await wait(.2);
@@ -1594,7 +1699,7 @@ async function run() {
   if (running) { stopRun(); return; }
   if (!program.main.length) { toast(t('emptyProg')); return; }
   toast(null); resetBoard();
-  running = true; const id = ++runId; renderPalette(); updateChevron({ x: 0, z: 0, h: 0, dir: 0 });
+  SFX.play('run'); running = true; const id = ++runId; renderPalette(); updateChevron({ x: 0, z: 0, h: 0, dir: 0 });
   const st = newRun(level); let steps = 0;
   for (const it of expand('main')) {
     if (id !== runId) return;
@@ -1613,16 +1718,17 @@ async function run() {
   endRun(false, t('incomplete', st.got.size, level.pickups.length));
 }
 function collect(k) {
-  const pk = pickups.get(k); if (!pk) return; gotCount++;
+  const pk = pickups.get(k); if (!pk) return; gotCount++; SFX.play('pickup');
   const chip = $('hudParts'); chip.classList.remove('pulse'); void chip.offsetWidth; chip.classList.add('pulse');
   const wp = pk.g.position.clone().add(new THREE.Vector3(0, .55, 0)); burst(wp, 0x62e3ff, 40, 2, .13);
   const y0 = pk.item.position.y;
   tween(.6, q => { pk.item.position.y = y0 + q * 1.2; pk.item.scale.setScalar(1 - q * .9); pk.halo.material.opacity = .35 * (1 - q); }, ease.out).then(() => { pk.g.visible = false; });
 }
-function stopRun() { runId++; running = false; clearTweens(); markExec(null); resetBoard(); renderProgram(); }
+function stopRun() { SFX.play('stop'); runId++; running = false; clearTweens(); markExec(null); resetBoard(); renderProgram(); }
 function endRun(ok, msg) {
   running = false; markExec(null); renderPalette();
   if (!ok) {
+    SFX.play('fail');
     modal(`<p class="eyebrow" style="color:var(--danger)">${t('failEyebrow', tick)}</p><h2>${t('tryAgain')}</h2><p>${msg}</p>`, [{ label: t('backToProgram'), primary: true, fn: () => { resetBoard(); renderProgram(); } }]);
     return;
   }
@@ -1632,7 +1738,7 @@ async function onSuccess() {
   const n = level.n, used = program.main.length + program.F1.length + program.F2.length;
   const stars = used <= level.optimal ? 3 : used <= level.optimal + 2 ? 2 : 1;
   const first = !save.done[n]; save.done[n] = Math.max(save.done[n] || 0, stars); persist();
-  cinematic = true; A.cheer = 1; burst(A.root.position.clone().add(new THREE.Vector3(0, 1, 0)), 0xffd36a, 60, 3, .12);
+  cinematic = true; A.cheer = 1; SFX.play('success'); burst(A.root.position.clone().add(new THREE.Vector3(0, 1, 0)), 0xffd36a, 60, 3, .12);
   const hy = A.root.position.y; await tween(.9, k => { A.root.position.y = hy + Math.sin(k * Math.PI) * .35; }); A.root.position.y = hy;
   A.cheer = 0;
   const s = level.stage - 1, st = ROCKET.stages[s], from = Math.max(0, st.p), to = stageProgress(s);
@@ -1641,6 +1747,7 @@ async function onSuccess() {
   else if (to !== from) tween(1.4, k => setStage(st, from + (to - from) * k, true));
   cinematic = false;
   const reward = n % 20 === 0 ? `<div class="reward"><b>${t('stageReward', level.stage)}</b>${ST()[s].reward}</div>` : '';
+  for (let i = 0; i < stars; i++) SFX.play('star', i);
   modal(`<p class="eyebrow">${t('levelDone', n)}</p><h2>${t('partInBag')}</h2>
     <div class="stars">${[0, 1, 2].map(i => starSvg(i < stars)).join('')}</div>
     <div class="partline"><i></i><span>${partName(n)}</span></div><div class="fact"><b>${t('didYouKnow')}</b>${partFact(n)}</div>${reward}
@@ -1665,6 +1772,7 @@ async function assembleStage(s) {
     const ty = st.minY + (i + .5) / 20 * (st.maxY - st.minY), ta = i * 2.4, tr = Math.max(.25, st.rad * .65);
     parts.push({ m, n, to: new THREE.Vector3(rp.x + Math.cos(ta) * tr, rp.y + ty, rp.z + Math.sin(ta) * tr) });
   }
+  SFX.play('whoosh');
   parts.forEach((p, i) => setTimeout(() => tween(.4, k => p.m.scale.setScalar(k), ease.out), i * 40));
   await wait(1.3);
   let arrived = 0;
@@ -1677,13 +1785,14 @@ async function assembleStage(s) {
     }, ease.io).then(() => {
       scene.remove(p.m); p.m.traverse(o => { if (o.isMesh) o.geometry.dispose(); });
       burst(p.to, 0x62e3ff, 22, 1.4, .1);
-      arrived++; setStage(st, arrived / 20, true);
+      arrived++; SFX.play('attach', arrived); setStage(st, arrived / 20, true);
     });
     await wait(.3);
   }
   await wait(1);
   setStage(st, 1, true);
   burst(rp.clone().add(new THREE.Vector3(0, st.maxY, 0)), 0xffd36a, 90, 3.4, .16);
+  SFX.play('stageDone');
   caption(t('capDone', s + 1), ST()[s].reward);
   await wait(2.2);
   caption(null);
@@ -1719,8 +1828,8 @@ async function launchSequence() {
   const rp = ROCKET.root.position.clone();
   await flyTo(rp.clone().add(new THREE.Vector3(8, 2.2, 9)), rp.clone().add(new THREE.Vector3(0, 2.4, 0)), 2);
   const big = $('bigText'); big.hidden = false;
-  for (const s of ['3', '2', '1']) { big.textContent = s; await wait(.85); if (s === '1') ROCKET.flames.forEach(f => { f.visible = true; f.scale.set(.3, .2, .3); }); }
-  big.textContent = t('liftoff');
+  for (const s of ['3', '2', '1']) { big.textContent = s; SFX.play('beep'); await wait(.85); if (s === '1') ROCKET.flames.forEach(f => { f.visible = true; f.scale.set(.3, .2, .3); }); }
+  big.textContent = t('liftoff'); SFX.play('liftoff');
   ROCKET.nozzleGlows.forEach(g => g.material.emissiveIntensity = 4);
   let shake = 0;
   const shakeFx = dt => { if (!cinematic) return false; if (shake > 0 && !reduceMotion) { camera.position.x += (Math.random() - .5) * shake; camera.position.y += (Math.random() - .5) * shake; } return true; };
@@ -1800,8 +1909,8 @@ function renderMenu() {
 }
 $('btnMenu').onclick = showMenu;
 $('btnRun').onclick = run;
-$('btnClear').onclick = () => { if (running) return; program[activeRow] = []; saveDraft(); renderProgram(); };
-$('btnSpeed').onclick = () => { speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('btnSpeed').textContent = '×' + speed; };
+$('btnClear').onclick = () => { if (running) return; if (program[activeRow].length) SFX.play('clear'); program[activeRow] = []; saveDraft(); renderProgram(); };
+$('btnSpeed').onclick = () => { SFX.play('ui'); speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('btnSpeed').textContent = '×' + speed; };
 $('btnReset').onclick = () => modal(`<h2>${t('resetQ')}</h2><p>${t('resetP')}</p>`,
   [{ label: t('cancel') }, { label: t('resetBtn'), primary: true, fn: () => { save = { done: {}, drafts: {} }; persist(); resetRocket(); level = null; showMenu(); } }]);
 
