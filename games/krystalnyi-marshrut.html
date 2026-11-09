@@ -42,7 +42,11 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
 .levels{position:relative;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;min-width:0;padding-block:2px}
 .lv{flex:none;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-weight:600;font-size:13px;cursor:pointer;color:var(--mute);font-variant-numeric:tabular-nums}
 .lv.done{color:var(--mint);border-color:color-mix(in srgb,var(--mint) 55%,var(--line))}
+.lv.fresh{position:relative}
+.lv.fresh::after{content:"";position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--panel)}
 .lv.locked{color:color-mix(in srgb,var(--mute) 60%,transparent);background:transparent;border-style:dashed;cursor:not-allowed;display:inline-grid;place-items:center}
+.ptab.fresh{position:relative}
+.ptab.fresh::after{content:"";position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--panel)}
 .ptab.locked{opacity:.55;cursor:not-allowed}
 .ptab .lock{display:inline-grid;place-items:center;color:var(--mute)}
 .lv[aria-current="true"]{background:var(--ink);color:var(--space);border-color:var(--ink)}
@@ -209,6 +213,8 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.orbit,.core{animation:none}}
 
 /* ---- How to play ---- */
+#soundBtn{display:inline-grid;place-items:center}
+#soundBtn.off{color:var(--mute)}
 .helpbtn{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);font-weight:700;font-size:15px;cursor:pointer;color:var(--ink)}
 .card.help{width:min(720px,100%);max-height:calc(100dvh - 32px);overflow:auto;text-align:left;gap:14px}
 .card.help h3{text-align:left;outline:none}
@@ -324,6 +330,7 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
     <div class="brand">Кристальний <i>маршрут</i></div>
     <nav class="planets" id="planets" aria-label="Планети"></nav>
     <div class="lang" role="group" aria-label="Мова"><button data-lang="uk" aria-pressed="true">УКР</button><button data-lang="en" aria-pressed="false">ENG</button></div>
+    <button class="helpbtn" id="soundBtn" aria-pressed="true" aria-label="Звук увімкнено"></button>
     <button class="helpbtn" id="helpBtn" aria-label="Як грати" title="Як грати">?</button>
     <div class="lvwrap"><span class="lvlabel">Рівень</span><div class="levels" id="levels" aria-label="Рівні планети"></div></div>
   </header>
@@ -434,6 +441,9 @@ const PLANETS = [
 
 // Map legend: "." floor, "#" obstacle, "~" acid pool, " " abyss, "S" start,
 // "c" crystal, "1".."9" numbered crystals (collect in order).
+// LEVEL IDS ARE PERMANENT. Player progress is saved by id (e1, j5, m12…).
+// When adding levels: give each new level a NEW id that was never used (e.g. "e21", "e2b"),
+// never renumber or reuse existing ids. Order in this list decides unlocking; ids decide saved progress.
 const LEVELS = [{"id": "e1", "planet": "earth", "title": "Перші кроки", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Перетягни блок «Йти вперед» під «Коли натиснуто» або просто торкнись його. Збери кристали й натисни «Запустити».", "map": [".#.", ".c.", ".c.", "..#", ".S.", "..."], "newBlocks": ["fwd"], "title_en": "First Steps", "hint_en": "Drag the “Move forward” block under “When clicked”, or just tap it. Collect the crystals and press “Run”."}, {"id": "e2", "planet": "earth", "title": "Стежка в лісі", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Кожен блок «Йти вперед» — це один крок на одну плиту. Порахуй плити до останнього кристала.", "map": ["..#", ".c.", "#..", ".c.", "...", ".S.", "..#"], "title_en": "Forest Path", "hint_en": "Each “Move forward” block is one step onto one tile. Count the tiles to the last crystal."}, {"id": "e3", "planet": "earth", "title": "Перший поворот", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Блок «Повернути праворуч» розвертає мандрівника на місці, але не робить кроку. Після повороту знову йди вперед.", "map": ["#....", ".c.c.", ".....", "#S...", ".#.#."], "newBlocks": ["right"], "title_en": "First Turn", "hint_en": "“Turn right” turns the traveler on the spot without taking a step. After turning, move forward again."}, {"id": "e4", "planet": "earth", "title": "Наліво біля дуба", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Блок «Повернути ліворуч» працює так само, лише в інший бік. Уяви, що ти стоїш на місці мандрівника.", "map": ["..#..", ".c.c.", "....#", "..#..", ".#.S.", "#...."], "newBlocks": ["left"], "title_en": "Left at the Oak", "hint_en": "“Turn left” works the same way, just in the other direction. Imagine you are standing where the traveler is."}, {"id": "e5", "planet": "earth", "title": "Галявина", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Спершу пройди маршрут пальцем по екрану, а потім склади блоки.", "map": ["...##.", ".cc.c.", "#S.#..", ".#.##."], "title_en": "The Meadow", "hint_en": "First trace the route with your finger on the screen, then put the blocks together."}, {"id": "e6", "planet": "earth", "title": "Підкова", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Маршрут схожий на підкову: два повороти в один бік.", "map": [".#..#", ".c.c.", ".....", ".c.S#", ".###."], "title_en": "Horseshoe", "hint_en": "The route looks like a horseshoe: two turns in the same direction."}, {"id": "e7", "planet": "earth", "title": "Річкова петля", "dir": "E", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Кожен поворот — окремий блок. Не пропусти жодного.", "map": ["#..#.", ".S.c#", ".#...", "#c.c.", ".##.."], "title_en": "River Loop", "hint_en": "Every turn is a separate block. Don't miss any."}, {"id": "e8", "planet": "earth", "title": "Сходинки", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Сходинки: крок, поворот, крок, поворот назад. Чергуй ліворуч і праворуч.", "map": [".#.#.", "..cc#", ".cc.#", "#S...", "....#"], "title_en": "Little Stairs", "hint_en": "Stairs: step, turn, step, turn back. Alternate left and right."}, {"id": "e9", "planet": "earth", "title": "Старий сад", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Спершу пройди маршрут пальцем по екрану, а потім склади блоки.", "map": ["......", "....c.", "#c..c#", "..##..", "#..###", ".S.#..", "..###."], "title_en": "Old Orchard", "hint_en": "First trace the route with your finger on the screen, then put the blocks together."}, {"id": "e10", "planet": "earth", "title": "Ранкова роса", "dir": "E", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Зверни увагу: на початку мандрівник дивиться в інший бік.", "map": ["#.#.#.#", ".##c.c.", "..#c.##", "....#..", "#S.c#..", "#..#.#."], "title_en": "Morning Dew", "hint_en": "Watch out: at the start the traveler is facing a different way."}, {"id": "e11", "planet": "earth", "title": "Лісова змійка", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Кожен поворот — окремий блок. Не пропусти жодного.", "map": ["...#.", "#c##.", "#cc#.", "...c.", ".##S#", "....."], "title_en": "Forest Snake", "hint_en": "Every turn is a separate block. Don't miss any."}, {"id": "e12", "planet": "earth", "title": "Кам'яний міст", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Перевір, куди дивиться мандрівник після кожного повороту.", "map": [".####", ".c.c.", "#...#", ".Scc#", ".#..#"], "title_en": "Stone Bridge", "hint_en": "Check which way the traveler faces after every turn."}, {"id": "e13", "planet": "earth", "title": "Довга стежка", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Спершу пройди маршрут пальцем по екрану, а потім склади блоки.", "map": ["#..###.", ".cc..c#", "...#...", "..##.c#", "..#.#..", "#S..##.", "#####.#"], "title_en": "Long Path", "hint_en": "First trace the route with your finger on the screen, then put the blocks together."}, {"id": "e14", "planet": "earth", "title": "Квітковий луг", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Порахуй плити до кожного повороту.", "map": ["..##.", "#c..#", "#c.c.", ".....", ".c..#", ".S.##", "..#.."], "title_en": "Flower Field", "hint_en": "Count the tiles up to each turn."}, {"id": "e15", "planet": "earth", "title": "Захід сонця", "dir": "W", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Кожен поворот — окремий блок. Не пропусти жодного.", "map": ["####..", ".###c#", "#c..c.", "#.####", ".c..S#", "####.."], "title_en": "Sunset", "hint_en": "Every turn is a separate block. Don't miss any."}, {"id": "e16", "planet": "earth", "title": "Звивистий шлях", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Перевір, куди дивиться мандрівник після кожного повороту.", "map": ["#####", ".#.c#", "#c.c.", "..###", "...c#", "##..#", ".##S.", "...#."], "title_en": "Winding Way", "hint_en": "Check which way the traveler faces after every turn."}, {"id": "e17", "planet": "earth", "title": "Гачок", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Спершу пройди маршрут пальцем по екрану, а потім склади блоки.", "map": ["#....#", "#cc.c.", "#.##.#", "#....#", "..#.c.", "...###", "#S####", "......"], "title_en": "The Hook", "hint_en": "First trace the route with your finger on the screen, then put the blocks together."}, {"id": "e18", "planet": "earth", "title": "Човник", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Порахуй плити до кожного повороту.", "map": ["#..#..", "#.ccc#", "#S..c#", "..##.#"], "title_en": "Shuttle Run", "hint_en": "Count the tiles up to each turn."}, {"id": "e19", "planet": "earth", "title": "Мушля", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Кожен поворот — окремий блок. Не пропусти жодного.", "map": [".#.#.##", ".c....#", "..#...#", "#..c..#", "..#c.c.", ".S.##.#", ".##.#.."], "title_en": "The Shell", "hint_en": "Every turn is a separate block. Don't miss any."}, {"id": "e20", "planet": "earth", "title": "Велика прогулянка", "dir": "N", "blocks": ["fwd", "left", "right"], "limit": null, "hint": "Перевір, куди дивиться мандрівник після кожного повороту.", "map": ["##..##", ".c####", "#.#.##", "#c..c#", ".....#", "#c...#", "..####", ".S.###", "..###."], "title_en": "Grand Walk", "hint_en": "Check which way the traveler faces after every turn."}, {"id": "j1", "planet": "jupiter", "title": "Довгий міст", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 2, "hint": "Новий блок «Повторити». Він виконує все, що всередині, кілька разів. Поклади в нього «Йти вперед» і вибери число. Вистачить 2 блоків.", "map": ["c", ".", "c", "c", ".", "c", ".", "S"], "newBlocks": ["rep"], "title_en": "Long Bridge", "hint_en": "New block: “Repeat”. It runs everything inside it several times. Put “Move forward” inside and choose the number. 2 blocks are enough."}, {"id": "j2", "planet": "jupiter", "title": "Хмарний кут", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 5, "hint": "Два відрізки — два повтори. Між ними один поворот.", "map": ["cc..c", ".  . ", "c    ", ".    ", ".  . ", "S    "], "title_en": "Cloud Corner", "hint_en": "Two straight parts mean two repeats, with one turn between them."}, {"id": "j3", "planet": "jupiter", "title": "Висока платформа", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 5, "hint": "Скільки разів повторюється шматок шляху? Це число й постав у повтор.", "map": ["c.c.c.c", "   .  c", "      .", "      S"], "title_en": "High Platform", "hint_en": "How many times does a piece of the route repeat? Put that number in the repeat."}, {"id": "j4", "planet": "jupiter", "title": "Три мости", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 8, "hint": "Знайди частину маршруту, яка повторюється.", "map": ["c..c", ".  .", "c  .", ".  .", ".  c", ".   ", "S   "], "title_en": "Three Bridges", "hint_en": "Find the part of the route that repeats."}, {"id": "j5", "planet": "jupiter", "title": "Навколо вихору", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 5, "hint": "Маршрут — квадрат. Що мандрівник робить на кожній стороні? Поклади це в повтор.", "map": ["c..c", ".  .", ".  .", "Sc.c"], "title_en": "Around the Vortex", "hint_en": "The route is a square. What does the traveler do on each side? Put that inside a repeat."}, {"id": "j6", "planet": "jupiter", "title": "Великий квадрат", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 6, "hint": "Скільки разів повторюється шматок шляху? Це число й постав у повтор.", "map": ["c..cc", ".   .", "c   .", ".   .", "c..cS"], "title_en": "Big Square", "hint_en": "How many times does a piece of the route repeat? Put that number in the repeat."}, {"id": "j7", "planet": "jupiter", "title": "Хмарний прямокутник", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 10, "hint": "Знайди частину маршруту, яка повторюється.", "map": ["c.c", "c .", ". c", ". .", ". .", "Scc"], "title_en": "Cloud Rectangle", "hint_en": "Find the part of the route that repeats."}, {"id": "j8", "planet": "jupiter", "title": "Подвійні сходи", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 7, "hint": "Сходи: знайди, яка частина шляху повторюється, і поклади її в повтор.", "map": ["    c.c", "    .  ", "  c.c  ", "  .    ", "c.c. . ", ". .    ", "S  ..  "], "title_en": "Double Stairs", "hint_en": "Stairs: find which part of the path repeats and put it inside a repeat."}, {"id": "j9", "planet": "jupiter", "title": "Небесні сходи", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 5, "hint": "Скільки разів повторюється шматок шляху? Це число й постав у повтор.", "map": ["    .c", "   .c ", "  .c  ", " .c   ", ".c    ", "S  .. "], "title_en": "Sky Stairs", "hint_en": "How many times does a piece of the route repeat? Put that number in the repeat."}, {"id": "j10", "planet": "jupiter", "title": "Сходи ліворуч", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 5, "hint": "Знайди частину маршруту, яка повторюється.", "map": ["c.   ", " cc .", " ..c ", "   c.", " .  S"], "title_en": "Stairs to the Left", "hint_en": "Find the part of the route that repeats."}, {"id": "j11", "planet": "jupiter", "title": "Хмарна змійка", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 13, "hint": "Змійка: туди, поворот, крок, поворот, назад. Знайди шматок, після якого все починається знову.", "map": ["c.c. ", ".... ", ".... ", "Scccc"], "title_en": "Cloud Snake", "hint_en": "A snake: there, turn, step, turn, back. Find the piece after which everything starts again."}, {"id": "j12", "planet": "jupiter", "title": "Довгі сходи", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 5, "hint": "Скільки разів повторюється шматок шляху? Це число й постав у повтор.", "map": [" .   .c", "    .c ", "   .c  ", "  .c   ", " .c    ", ".c     ", "S      "], "title_en": "Long Stairs", "hint_en": "How many times does a piece of the route repeat? Put that number in the repeat."}, {"id": "j13", "planet": "jupiter", "title": "Крутий підйом", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 6, "hint": "Знайди частину маршруту, яка повторюється.", "map": [" .cc", "  . ", " cc ", " .  ", "cc  ", ".   ", "S   "], "title_en": "Steep Climb", "hint_en": "Find the part of the route that repeats."}, {"id": "j14", "planet": "jupiter", "title": "Хмарні гойдалки", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 11, "hint": "Без повтору не вкластися в ліміт блоків.", "map": ["..c", "c..", "..c", "c..", "..c", "c..", "  S"], "title_en": "Cloud Swings", "hint_en": "You can't stay within the block limit without a repeat."}, {"id": "j15", "planet": "jupiter", "title": "Дві петлі", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 10, "hint": "Тут два різні повтори один за одним.", "map": ["c... . ", ".  cc  ", ".   c. ", "S.   cc"], "title_en": "Two Loops", "hint_en": "Here there are two different repeats, one after the other."}, {"id": "j16", "planet": "jupiter", "title": "Буревій", "dir": "E", "blocks": ["fwd", "left", "right", "rep"], "limit": 6, "hint": "Знайди частину маршруту, яка повторюється.", "map": ["S.c      ", " ...c   .", "  . c.c  ", "      ..c", ".       c"], "title_en": "Superstorm", "hint_en": "Find the part of the route that repeats."}, {"id": "j17", "planet": "jupiter", "title": "Меандр", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 11, "hint": "Без повтору не вкластися в ліміт блоків.", "map": ["c..", "c.c", "..c", "c..", "..c", "..c", "S  "], "title_en": "Meander", "hint_en": "You can't stay within the block limit without a repeat."}, {"id": "j18", "planet": "jupiter", "title": "Широка змійка", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 13, "hint": "Скільки разів повторюється шматок шляху? Це число й постав у повтор.", "map": [".cc.cc ", "...... ", "...... ", "Sc.c..c"], "title_en": "Wide Snake", "hint_en": "How many times does a piece of the route repeat? Put that number in the repeat."}, {"id": "j19", "planet": "jupiter", "title": "Подвійна змійка", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 17, "hint": "Знайди частину маршруту, яка повторюється.", "map": ["c.c c.c  ", ". . . .  ", ". . . .  ", ". . . .  ", "S c.c c.c"], "title_en": "Double Snake", "hint_en": "Find the part of the route that repeats."}, {"id": "j20", "planet": "jupiter", "title": "Вершина бурі", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 7, "hint": "Без повтору не вкластися в ліміт блоків.", "map": ["  . . c.c", "      .  ", "    c.c  ", ".   ..   ", "  c.c    ", "  .      ", "c.c .    ", ".        ", "S        "], "title_en": "Eye of the Storm", "hint_en": "You can't stay within the block limit without a repeat."}, {"id": "m1", "planet": "mars", "title": "Повтор у повторі", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 4, "hint": "Повтор у повторі: сторона квадрата — це теж повтор. Поклади один блок «Повторити» всередину іншого.", "map": ["c...c", "..##.", ".#...", ".###c", "Sc..c"], "title_en": "Loop in a Loop", "hint_en": "A loop in a loop: each side of the square is a repeat too. Put one “Repeat” block inside another."}, {"id": "m2", "planet": "mars", "title": "Великий кратер", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 4, "hint": "Однакові шматки маршруту — у функцію, різні — у програму.", "map": ["c.c..c", "c.###c", "..###.", ".####.", ".#.##.", "c...cS"], "title_en": "Great Crater", "hint_en": "Put identical parts of the route in the function and the different parts in the program."}, {"id": "m3", "planet": "mars", "title": "Довгий прямокутник", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 7, "hint": "Прямокутник: дві довгі сторони й дві короткі. Кожну сторону можна записати повтором.", "map": ["c.c", "...", "c..", ".#c", "...", "Scc"], "title_en": "Long Rectangle", "hint_en": "A rectangle: two long sides and two short ones. Each side can be written as a repeat."}, {"id": "m4", "planet": "mars", "title": "Червоні сходи", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 9, "hint": "Подумай, яку частину шляху варто записати у функцію F.", "map": ["#...c", "#.#..", "##c.c", ".#c#.", "c.c#.", ".####", "S.#.."], "title_en": "Red Stairs", "hint_en": "Think about which part of the route belongs in function F."}, {"id": "m5", "planet": "mars", "title": "Пилова змійка", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 11, "hint": "Однакові шматки маршруту — у функцію, різні — у програму.", "map": ["cccc.", "....#", ".....", "Scccc"], "title_en": "Dust Snake", "hint_en": "Put identical parts of the route in the function and the different parts in the program."}, {"id": "m6", "planet": "mars", "title": "Три печери", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 16, "hint": "Нове: функція F. Опиши в стеку «Функція F», як зайти в печеру й повернутися. Потім виклич її блоком «Виконати функцію F» біля кожної печери.", "map": ["c..", "##.", ".#.", "c..", "#..", "c..", "##S"], "newBlocks": ["fn"], "title_en": "Three Caves", "hint_en": "New: function F. In the “Function F” stack, describe how to go into a cave and come back. Then use “Run function F” next to each cave."}, {"id": "m7", "planet": "mars", "title": "Печери праворуч", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 18, "hint": "Подумай, яку частину шляху варто записати у функцію F.", "map": [".c", ".#", ".c", "..", ".#", ".c", ".#", ".c", ".#", "S#"], "title_en": "Caves on the Right", "hint_en": "Think about which part of the route belongs in function F."}, {"id": "m8", "planet": "mars", "title": "Два кратери", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 12, "hint": "Обхід кратера — гарна функція. Між кратерами шлях різний, тож його пиши в програмі.", "map": ["#.c.c", "...#.", "c.ccc", "c.c##", ".#.#.", "S.c.#"], "title_en": "Two Craters", "hint_en": "Walking around a crater makes a good function. The path between craters is different each time, so write it in the program."}, {"id": "m9", "planet": "mars", "title": "Каньйон", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 14, "hint": "Усередині функції теж можна використовувати повтори.", "map": [".####.#c", "#...#c.c", "##.#c.#.", "##c.c.#.", "##.#####", "##.#..##", ".#..####", "c...##.#", "S###...#"], "title_en": "The Canyon", "hint_en": "You can use repeats inside a function too."}, {"id": "m10", "planet": "mars", "title": "Долина Марінер", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 16, "hint": "Подумай, яку частину шляху варто записати у функцію F.", "map": ["...c", ".###", "...c", "..#.", ".#.#", "...c", "S#.#"], "title_en": "Valles Marineris", "hint_en": "Think about which part of the route belongs in function F."}, {"id": "m11", "planet": "mars", "title": "Пилова буря", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": "Однакові шматки маршруту — у функцію, різні — у програму.", "map": ["##c.c", "##.#.", "##ccc", "c.c.c", ".....", "c.S.c"], "title_en": "Dust Storm", "hint_en": "Put identical parts of the route in the function and the different parts in the program."}, {"id": "m12", "planet": "mars", "title": "Підніжжя Олімпу", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 11, "hint": "Усередині функції теж можна використовувати повтори.", "map": ["#cc...c", "#.#.##c", "cc.###.", ".##..##", "S######"], "title_en": "Foot of Olympus", "hint_en": "You can use repeats inside a function too."}, {"id": "m13", "planet": "mars", "title": "Марсохід", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 19, "hint": "Подумай, яку частину шляху варто записати у функцію F.", "map": ["c..", "##.", "#..", "c..", "##.", "c..", "##.", "c..", "##S"], "title_en": "Rover Run", "hint_en": "Think about which part of the route belongs in function F."}, {"id": "m14", "planet": "mars", "title": "Іржаві скелі", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": "Однакові шматки маршруту — у функцію, різні — у програму.", "map": ["c..c####", "..#.####", "....####", ".c.c###.", "c..cc..c", ".##..##.", ".##...#.", "c..cS..."], "title_en": "Rusty Cliffs", "hint_en": "Put identical parts of the route in the function and the different parts in the program."}, {"id": "m15", "planet": "mars", "title": "Кратерне поле", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 21, "hint": "Функція може бути довгою, якщо від цього коротша вся програма.", "map": ["c..c", "#..#", ".#.#", "c..c", "##..", "c.Sc"], "title_en": "Crater Field", "hint_en": "A function can be long if it makes the whole program shorter."}, {"id": "m16", "planet": "mars", "title": "Фобос", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": "Подумай, яку частину шляху варто записати у функцію F.", "map": [".c..c", ".c..c", "#..#.", ".cc..", "cc..c", ".#..#", "..#..", "S..c#"], "title_en": "Phobos", "hint_en": "Think about which part of the route belongs in function F."}, {"id": "m17", "planet": "mars", "title": "Деймос", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 9, "hint": "Однакові шматки маршруту — у функцію, різні — у програму.", "map": ["#.###.c", "####.c#", "#.##.##", "#.#.c#.", "##.c###", "##.#.##", "#.c####", ".c###..", "S#.##.#"], "title_en": "Deimos", "hint_en": "Put identical parts of the route in the function and the different parts in the program."}, {"id": "m18", "planet": "mars", "title": "Полярна шапка", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 15, "hint": "Усередині функції теж можна використовувати повтори.", "map": ["c.####", "#c.##.", "##.c.#", "cc..##", "#..##.", "##c.##", "##cc#.", "#.#..#", "####c.", "#####S"], "title_en": "Polar Cap", "hint_en": "You can use repeats inside a function too."}, {"id": "m19", "planet": "mars", "title": "Червона пустеля", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 19, "hint": "Подумай, яку частину шляху варто записати у функцію F.", "map": ["..c", ".##", "..c", ".##", ".#.", "..c", ".##", "..c", "S##"], "title_en": "Red Desert", "hint_en": "Think about which part of the route belongs in function F."}, {"id": "m20", "planet": "mars", "title": "Вершина Олімпу", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 17, "hint": "Однакові шматки маршруту — у функцію, різні — у програму.", "map": ["#c.c", "#.c.", "cc.c", "#..#", "##.#", "##.#", "c.c.", "#c.#", "#.S."], "title_en": "Summit of Olympus", "hint_en": "Put identical parts of the route in the function and the different parts in the program."}, {"id": "v1", "planet": "venus", "title": "Знайди помилку", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 8, "hint": "Програма вже складена, але в ній помилка. Запусти, подивись, де мандрівник збився, і виправ один блок. Додати нові блоки не можна: ліміт уже вичерпано.", "map": ["c.c", "c.c", ".#.", ".#.", "S.c"], "preset": {"main": [["rep", 4, ["f"]], "r", ["rep", 2, ["f"]], "l", ["rep", 4, ["f"]]], "fn": []}, "title_en": "Find the Bug", "hint_en": "The program is already built, but it has a bug. Run it, see where the traveler goes wrong, and fix one block. You can't add new blocks: the limit is already reached."}, {"id": "v2", "planet": "venus", "title": "По черзі", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 9, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["3..2", ".##.", ".~..", "S..1"], "title_en": "One by One", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v3", "planet": "venus", "title": "Не той повтор", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 5, "hint": "Знайди помилку. Підказка: перевір числа в повторах.", "map": ["##.#.c", "~~..c#", "~..c~.", "~.c...", ".c##..", "S~#~.#"], "preset": {"main": [["rep", 3, ["f", "r", "f", "l"]]], "fn": []}, "title_en": "The Wrong Loop", "hint_en": "Find the bug. Tip: check the numbers in the repeats."}, {"id": "v4", "planet": "venus", "title": "Кислотне коло", "dir": "E", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 5, "hint": "Програма збирає кристали не в тому порядку. Поміняй блоки місцями, щоб номери йшли по черзі.", "map": ["3.2", "4#.", "S.1"], "preset": {"main": [["rep", 4, ["c"]]], "fn": ["f", "l", "f"]}, "title_en": "Acid Ring", "hint_en": "The program collects the crystals in the wrong order. Rearrange the blocks so the numbers go in order."}, {"id": "v5", "planet": "venus", "title": "Переплутані кроки", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 6, "hint": "Знайди помилку. Блоки ті самі, але порядок у повторі неправильний.", "map": [".#cc", "##..", "~cc.", "..~.", "cc#.", ".~##", "S..~"], "preset": {"main": [["rep", 3, ["f", "f", "f", "r", "l"]]], "fn": []}, "title_en": "Mixed-up Steps", "hint_en": "Find the bug. The blocks are right, but their order inside the repeat is wrong."}, {"id": "v6", "planet": "venus", "title": "Зворотний шлях", "dir": "E", "blocks": ["fwd", "left", "right", "rep"], "limit": 10, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["..3.2", ".~4#.", "...#.", "S...1"], "title_en": "The Way Back", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v7", "planet": "venus", "title": "Помилка в сходах", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 7, "hint": "Знайди помилку у функції F.", "map": ["#~~c..c", "..~.~~.", ".~#..~#", "c..c#~.", ".##...~", "....##.", "S..####"], "preset": {"main": [["rep", 2, [["rep", 2, ["f"]], "r", ["rep", 3, ["f"]], "l"]]], "fn": []}, "title_en": "Bug in the Stairs", "hint_en": "Find the bug in function F."}, {"id": "v8", "planet": "venus", "title": "Лавові номери", "dir": "E", "blocks": ["fwd", "left", "right", "rep"], "limit": 7, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["######6", "~~#~~~.", "##~#4.5", "~~##.~#", "~~2.3##", "##.~.~~", "S.1~#.."], "title_en": "Lava Numbers", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v9", "planet": "venus", "title": "Зламана функція", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 16, "hint": "Знайди помилку. Запусти програму й подивись, на якому блоці мандрівник зупинився.", "map": ["..c", ".~#", "..c", ".~~", "..c", "S~."], "preset": {"main": ["f", "c", ["rep", 2, ["f"]], "c", ["rep", 2, ["f"]], "c"], "fn": ["l", ["rep", 2, ["f"]], ["rep", 2, ["l"]], ["rep", 2, ["f"]], "r"]}, "title_en": "Broken Function", "hint_en": "Find the bug. Run the program and see which block the traveler stopped on."}, {"id": "v10", "planet": "venus", "title": "Порядок у функції", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["#~##.6", "~~~.5#", "~##34#", "~#..~~", "~#.###", "~~.#~#", "#.2~#~", ".1#.~~", "S~~~~~"], "title_en": "Order in the Function", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v11", "planet": "venus", "title": "Хибний поворот", "dir": "W", "blocks": ["fwd", "left", "right", "rep"], "limit": 4, "hint": "Знайди помилку. Запусти програму й подивись, на якому блоці мандрівник зупинився.", "map": ["cc.c", ".~#.", "c.#c", "c..S"], "preset": {"main": [["rep", 4, [["rep", 3, ["f"]], "l"]]], "fn": []}, "title_en": "False Turn", "hint_en": "Find the bug. Run the program and see which block the traveler stopped on."}, {"id": "v12", "planet": "venus", "title": "Гарячі сходи", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 7, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["##.~6", "#.##.", "~~#.5", "#~34#", "~2.~~", ".1#~~", "S~#~#"], "title_en": "Hot Stairs", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v13", "planet": "venus", "title": "Зайвий крок", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 7, "hint": "Знайди помилку. Запусти програму й подивись, на якому блоці мандрівник зупинився.", "map": ["c.c", "c..", "...", ".~.", "ccS"], "preset": {"main": [["rep", 2, [["rep", 5, ["f"]], "l", ["rep", 2, ["f"]], "l"]]], "fn": []}, "title_en": "Extra Step", "hint_en": "Find the bug. Run the program and see which block the traveler stopped on."}, {"id": "v14", "planet": "venus", "title": "Вулканічне коло", "dir": "E", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 11, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["4.3~#", ".#287", "S.1#.", "~#5.6"], "title_en": "Volcano Ring", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v15", "planet": "venus", "title": "Помилка в повторі", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 11, "hint": "Знайди помилку. Запусти програму й подивись, на якому блоці мандрівник зупинився.", "map": ["cccc~", "....#", "....~", "Sc.cc"], "preset": {"main": [["rep", 2, [["rep", 3, ["f"]], "r", "r", "f", ["rep", 3, ["f"]], "l", "f", "l"]]], "fn": []}, "title_en": "Bug in the Loop", "hint_en": "Find the bug. Run the program and see which block the traveler stopped on."}, {"id": "v16", "planet": "venus", "title": "Номерна змійка", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 6, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["~###5.6", "#.3.4~#", "1.2#~~~", "S~~~.#~"], "title_en": "Numbered Snake", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v17", "planet": "venus", "title": "Розплутай функцію", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 7, "hint": "Програма збирає кристали не в тому порядку. Поміняй блоки місцями, щоб номери йшли по черзі.", "map": ["..56", "~~.#", "~34.", "...~", "12##", ".~~~", "S..#"], "preset": {"main": [["rep", 3, ["c"]]], "fn": [["rep", 2, ["f"]], "f", "r", "l"]}, "title_en": "Untangle the Function", "hint_en": "The program collects the crystals in the wrong order. Rearrange the blocks so the numbers go in order."}, {"id": "v18", "planet": "venus", "title": "Сірчані хмари", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 15, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": ["3..", "~~.", "#~.", "2..", "#~.", "1.S"], "title_en": "Sulfur Clouds", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "v19", "planet": "venus", "title": "Остання помилка", "dir": "N", "blocks": ["fwd", "left", "right", "rep"], "limit": 9, "hint": "Знайди помилку. Запусти програму й подивись, на якому блоці мандрівник зупинився.", "map": ["c...~.~", "...cc..", ".~#~c.~", "S####cc"], "preset": {"main": [["rep", 2, [["rep", 3, ["f"]], "r"]], ["rep", 2, ["f", "l", "f", "r"]]], "fn": []}, "title_en": "The Last Bug", "hint_en": "Find the bug. Run the program and see which block the traveler stopped on."}, {"id": "v20", "planet": "venus", "title": "Серце Венери", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": "Спершу знайди кристал №1, а потім плануй решту маршруту.", "map": [".#6.7", "~#.#8", "1.2.4", ".~.#.", "S.3.5"], "title_en": "Heart of Venus", "hint_en": "First find crystal no. 1, then plan the rest of the route."}, {"id": "s1", "planet": "saturn", "title": "Крижані сходи", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 7, "hint": "На Сатурні підказок немає. Ти вже знаєш усі блоки.", "map": ["#   c.c", " #  . #", "  c.c  ", "  .    ", "c.c   #", "..  #  ", "S     #"], "title_en": "Ice Stairs", "hint_en": "There are no hints on Saturn. You already know every block."}, {"id": "s2", "planet": "saturn", "title": "Кільце", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": null, "map": ["   c   ", " c.... ", " .  #. ", "c.#  cc", " .   . ", " Scc..#", " # c # "], "title_en": "The Ring", "hint_en": null}, {"id": "s3", "planet": "saturn", "title": "Зоряний хрест", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 9, "hint": null, "map": ["  1# ", "  .  ", "4.S.2", "  .  ", " .3  "], "title_en": "Star Cross", "hint_en": null}, {"id": "s4", "planet": "saturn", "title": "Льодяна змійка", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 11, "hint": null, "map": ["cccc ", ".... ", ".... ", ".... ", "Scccc"], "title_en": "Icy Snake", "hint_en": null}, {"id": "s5", "planet": "saturn", "title": "Титан", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": null, "map": ["c.cc.c", ". .. .", "c.cccc", ".#.  #", "S.c   "], "title_en": "Titan", "hint_en": null}, {"id": "s6", "planet": "saturn", "title": "Енцелад", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 12, "hint": null, "map": ["  4", "# .", "3..", "  .", "2..", "  .", "1.S"], "title_en": "Enceladus", "hint_en": null}, {"id": "s7", "planet": "saturn", "title": "Мімас", "dir": "E", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 7, "hint": null, "map": ["c.cc", "c  .", ".  .", "S..c", ".  .", "c   "], "title_en": "Mimas", "hint_en": null}, {"id": "s8", "planet": "saturn", "title": "Щілина Кассіні", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": null, "map": ["     cc", " #  #.#", "#   cc ", "    .# ", " c..c  ", "#.     ", "cc #.  ", ".     #", "S      "], "title_en": "Cassini Division", "hint_en": null}, {"id": "s9", "planet": "saturn", "title": "Шестикутник", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 7, "hint": null, "map": ["  . 5.6", "    .# ", "   #.  ", "  3.4# ", " #.    ", "  .    ", "1.2    ", ". .    ", ".    . ", "S # .  "], "title_en": "The Hexagon", "hint_en": null}, {"id": "s10", "planet": "saturn", "title": "Крижані гейзери", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 16, "hint": null, "map": ["c.cc", " .. ", " .  ", " S.c"], "title_en": "Ice Geysers", "hint_en": null}, {"id": "s11", "planet": "saturn", "title": "Япет", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 7, "hint": null, "map": ["2.3", "1 .", ".#4", ". .", "S65"], "title_en": "Iapetus", "hint_en": null}, {"id": "s12", "planet": "saturn", "title": "Рея", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": null, "map": ["# c.c", " #c .", "c.c.c", "...#.", "c.S.c"], "title_en": "Rhea", "hint_en": null}, {"id": "s13", "planet": "saturn", "title": "Діона", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 8, "hint": null, "map": [".  7", "  56", "  . ", " 34 ", " .  ", "12# ", ".   ", "S # "], "title_en": "Dione", "hint_en": null}, {"id": "s14", "planet": "saturn", "title": "Тефія", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 11, "hint": null, "map": [" cccc", " ....", "#....", "ccccS"], "title_en": "Tethys", "hint_en": null}, {"id": "s15", "planet": "saturn", "title": "Кільце F", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 16, "hint": null, "map": ["4.", " .", "#.", "3.", " .", "2.", " .", "1S"], "title_en": "The F Ring", "hint_en": null}, {"id": "s16", "planet": "saturn", "title": "Пастушки", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 10, "hint": null, "map": ["  c...c  ", " c.   .c ", ".c  #. c.", "S  ##  #c"], "title_en": "Shepherd Moons", "hint_en": null}, {"id": "s17", "planet": "saturn", "title": "Крижаний лабіринт", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 11, "hint": null, "map": [". .   cc", "    .cc ", "    .c  ", "c..cc . ", ".  . # #", ".  .    ", "c..S#   "], "title_en": "Ice Maze", "hint_en": null}, {"id": "s18", "planet": "saturn", "title": "Холодне світло", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 13, "hint": null, "map": ["1.2 ", ".6.7", "S...", "45.8", ". . ", "..3 "], "title_en": "Cold Light", "hint_en": null}, {"id": "s19", "planet": "saturn", "title": "Край кілець", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 16, "hint": null, "map": [" c..c", "   . ", "cc.c ", "##.  ", "c.S  "], "title_en": "Edge of the Rings", "hint_en": null}, {"id": "s20", "planet": "saturn", "title": "Фінал", "dir": "N", "blocks": ["fwd", "left", "right", "rep", "fn"], "limit": 15, "hint": null, "map": ["7.12.38", ". .. ..", ".#.....", "6.S5.49"], "title_en": "Finale", "hint_en": null}];
 
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]]; // N E S W
@@ -554,11 +564,52 @@ const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls)
 
 // ================= STATE =================
 const state = { levelIdx: 0, progs: {}, cursor: { list: "main", idx: 0 }, sel: null, running: false, speed: 1, done: new Set(), errId: null };
-try { JSON.parse(localStorage.getItem("xr-progress") || "[]").forEach(id => state.done.add(id)); } catch (e) {}
-const saveProgress = () => { try { localStorage.setItem("xr-progress", JSON.stringify([...state.done])); } catch (e) {} };
+// ================= SAVE (kept across game updates) =================
+// Progress is stored by level id. Level ids are permanent: never renumber or reuse them.
+// New levels always get new ids, so old progress stays valid when levels are added.
+const SAVE_KEY = "xr-save-v1";
+const SAVE = (() => {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(SAVE_KEY) || "null"); } catch (e) {}
+  if (!s || typeof s !== "object") s = {};
+  s.v = 1; s.done = Array.isArray(s.done) ? s.done : []; s.progs = s.progs && typeof s.progs === "object" ? s.progs : {};
+  s.seen = Array.isArray(s.seen) ? s.seen : [];
+  try { const old = JSON.parse(localStorage.getItem("xr-progress") || "null"); if (Array.isArray(old)) s.done = [...new Set([...s.done, ...old])]; } catch (e) {}
+  return s;
+})();
+SAVE.done.forEach(id => state.done.add(id));          // unknown ids are kept too, in case a level returns
+function writeSave() {
+  SAVE.done = [...new Set([...SAVE.done, ...state.done])];
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); localStorage.setItem("xr-progress", JSON.stringify(SAVE.done)); } catch (e) {}
+}
+const saveProgress = writeSave;
+// levels added since the last visit (empty on the very first visit)
+const FRESH = new Set(SAVE.seen.length ? LEVELS.filter(l => !SAVE.seen.includes(l.id)).map(l => l.id) : []);
+SAVE.seen = [...new Set([...SAVE.seen, ...LEVELS.map(l => l.id)])]; writeSave();
+
+const toCompact = list => list.map(b => b.t === "rep" ? ["rep", b.n, toCompact(b.body)] : ({ fwd: "f", left: "l", right: "r", call: "c" })[b.t]);
+function loadSavedProg(L) {
+  const p = SAVE.progs[L.id]; if (!p || !Array.isArray(p.main)) return null;
+  try {
+    const prog = { main: fromCompact(p.main), fn: fromCompact(p.fn || []) };
+    const usesFn = countType(prog.main, "call") > 0 || prog.fn.length > 0;
+    const usesRep = JSON.stringify(p).includes('"rep"');
+    if (usesFn && !L.blocks.includes("fn")) return null;
+    if (usesRep && !L.blocks.includes("rep")) return null;
+    if (L.limit && countBlocks(prog.main) + countBlocks(prog.fn) > L.limit) return null;
+    return prog;
+  } catch (e) { return null; }
+}
+let saveTimer = 0;
+function saveProg() {
+  const L = level(), p = prog();
+  if (!p.main.length && !p.fn.length && !L.preset) delete SAVE.progs[L.id];
+  else SAVE.progs[L.id] = { main: toCompact(p.main), fn: toCompact(p.fn) };
+  clearTimeout(saveTimer); saveTimer = setTimeout(writeSave, 300);
+}
 const level = () => LEVELS[state.levelIdx];
 const freshProg = L => L.preset ? { main: fromCompact(L.preset.main), fn: fromCompact(L.preset.fn) } : { main: [], fn: [] };
-function prog() { const L = level(); return state.progs[L.id] || (state.progs[L.id] = freshProg(L)); }
+function prog() { const L = level(); return state.progs[L.id] || (state.progs[L.id] = loadSavedProg(L) || freshProg(L)); }
 const hasFn = () => level().blocks.includes("fn");
 
 function locate(id) {
@@ -676,6 +727,7 @@ function renderEditor() {
   validateCursor(); renderWorkspace(); renderPalette(); renderInfo();
 }
 function changed() {
+  saveProg();
   state.errId = null; hideToast();
   if (!state.running) { flushTweens(); resetHero(); }
   renderEditor();
@@ -684,12 +736,12 @@ function setCursor(list, idx) { state.cursor = { list, idx }; renderEditor(); }
 
 function insertBlock(type, key, idx) {
   const err = addCheck(type, key);
-  if (err) { flashToast(err); return; }
+  if (err) { SFX.play("locked"); flashToast(err); return; }
   const b = makeBlock(type);
   getList(key).splice(idx, 0, b);
   state.sel = null;
   state.cursor = type === "rep" ? { list: b.id, idx: 0 } : { list: key, idx: idx + 1 };
-  changed();
+  SFX.play("snap"); changed();
 }
 function moveBlock(id, key, idx) {
   const loc = locate(id); if (!loc) return;
@@ -699,7 +751,7 @@ function moveBlock(id, key, idx) {
   loc.list.splice(loc.idx, 1);
   getList(key).splice(idx, 0, loc.b);
   state.cursor = { list: key, idx: idx + 1 };
-  changed();
+  SFX.play("snap"); changed();
 }
 function act(action, id) {
   const loc = locate(id); if (!loc) return;
@@ -709,6 +761,7 @@ function act(action, id) {
   if (action === "up" && idx > 0) { list.splice(idx, 1); list.splice(idx - 1, 0, b); state.cursor = { list: key, idx }; }
   if (action === "down" && idx < list.length - 1) { list.splice(idx, 1); list.splice(idx + 1, 0, b); state.cursor = { list: key, idx: idx + 2 }; }
   if (action === "del") { list.splice(idx, 1); state.sel = null; state.cursor = { list: key, idx }; }
+  if (action === "del") SFX.play("remove"); else if (action === "inc" || action === "dec") SFX.play("number", action === "inc"); else SFX.play("tap");
   changed();
 }
 
@@ -734,7 +787,7 @@ $("#workspace").addEventListener("click", e => {
 $("#palette").addEventListener("click", e => {
   if (dragJustEnded || state.running) return;
   const b = e.target.closest(".blk[data-type]"); if (!b) return;
-  if (b.classList.contains("off")) { flashToast(addCheck(b.dataset.type, state.cursor.list) || tr("unavailable")); return; }
+  if (b.classList.contains("off")) { SFX.play("locked"); flashToast(addCheck(b.dataset.type, state.cursor.list) || tr("unavailable")); return; }
   insertBlock(b.dataset.type, state.cursor.list, state.cursor.idx);
 });
 
@@ -822,18 +875,19 @@ function renderInfo() {
   if (L.preset) chips.append(el("span", "chip", tr("findBug")));
 }
 const LOCK_SVG = '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
-const isUnlocked = i => i === 0 || state.done.has(LEVELS[i - 1].id);
+const isUnlocked = i => i === 0 || state.done.has(LEVELS[i].id) || LEVELS[i].planet !== LEVELS[i - 1].planet || state.done.has(LEVELS[i - 1].id);
 function renderNav() {
   const nav = $("#planets"); nav.innerHTML = "";
   PLANETS.forEach((P, pi) => {
     const lv = LEVELS.filter(l => l.planet === P.id), done = lv.every(l => state.done.has(l.id));
     const open = isUnlocked(LEVELS.indexOf(lv[0]));
-    const b = el("button", "ptab" + (open ? "" : " locked"), `<span class="orb"></span>${pName(P)}${done ? ' <span class="ok">✓</span>' : ""}${open ? "" : ' <span class="lock">' + LOCK_SVG + "</span>"}`);
+    const hasFresh = lv.some(l => FRESH.has(l.id) && !state.done.has(l.id));
+    const b = el("button", "ptab" + (open ? "" : " locked") + (hasFresh ? " fresh" : ""), `<span class="orb"></span>${pName(P)}${done ? ' <span class="ok">✓</span>' : ""}${open ? "" : ' <span class="lock">' + LOCK_SVG + "</span>"}`);
     b.style.setProperty("--c", P.dot);
     b.setAttribute("aria-current", level().planet === P.id);
     if (!open) b.setAttribute("aria-disabled", "true");
     b.onclick = () => {
-      if (!open) { flashToast(tr("lockedPlanet")(pName(PLANETS[pi - 1]))); return; }
+      if (!open) { SFX.play("locked"); flashToast(tr("lockedPlanet")(pName(PLANETS[pi - 1]))); return; }
       const avail = lv.filter(l => isUnlocked(LEVELS.indexOf(l)));
       const first = avail.find(l => !state.done.has(l.id)) || avail[avail.length - 1];
       loadLevel(LEVELS.indexOf(first));
@@ -843,12 +897,12 @@ function renderNav() {
   const lvls = $("#levels"); lvls.innerHTML = "";
   LEVELS.filter(l => l.planet === level().planet).forEach((l, i) => {
     const gi = LEVELS.indexOf(l), open = isUnlocked(gi);
-    const b = el("button", "lv" + (state.done.has(l.id) ? " done" : "") + (open ? "" : " locked"), open ? String(i + 1) : LOCK_SVG);
+    const b = el("button", "lv" + (state.done.has(l.id) ? " done" : "") + (open ? "" : " locked") + (FRESH.has(l.id) && !state.done.has(l.id) ? " fresh" : ""), open ? String(i + 1) : LOCK_SVG);
     b.setAttribute("aria-current", l === level());
     b.setAttribute("aria-label", tr("level") + " " + (i + 1) + (open ? "" : " — " + tr("lockedShort")));
     b.title = open ? lTitle(l) : tr("lockedShort");
     if (!open) b.setAttribute("aria-disabled", "true");
-    b.onclick = () => open ? loadLevel(gi) : flashToast(tr("lockedLevel")(i));
+    b.onclick = () => { if (open) { SFX.play("tap"); loadLevel(gi); } else { SFX.play("locked"); flashToast(tr("lockedLevel")(i)); } };
     lvls.append(b);
   });
   $("#vplanet").textContent = pName(PLANETS.find(p => p.id === level().planet)) + " · " + lTitle(level());
@@ -1706,32 +1760,38 @@ async function animateEvent(ev) {
     if (ev.bump) {
       setAnim("Walk");
       const dir = new THREE.Vector3(Math.sin(heroAngle), 0, Math.cos(heroAngle));
+      SFX.play("step", level().planet); setTimeout(() => SFX.play("bump"), 200 / sp);
       await tween(.45 / sp, k => { hero.position.copy(a).addScaledVector(dir, Math.sin(k * Math.PI) * .32); });
       emit(a.clone().addScaledVector(dir, .45).add(new THREE.Vector3(0, .35, 0)), "#ff6b6b", 14, 1.4, .5, -2);
       setAnim("Idle"); return;
     }
     const b = cellPos(ev.to.x, ev.to.y);
     setAnim("Walk"); footDecal(a);
+    SFX.play("step", level().planet); setTimeout(() => { if (state.running) SFX.play("step", level().planet); }, 270 / sp);
     await tween(.55 / sp, k => hero.position.lerpVectors(a, b, k));
     emit(b.clone().add(new THREE.Vector3(0, .05, 0)), curTheme.dust, 5, .5, .5, -.4);
     if (ev.collect != null) collectFx(ev.collect);
     if (ev.wrongOrder) {
       setAnim("Idle");
       const c = crystalObjs[mapInfo.crystals.findIndex(k => k.x === ev.to.x && k.y === ev.to.y)];
+      SFX.play("wrong");
       if (c) { emit(c.g.position.clone().add(new THREE.Vector3(0, .5, 0)), "#ff6b6b", 18, 1.2, .6, -1); await tween(.5 / sp, k => c.gem.rotation.z = Math.sin(k * Math.PI * 4) * .4); }
     }
   } else if (ev.op === "left" || ev.op === "right") {
     setAnim("Idle");
     const from = heroAngle, to = heroAngle + (ev.op === "left" ? Math.PI / 2 : -Math.PI / 2); heroAngle = to;
+    SFX.play("turn");
     await tween(.32 / sp, k => hero.rotation.y = from + (to - from) * ease(k));
   } else if (ev.op === "call") {
     emit(hero.position.clone().add(new THREE.Vector3(0, .5, 0)), "#ff4fc3", 10, .8, .5, 0);
+    SFX.play("call");
     await tween(.15 / sp, () => {});
   }
 }
 function collectFx(i) {
   const c = crystalObjs[i]; c.collected = true;
-  $("#gemsGot").textContent = crystalObjs.filter(o => o.collected).length;
+  const gotN = crystalObjs.filter(o => o.collected).length;
+  $("#gemsGot").textContent = gotN; SFX.play("gem", gotN);
   const p = c.g.position.clone().add(new THREE.Vector3(0, .55, 0));
   emit(p, c.col, 40, 2.4, .9, -2.5);
   emit(p, "#ffffff", 12, 1.2, .5, 0);
@@ -1763,6 +1823,8 @@ const I18N = {
     winText: (n, b) => `Зібрано всі кристали (${n}). Блоків використано: ${b}.`, winAll: " Ти пройшов увесь маршрут від Землі до Сатурна.", winNextPlanet: p => ` Далі — ${p}!`,
     of: (a, b) => `${a} з ${b}`, fact: p => `Цікавий факт · ${p}`, stayToast: "Кристали зібрано. Можеш спробувати коротшу програму.",
     obstacles: { tree: "дерево", storm: "вихор", rock: "скеля", basalt: "скеля", ice: "крижана брила" }, lang: "Мова",
+    newLevels: n => `У грі з'явилися нові рівні: ${n}. Їх позначено рожевою крапкою. Твій прогрес збережено.`,
+    soundOn: "Звук увімкнено", soundOff: "Звук вимкнено",
     lockedShort: "закрито", lockedLevel: n => `Цей рівень ще закритий. Спершу пройди рівень ${n}.`,
     lockedPlanet: p => `Ця планета ще закрита. Спершу пройди всі рівні планети ${p}.`,
     tagline: "Склади програму з блоків і проведи мандрівника крізь п'ять планет.",
@@ -1797,6 +1859,8 @@ const I18N = {
     winText: (n, b) => `All crystals collected (${n}). Blocks used: ${b}.`, winAll: " You traveled all the way from Earth to Saturn.", winNextPlanet: p => ` Next stop: ${p}!`,
     of: (a, b) => `${a} of ${b}`, fact: p => `Fun fact · ${p}`, stayToast: "Crystals collected. Try to find a shorter program.",
     obstacles: { tree: "tree", storm: "storm vortex", rock: "rock", basalt: "basalt rock", ice: "block of ice" }, lang: "Language",
+    newLevels: n => `${n} new level${n === 1 ? "" : "s"} added. They're marked with a pink dot. Your progress is saved.`,
+    soundOn: "Sound on", soundOff: "Sound off",
     lockedShort: "locked", lockedLevel: n => `This level is still locked. Finish level ${n} first.`,
     lockedPlanet: p => `This planet is still locked. Finish every level on ${p} first.`,
     tagline: "Build a program from blocks and guide the traveler across five planets.",
@@ -1839,7 +1903,7 @@ function setLang(l) {
   LANG = l; try { localStorage.setItem("xr-lang", l); } catch (e) {}
   hideToast(); applyStatic(); updateRunUI(); setClearLabel(); renderNav(); renderEditor();
   if (!$("#win").hidden) fillWin();
-  renderSplash(); if (!$("#help").hidden) renderHelp();
+  renderSplash(); renderSoundBtn(); if (!$("#help").hidden) renderHelp();
 }
 
 const FACTS_EN = {
@@ -2083,7 +2147,7 @@ async function run() {
   if (!hero) return;
   const token = ++runToken;
   flushTweens(); resetHero(); hideToast(); state.errId = null; state.sel = null; renderEditor();
-  state.running = true; updateRunUI();
+  state.running = true; updateRunUI(); SFX.play("start");
   const r = new Runner(level(), prog()); let last = null, ev;
   while ((ev = r.next())) {
     if (token !== runToken) return;
@@ -2097,7 +2161,8 @@ async function run() {
   if (token !== runToken) return;
   state.running = false; updateRunUI(); setAnim("Idle");
   const res = r.result;
-  if (res.ok) { highlight([]); win(); return; }
+  if (res.ok) { highlight([]); setTimeout(() => SFX.play("win"), 250); win(); return; }
+  if (res.reason !== "order") SFX.play("fail");
   const lastId = last && last.active[last.active.length - 1];
   if (res.reason === "order") { highlight([], lastId); showToast(tr("order")(res.need, res.found)); }
   else if (res.reason === "unfinished") { highlight([]); showToast(tr("unfinished")(res.got, res.total)); }
@@ -2180,6 +2245,90 @@ renderer.setAnimationLoop(() => {
 });
 
 
+// ================= SOUND EFFECTS (synthesised with Web Audio, no files) =================
+const SFX = (() => {
+  let ctx = null, master = null, muted = false;
+  try { muted = localStorage.getItem("xr-sound") === "off"; } catch (e) {}
+  function ensure() {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      try { ctx = new AC(); } catch (e) { return null; }
+      const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+      master = ctx.createGain(); master.gain.value = .55; master.connect(comp); comp.connect(ctx.destination);
+    }
+    if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    return ctx;
+  }
+  const now = () => ctx.currentTime;
+  function env(g, t0, vol, a, d) {
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + d);
+  }
+  function tone({ f = 440, f2 = null, type = "sine", t = 0, a = .005, d = .15, vol = .25, pan = 0 }) {
+    const t0 = now() + t, o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t0);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + a + d);
+    env(g, t0, vol, a, d);
+    let out = g;
+    if (pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = pan; g.connect(p); out = p; }
+    o.connect(g); out.connect(master); o.start(t0); o.stop(t0 + a + d + .05);
+  }
+  let noiseBuf = null;
+  function noise({ t = 0, a = .003, d = .1, vol = .2, type = "bandpass", f = 1200, f2 = null, q = 1 }) {
+    if (!noiseBuf) { noiseBuf = ctx.createBuffer(1, ctx.sampleRate * .6, ctx.sampleRate); const ch = noiseBuf.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1; }
+    const t0 = now() + t, s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noiseBuf; fl.type = type; fl.Q.value = q; fl.frequency.setValueAtTime(f, t0);
+    if (f2) fl.frequency.exponentialRampToValueAtTime(f2, t0 + a + d);
+    env(g, t0, vol, a, d); s.connect(fl); fl.connect(g); g.connect(master); s.start(t0); s.stop(t0 + a + d + .05);
+  }
+  const NOTE = n => 440 * Math.pow(2, (n - 69) / 12);
+  // footstep colour per planet surface
+  const STEP = { earth: [520, .9], jupiter: [1900, 3], mars: [700, 1.2], venus: [380, .8], saturn: [2600, 4] };
+  const fx = {
+    tap() { tone({ f: 880, type: "triangle", d: .04, vol: .08 }); },
+    snap() { noise({ f: 2400, d: .025, vol: .25, q: 2 }); tone({ f: 330, f2: 520, type: "triangle", d: .07, vol: .16 }); },
+    remove() { noise({ f: 900, f2: 300, d: .09, vol: .18, q: 1.5 }); tone({ f: 420, f2: 210, type: "triangle", d: .1, vol: .12 }); },
+    number(up) { tone({ f: up ? 740 : 560, type: "triangle", d: .05, vol: .1 }); },
+    start() { tone({ f: NOTE(60), f2: NOTE(72), type: "triangle", d: .22, vol: .16 }); noise({ f: 400, f2: 3000, d: .25, vol: .06, q: .7 }); },
+    step(planet) {
+      const [f, q] = STEP[planet] || STEP.earth;
+      noise({ type: "bandpass", f, q, d: .07, vol: .32 }); tone({ f: 95, f2: 60, d: .06, vol: .14 });
+    },
+    turn() { noise({ type: "bandpass", f: 500, f2: 1800, q: 2, a: .03, d: .18, vol: .09 }); },
+    call() { tone({ f: NOTE(76), type: "sine", d: .09, vol: .14 }); tone({ f: NOTE(83), type: "sine", t: .07, d: .12, vol: .14 }); },
+    gem(n = 1) {
+      const base = 76 + Math.min(n - 1, 8) * 2;
+      [0, 4, 7, 12].forEach((s, i) => tone({ f: NOTE(base + s), type: i % 2 ? "triangle" : "sine", t: i * .055, d: .28, vol: .17, pan: (i - 1.5) * .25 }));
+      noise({ type: "highpass", f: 6000, d: .3, vol: .05, t: .02 });
+    },
+    bump() { tone({ f: 140, f2: 55, type: "sine", d: .22, vol: .4 }); noise({ type: "lowpass", f: 500, d: .14, vol: .25 }); },
+    wrong() { tone({ f: NOTE(64), type: "square", d: .12, vol: .07 }); tone({ f: NOTE(60), type: "square", t: .13, d: .2, vol: .07 }); },
+    fail() { tone({ f: NOTE(67), type: "triangle", d: .14, vol: .13 }); tone({ f: NOTE(63), type: "triangle", t: .15, d: .26, vol: .13 }); },
+    locked() { tone({ f: 180, type: "square", d: .09, vol: .06 }); tone({ f: 150, type: "square", t: .1, d: .12, vol: .06 }); },
+    win() {
+      [60, 64, 67, 72].forEach((n, i) => tone({ f: NOTE(n), type: "triangle", t: i * .11, d: .22, vol: .17 }));
+      [72, 76, 79, 84].forEach((n, i) => tone({ f: NOTE(n), type: "sine", t: .5, a: .02, d: .9, vol: .1, pan: (i - 1.5) * .3 }));
+      noise({ type: "highpass", f: 7000, t: .5, d: .8, vol: .04 });
+    },
+    open() { tone({ f: NOTE(67), f2: NOTE(79), type: "sine", d: .2, vol: .12 }); },
+  };
+  return {
+    play(name, ...args) { if (muted || !ensure()) return; try { fx[name](...args); } catch (e) {} },
+    unlock() { if (!muted) ensure(); },
+    get muted() { return muted; },
+    setMuted(m) { muted = m; try { localStorage.setItem("xr-sound", m ? "off" : "on"); } catch (e) {} if (!m) { ensure(); fx.tap(); } },
+  };
+})();
+addEventListener("pointerdown", () => SFX.unlock(), { once: true });
+const SPK_ON = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const SPK_OFF = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+function renderSoundBtn() {
+  const b = $("#soundBtn"); b.innerHTML = SFX.muted ? SPK_OFF : SPK_ON;
+  b.setAttribute("aria-pressed", !SFX.muted); b.setAttribute("aria-label", SFX.muted ? tr("soundOff") : tr("soundOn")); b.title = b.getAttribute("aria-label");
+  b.classList.toggle("off", SFX.muted);
+}
+
 // ================= SPLASH & HELP =================
 let gameReady = false, progressPct = 6, progressKey = "stEngine";
 function setProgress(p, key) { progressPct = Math.max(progressPct, p); progressKey = key; $("#spBar").style.width = progressPct + "%"; $("#spStage").textContent = tr(key); }
@@ -2206,22 +2355,25 @@ function renderHelp() {
 }
 function openHelp() { renderHelp(); $("#help").hidden = false; $("#help .card").scrollTop = 0; $("#helpTitle").focus({ preventScroll: true }); try { localStorage.setItem("xr-help-seen", "1"); } catch (e) {} }
 $("#helpBtn").onclick = openHelp;
+$("#soundBtn").onclick = () => { SFX.setMuted(!SFX.muted); renderSoundBtn(); };
 $("#spHelp").onclick = openHelp;
 $("#helpClose").onclick = () => { $("#help").hidden = true; };
 $("#help").addEventListener("click", e => { if (e.target.id === "help") $("#help").hidden = true; });
 addEventListener("keydown", e => { if (e.key === "Escape" && !$("#help").hidden) $("#help").hidden = true; });
 $("#spPlay").onclick = () => {
+  SFX.unlock(); SFX.play("open");
   $("#splash").classList.add("gone");
   if (!REDUCED) frameCamera(true);
   let seen = false; try { seen = localStorage.getItem("xr-help-seen") === "1"; } catch (e) {}
   if (!seen && state.done.size === 0) setTimeout(openHelp, 350);
+  else if (FRESH.size) setTimeout(() => showToast(tr("newLevels")(FRESH.size), true), 400);
 };
 $("#lhint").onclick = () => $("#lhint").classList.toggle("open");
 const lvwrapEl = $(".lvwrap"), phonePortrait = matchMedia("(max-width:699px) and (orientation:portrait)");
 function placeLevels() { (phonePortrait.matches ? $(".viewport") : $(".top")).append(lvwrapEl); }
 phonePortrait.addEventListener("change", placeLevels); placeLevels();
 document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
-applyStatic(); updateRunUI();
+applyStatic(); updateRunUI(); renderSoundBtn();
 // start on the first unfinished level once rounded tiles are ready (or after a short wait)
 let firstOpen = LEVELS.findIndex((l, i) => !state.done.has(l.id) && isUnlocked(i));
 renderSplash(); setProgress(30, "stGraphics");
