@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Урок 9. Об’єкти та їхні властивості · Файна Інформатика</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400..800&family=Nunito:wght@400..900&display=swap">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#141B2D;overflow:hidden;font-family:Nunito,Arial,sans-serif}
+#wrap{position:fixed;inset:0 0 64px 0;display:flex;align-items:center;justify-content:center}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;box-shadow:0 10px 40px rgba(0,0,0,.4);border-radius:8px;overflow:hidden}
+#stage>section{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;opacity:0;visibility:hidden;transition:opacity .35s}
+#stage>section.on{opacity:1;visibility:visible}
+p,h1,h2,h3{overflow-wrap:break-word}
+a{color:inherit}
+x-shape{display:block;flex-shrink:0}
+x-shape[kind=ellipse]{border-radius:50%}
+x-shape[kind=diamond]{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+x-shape[kind=arrow-right]{clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%)}
+#bar{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:center;gap:12px;color:#FFF8E7;font-size:18px;font-weight:700}
+#bar button,#bar a{font:inherit;color:#1F2A44;background:#FFF8E7;border:0;border-radius:999px;padding:8px 18px;cursor:pointer;text-decoration:none}
+#bar button:focus-visible,#bar a:focus-visible{outline:3px solid #F5B841;outline-offset:2px}
+#home{position:absolute;left:16px}
+#num{min-width:80px;text-align:center}
+@media (max-width:560px){#home{position:static}#bar{gap:8px;font-size:16px}#bar button,#bar a{padding:8px 12px}}
+</style></head><body>
+<div id="wrap"><div id="stage" aria-live="polite">
+<section id="cover" data-transition="fade" style="background:#5B4BC4;color:#FFF8E7;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<div style="position:absolute;left:1380px;top:150px;width:300px;height:300px;background:#F5B841;border-radius:56px;transform:rotate(12deg)"></div>
+<x-shape kind="ellipse" style="position:absolute;left:1560px;top:620px;width:200px;height:200px;background:#F28C28"></x-shape>
+<x-shape kind="diamond" style="position:absolute;left:1330px;top:740px;width:140px;height:140px;background:#7FD1AE"></x-shape>
+<div style="width:1180px;display:flex;flex-direction:column;align-items:start;gap:40px">
+<p style="font-size:40px;font-weight:800;background:#FFF8E7;color:#5B4BC4;padding:12px 40px;border-radius:999px">4 клас · Урок 9</p>
+<h1 style="font-family:'Rubik', Arial, sans-serif;font-size:112px;font-weight:700;line-height:1.05;color:#FFF8E7">Об’єкти та їхні властивості</h1>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.15;color:#FFE8B0">Змінювання об’єктів</h2>
+</div>
+</section>
+<section id="plan" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Сьогодні ми дізнаємось</h2>
+<div style="display:flex;gap:40px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#ECE8FF;padding:48px;border-radius:40px">
+<p style="font-size:120px;line-height:1.1">🧸</p>
+<p style="font-size:52px;font-weight:800;line-height:1.2;text-align:center">Що таке об’єкт</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#FFE3C2;padding:48px;border-radius:40px">
+<p style="font-size:120px;line-height:1.1">🎨</p>
+<p style="font-size:52px;font-weight:800;line-height:1.2;text-align:center">Які в нього властивості</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#DFF5E1;padding:48px;border-radius:40px">
+<p style="font-size:120px;line-height:1.1">🔄</p>
+<p style="font-size:52px;font-weight:800;line-height:1.2;text-align:center">Як змінити об’єкт</p>
+</div>
+</div>
+</section>
+<section id="obiekt" data-transition="fade" style="background:#ECE8FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Що таке об’єкт?</h2>
+<p style="font-size:72px;font-weight:700;line-height:1.25"><span style="color:#5B4BC4">Об’єкт</span> — це будь-який предмет, жива істота чи явище, про які ми говоримо.</p>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:28px;border-radius:32px"><p style="font-size:96px;line-height:1.1">⚽</p><p style="font-size:44px;font-weight:800">предмет</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:28px;border-radius:32px"><p style="font-size:96px;line-height:1.1">🐱</p><p style="font-size:44px;font-weight:800">тварина</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:28px;border-radius:32px"><p style="font-size:96px;line-height:1.1">🌳</p><p style="font-size:44px;font-weight:800">рослина</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:28px;border-radius:32px"><p style="font-size:96px;line-height:1.1">🌈</p><p style="font-size:44px;font-weight:800">явище</p></div>
+</div>
+</section>
+<section id="vlastyvosti" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Властивості об’єкта</h2>
+<p style="font-size:56px;font-weight:700;line-height:1.3"><span style="color:#B85A00">Властивості</span> — це ознаки, за якими можна описати об’єкт.</p>
+<div style="display:flex;align-items:center;gap:56px;flex:1">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#ECE8FF;padding:40px 56px;border-radius:40px"><p style="font-size:180px;line-height:1.1">🎈</p><p style="font-size:52px;font-weight:800">Кулька</p></div>
+<div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:24px">
+<p style="font-size:52px;font-weight:800;background:#FFE3C2;padding:24px 40px;border-radius:28px">🎨 Колір</p>
+<p style="font-size:52px;font-weight:800;background:#DFF5E1;padding:24px 40px;border-radius:28px">⚪ Форма</p>
+<p style="font-size:52px;font-weight:800;background:#DDEBFF;padding:24px 40px;border-radius:28px">📏 Розмір</p>
+<p style="font-size:52px;font-weight:800;background:#ECE8FF;padding:24px 40px;border-radius:28px">🧵 Матеріал</p>
+</div>
+</div>
+</section>
+<section id="znachennya" data-transition="fade" style="background:#ECE8FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Назва і значення властивості</h2>
+<div style="display:flex;align-items:center;gap:40px">
+<p style="font-size:60px;font-weight:800;background:#FFF8E7;padding:24px 48px;border-radius:28px">Назва: <span style="color:#5B4BC4">колір</span></p>
+<p style="font-size:72px;font-weight:800">+</p>
+<p style="font-size:60px;font-weight:800;background:#FFF8E7;padding:24px 48px;border-radius:28px">Значення: <span style="color:#B85A00">жовтий</span></p>
+</div>
+<div style="display:flex;align-items:center;gap:56px;flex:1">
+<p style="font-size:200px;line-height:1.1">🍋</p>
+<table style="flex:1;font-size:48px;color:#1F2A44;font-family:'Nunito', Arial, sans-serif">
+<tr style="background:#5B4BC4"><th style="width:50%;color:#FFF8E7;padding:16px 32px">Назва властивості</th><th style="width:50%;color:#FFF8E7">Значення</th></tr>
+<tr style="background:#FFF8E7"><td>Колір</td><td>жовтий</td></tr>
+<tr style="background:#FFF8E7"><td>Форма</td><td>овальна</td></tr>
+<tr style="background:#FFF8E7"><td>Смак</td><td>кислий</td></tr>
+</table>
+</div>
+</section>
+<section id="zagadky" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Гра «Вгадай об’єкт» 🔍</h2>
+<div style="display:flex;flex-direction:column;gap:32px;flex:1;justify-content:center">
+<p style="font-size:56px;font-weight:700;line-height:1.3;background:#FFE3C2;padding:28px 48px;border-radius:32px">1. Жовте, кругле, гаряче, світить удень.</p>
+<p style="font-size:56px;font-weight:700;line-height:1.3;background:#ECE8FF;padding:28px 48px;border-radius:32px">2. Сірий, великий, має довгий хобот.</p>
+<p style="font-size:56px;font-weight:700;line-height:1.3;background:#DFF5E1;padding:28px 48px;border-radius:32px">3. Зелена, колюча, взимку стоїть у залі.</p>
+</div>
+</section>
+<section id="porivnyai" data-transition="fade" style="background:#ECE8FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Порівняй два об’єкти</h2>
+<div style="display:flex;align-items:center;justify-content:center;gap:120px">
+<p style="font-size:200px;line-height:1.1">🍏</p>
+<p style="font-size:72px;font-weight:800;color:#5B4BC4">і</p>
+<p style="font-size:200px;line-height:1.1">🍎</p>
+</div>
+<div style="display:flex;gap:40px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#DFF5E1;padding:40px 48px;border-radius:32px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:52px;font-weight:700;color:#2E7D46">Однакове ✔</h3>
+<p style="font-size:48px;font-weight:700">назва, форма, розмір</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFE3C2;padding:40px 48px;border-radius:32px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:52px;font-weight:700;color:#B85A00">Різне ✘</h3>
+<p style="font-size:48px;font-weight:700">колір: зелений і червоний</p>
+</div>
+</div>
+</section>
+<section id="zmina" data-transition="fade" style="background:#F5B841;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Як змінити об’єкт?</h2>
+<p style="font-size:72px;font-weight:700;line-height:1.25">Змінити об’єкт — це змінити <span style="color:#3F2F9E">значення</span> його властивостей.</p>
+<div style="display:flex;align-items:center;gap:40px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;background:#FFF8E7;padding:24px 56px;border-radius:32px"><p style="font-size:64px;line-height:1.1">🎈</p><p style="font-size:44px;font-weight:800">маленька</p></div>
+<x-shape kind="arrow-right" style="width:160px;height:80px;background:#1F2A44"></x-shape>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;background:#FFF8E7;padding:24px 56px;border-radius:32px"><p style="font-size:120px;line-height:1.1">🎈</p><p style="font-size:44px;font-weight:800">велика</p></div>
+<p style="font-size:52px;font-weight:800;background:#1F2A44;color:#FFF8E7;padding:16px 40px;border-radius:999px">змінився розмір</p>
+</div>
+</section>
+<section id="pryklady" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Що змінилося?</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;flex:1">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFE3C2;padding:24px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🍏 ➜ 🍎</p><p style="font-size:44px;font-weight:800">колір</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#ECE8FF;padding:24px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🌱 ➜ 🌻</p><p style="font-size:44px;font-weight:800">висота</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#DFF5E1;padding:24px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🧊 ➜ 💧</p><p style="font-size:44px;font-weight:800">стан</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#DFF5E1;padding:24px;border-radius:32px"><p style="font-size:88px;line-height:1.1">✂️ 💇</p><p style="font-size:44px;font-weight:800">довжина</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFE3C2;padding:24px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🚗 ➜ 🏠</p><p style="font-size:44px;font-weight:800">положення</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#ECE8FF;padding:24px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🟦 ➜ 🔵</p><p style="font-size:44px;font-weight:800">форма</p></div>
+</div>
+</section>
+<section id="scratch" data-transition="fade" style="background:#ECE8FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:44px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Об’єкти в Scratch 🐱</h2>
+<p style="font-size:52px;font-weight:700;line-height:1.3">Спрайт — це об’єкт. Блоки змінюють його властивості.</p>
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;gap:40px"><p style="font-size:44px;font-weight:800;color:#FFF8E7;background:#3C6FD1;padding:16px 36px;border-radius:16px;width:720px">перемістити на 10 кроків</p><p style="font-size:48px;font-weight:800">➜ положення</p></div>
+<div style="display:flex;align-items:center;gap:40px"><p style="font-size:44px;font-weight:800;color:#FFF8E7;background:#3C6FD1;padding:16px 36px;border-radius:16px;width:720px">поворот на 15 градусів</p><p style="font-size:48px;font-weight:800">➜ напрямок</p></div>
+<div style="display:flex;align-items:center;gap:40px"><p style="font-size:44px;font-weight:800;color:#FFF8E7;background:#7B4FD6;padding:16px 36px;border-radius:16px;width:720px">змінити розмір на 10</p><p style="font-size:48px;font-weight:800">➜ розмір</p></div>
+<div style="display:flex;align-items:center;gap:40px"><p style="font-size:44px;font-weight:800;color:#FFF8E7;background:#7B4FD6;padding:16px 36px;border-radius:16px;width:720px">наступний образ</p><p style="font-size:48px;font-weight:800">➜ образ (костюм)</p></div>
+</div>
+</section>
+<section id="rukhanka" data-transition="fade" style="background:#DFF5E1;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Руханка: зміни себе! 🤸</h2>
+<p style="font-size:52px;font-weight:700;line-height:1.3;color:#3A4660">Ти — об’єкт. Зміни значення своїх властивостей:</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;flex:1">
+<div style="display:flex;align-items:center;gap:32px;background:#FFF8E7;padding:32px 40px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🙆</p><p style="font-size:48px;font-weight:800;line-height:1.25">Розмір: стань великим!</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#FFF8E7;padding:32px 40px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🧎</p><p style="font-size:48px;font-weight:800;line-height:1.25">Розмір: стань маленьким!</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#FFF8E7;padding:32px 40px;border-radius:32px"><p style="font-size:88px;line-height:1.1">🔄</p><p style="font-size:48px;font-weight:800;line-height:1.25">Напрямок: повернись!</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#FFF8E7;padding:32px 40px;border-radius:32px"><p style="font-size:88px;line-height:1.1">😊</p><p style="font-size:48px;font-weight:800;line-height:1.25">Настрій: усміхнись!</p></div>
+</div>
+</section>
+<section id="praktyka" data-transition="fade" style="background:#5B4BC4;color:#FFF8E7;font-family:'Nunito', Arial, sans-serif;padding:112px 128px;display:flex;flex-direction:column;align-items:center;gap:36px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#FFF8E7;text-align:center">💻 Практична робота на сайті</h2>
+<p style="font-size:56px;font-weight:800;background:#FFF8E7;color:#1F2A44;padding:16px 56px;border-radius:999px"><a href="../">fayna-informatyka.github.io</a></p>
+<div style="display:flex;gap:28px;width:1664px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#ECE8FF;color:#1F2A44;padding:28px;border-radius:32px"><p style="font-size:64px;font-weight:800;color:#5B4BC4">1</p><p style="font-size:40px;font-weight:800;text-align:center;line-height:1.25">Відкрий «Практичні завдання»</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#ECE8FF;color:#1F2A44;padding:28px;border-radius:32px"><p style="font-size:64px;font-weight:800;color:#5B4BC4">2</p><p style="font-size:40px;font-weight:800;text-align:center;line-height:1.25">Обери «4 клас»</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#ECE8FF;color:#1F2A44;padding:28px;border-radius:32px"><p style="font-size:64px;font-weight:800;color:#5B4BC4">3</p><p style="font-size:40px;font-weight:800;text-align:center;line-height:1.25">Введи пароль від учителя 🔑</p></div>
+</div>
+<div style="display:flex;gap:28px;width:1664px">
+<p style="flex:1;font-size:44px;font-weight:800;background:#F5B841;color:#1F2A44;padding:24px 36px;border-radius:28px;text-align:center">📝 Об’єкти та їхні властивості</p>
+<p style="flex:1;font-size:44px;font-weight:800;background:#F5B841;color:#1F2A44;padding:24px 36px;border-radius:28px;text-align:center">📝 Змінюємо об’єкти</p>
+</div>
+</section>
+<section id="pidsumok" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Що ми сьогодні дізнались?</h2>
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;gap:32px;background:#ECE8FF;padding:24px 40px;border-radius:32px"><p style="font-size:80px;line-height:1.1">🧸</p><p style="font-size:52px;font-weight:700;line-height:1.25"><b>Об’єкт</b> — те, про що ми говоримо.</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#FFE3C2;padding:24px 40px;border-radius:32px"><p style="font-size:80px;line-height:1.1">🎨</p><p style="font-size:52px;font-weight:700;line-height:1.25"><b>Властивість</b> = назва + значення.</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#DFF5E1;padding:24px 40px;border-radius:32px"><p style="font-size:80px;line-height:1.1">🔄</p><p style="font-size:52px;font-weight:700;line-height:1.25"><b>Змінити об’єкт</b> — змінити значення.</p></div>
+</div>
+<p style="font-size:56px;font-weight:800;color:#5B4BC4">Покажи 👍, якщо все зрозуміло!</p>
+</section>
+</div></div>
+<div id="bar"><a id="home" href="../">← На сайт</a><button id="prev" type="button" aria-label="Попередній слайд">◀</button><span id="num"></span><button id="next" type="button" aria-label="Наступний слайд">▶</button><button id="fs" type="button" aria-label="На весь екран">⛶</button></div>
+<script>
+(function(){var S=[].slice.call(document.querySelectorAll("#stage>section")),st=document.getElementById("stage"),i=0;
+function fit(){var w=innerWidth,h=innerHeight-64,k=Math.min(w/1920,h/1080)*0.98;st.style.transform="scale("+k+") translate(-50%,-50%)"}
+function go(n){i=Math.max(0,Math.min(S.length-1,n));S.forEach(function(s,j){s.classList.toggle("on",j===i);s.setAttribute("aria-hidden",j!==i)});
+document.getElementById("num").textContent=(i+1)+" / "+S.length;try{history.replaceState(null,"","#"+(i+1))}catch(e){}}
+document.getElementById("prev").onclick=function(){go(i-1)};document.getElementById("next").onclick=function(){go(i+1)};
+document.getElementById("fs").onclick=function(){var d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(d.requestFullscreen)d.requestFullscreen()};
+addEventListener("keydown",function(e){if(["ArrowRight","PageDown"," ","Enter"].indexOf(e.key)>=0&&e.target.tagName!=="BUTTON"&&e.target.tagName!=="A"){e.preventDefault();go(i+1)}
+else if(e.key==="ArrowRight"||e.key==="PageDown")go(i+1);else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();go(i-1)}else if(e.key==="Home")go(0);else if(e.key==="End")go(S.length-1)});
+document.getElementById("wrap").addEventListener("click",function(e){if(e.target.closest("a"))return;go(e.clientX>innerWidth/3?i+1:i-1)});
+var x0=null;addEventListener("touchstart",function(e){x0=e.touches[0].clientX},{passive:true});
+addEventListener("touchend",function(e){if(x0===null)return;var d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>40)go(d<0?i+1:i-1);x0=null});
+addEventListener("resize",fit);fit();go((parseInt(location.hash.slice(1),10)||1)-1)})();
+</script></body></html>
