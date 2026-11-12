@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Урок 8. Носії інформації. Кодування · Файна Інформатика</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400..800&family=Nunito:wght@400..900&display=swap">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:#141B2D;overflow:hidden;font-family:Nunito,Arial,sans-serif}
+#wrap{position:fixed;inset:0 0 64px 0;display:flex;align-items:center;justify-content:center}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;box-shadow:0 10px 40px rgba(0,0,0,.4);border-radius:8px;overflow:hidden}
+#stage>section{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;opacity:0;visibility:hidden;transition:opacity .35s}
+#stage>section.on{opacity:1;visibility:visible}
+p,h1,h2,h3{overflow-wrap:break-word}
+a{color:inherit}
+x-shape{display:block;flex-shrink:0}
+x-shape[kind=ellipse]{border-radius:50%}
+x-shape[kind=diamond]{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+x-shape[kind=arrow-right]{clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%)}
+#bar{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:center;gap:12px;color:#FFF8E7;font-size:18px;font-weight:700}
+#bar button,#bar a{font:inherit;color:#1F2A44;background:#FFF8E7;border:0;border-radius:999px;padding:8px 18px;cursor:pointer;text-decoration:none}
+#bar button:focus-visible,#bar a:focus-visible{outline:3px solid #F5B841;outline-offset:2px}
+#home{position:absolute;left:16px}
+#num{min-width:80px;text-align:center}
+@media (max-width:560px){#home{position:static}#bar{gap:8px;font-size:16px}#bar button,#bar a{padding:8px 12px}}
+</style></head><body>
+<div id="wrap"><div id="stage" aria-live="polite">
+<section id="cover" data-transition="fade" style="background:#2F6FD6;color:#FFF8E7;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<x-shape kind="ellipse" style="position:absolute;left:1400px;top:128px;width:340px;height:340px;background:#F5B841"></x-shape>
+<x-shape kind="ellipse" style="position:absolute;left:1560px;top:640px;width:180px;height:180px;background:#F28C28"></x-shape>
+<x-shape kind="ellipse" style="position:absolute;left:1340px;top:780px;width:90px;height:90px;background:#FFF8E7"></x-shape>
+<div style="width:1180px;display:flex;flex-direction:column;align-items:start;gap:40px">
+<p style="font-size:40px;font-weight:800;background:#FFF8E7;color:#2F6FD6;padding:12px 40px;border-radius:999px">3 клас · Урок 8</p>
+<h1 style="font-family:'Rubik', Arial, sans-serif;font-size:128px;font-weight:700;line-height:1.05;color:#FFF8E7">Носії інформації</h1>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:500;line-height:1.15;color:#FFE8B0">Кодування і декодування повідомлень</h2>
+</div>
+</section>
+<section id="plan" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:64px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Сьогодні ми дізнаємось</h2>
+<div style="display:flex;gap:40px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#FFE3C2;padding:48px;border-radius:40px">
+<p style="font-size:120px;line-height:1.1">📚</p>
+<p style="font-size:52px;font-weight:800;line-height:1.2;text-align:center">Де живе інформація</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#DDEBFF;padding:48px;border-radius:40px">
+<p style="font-size:120px;line-height:1.1">🔐</p>
+<p style="font-size:52px;font-weight:800;line-height:1.2;text-align:center">Як зашифрувати повідомлення</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#DFF5E1;padding:48px;border-radius:40px">
+<p style="font-size:120px;line-height:1.1">🔓</p>
+<p style="font-size:52px;font-weight:800;line-height:1.2;text-align:center">Як розгадати шифр</p>
+</div>
+</div>
+</section>
+<section id="nosiy" data-transition="fade" style="background:#E8F3FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Що таке носій інформації?</h2>
+<p style="font-size:76px;font-weight:700;line-height:1.25"><span style="color:#2F6FD6">Носій інформації</span> — це предмет, на якому <span style="color:#B85A00">зберігають</span> інформацію.</p>
+<div style="display:flex;align-items:center;gap:56px">
+<p style="font-size:140px;line-height:1.1">📕 📒 📱</p>
+<p style="font-size:52px;font-weight:600;line-height:1.3;color:#3A4660">Наприклад: книга, зошит, телефон.</p>
+</div>
+</section>
+<section id="davni" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Носії бувають давні й сучасні</h2>
+<div style="display:flex;gap:48px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FFE3C2;padding:48px 56px;border-radius:40px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:700;color:#B85A00">Давні</h3>
+<p style="font-size:52px;font-weight:700;line-height:1.3">🪨 Камінь</p>
+<p style="font-size:52px;font-weight:700;line-height:1.3">🏺 Глиняна табличка</p>
+<p style="font-size:52px;font-weight:700;line-height:1.3">📜 Сувій</p>
+<p style="font-size:52px;font-weight:700;line-height:1.3">📖 Книга</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#DDEBFF;padding:48px 56px;border-radius:40px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:60px;font-weight:700;color:#2F6FD6">Сучасні</h3>
+<p style="font-size:52px;font-weight:700;line-height:1.3">💾 Флешка</p>
+<p style="font-size:52px;font-weight:700;line-height:1.3">📱 Телефон</p>
+<p style="font-size:52px;font-weight:700;line-height:1.3">💻 Комп’ютер</p>
+<p style="font-size:52px;font-weight:700;line-height:1.3">☁️ «Хмара» в інтернеті</p>
+</div>
+</div>
+</section>
+<section id="gra" data-transition="fade" style="background:#E8F3FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:112px 128px 128px;display:flex;flex-direction:column;gap:32px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Гра «Носій чи ні?»</h2>
+<p style="font-size:48px;font-weight:700;line-height:1.3;color:#3A4660">Плесни в долоні 👏, якщо це носій інформації!</p>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;flex:1">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFF8E7;padding:24px;border-radius:32px"><p style="font-size:96px;line-height:1.1">📖</p><p style="font-size:52px;font-weight:800">Книга</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFF8E7;padding:24px;border-radius:32px"><p style="font-size:96px;line-height:1.1">🍎</p><p style="font-size:52px;font-weight:800">Яблуко</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFF8E7;padding:24px;border-radius:32px"><p style="font-size:96px;line-height:1.1">🖼️</p><p style="font-size:52px;font-weight:800">Фотографія</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFF8E7;padding:24px;border-radius:32px"><p style="font-size:96px;line-height:1.1">🧦</p><p style="font-size:52px;font-weight:800">Шкарпетка</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFF8E7;padding:24px;border-radius:32px"><p style="font-size:96px;line-height:1.1">💾</p><p style="font-size:52px;font-weight:800">Флешка</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#FFF8E7;padding:24px;border-radius:32px"><p style="font-size:96px;line-height:1.1">🗒️</p><p style="font-size:52px;font-weight:800">Записник</p></div>
+</div>
+</section>
+<section id="koduvannya" data-transition="fade" style="background:#F5B841;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Що таке кодування?</h2>
+<p style="font-size:72px;font-weight:700;line-height:1.25"><span style="color:#1E4FA8">Кодування</span> — це запис повідомлення за допомогою умовних знаків.</p>
+<div style="display:flex;align-items:center;gap:40px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:32px 56px;border-radius:32px">
+<p style="font-size:36px;font-weight:700;color:#3A4660">Повідомлення</p>
+<p style="font-size:64px;font-weight:800">«Можна йти!»</p>
+</div>
+<x-shape kind="arrow-right" style="width:160px;height:80px;background:#1F2A44"></x-shape>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:32px 56px;border-radius:32px">
+<p style="font-size:36px;font-weight:700;color:#3A4660">Код</p>
+<p style="font-size:64px;font-weight:800">🟢 зелене світло</p>
+</div>
+</div>
+</section>
+<section id="kody" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Коди навколо нас</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;flex:1">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#DDEBFF;padding:32px;border-radius:32px"><p style="font-size:104px;line-height:1.1">🚦</p><p style="font-size:48px;font-weight:800;text-align:center">Світлофор</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#FFE3C2;padding:32px;border-radius:32px"><p style="font-size:104px;line-height:1.1">⛔</p><p style="font-size:48px;font-weight:800;text-align:center">Дорожні знаки</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#DFF5E1;padding:32px;border-radius:32px"><p style="font-size:104px;line-height:1.1">🎵</p><p style="font-size:48px;font-weight:800;text-align:center">Ноти</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#FFE3C2;padding:32px;border-radius:32px"><p style="font-size:104px;line-height:1.1">📡</p><p style="font-size:48px;font-weight:800;text-align:center">Азбука Морзе</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#DFF5E1;padding:32px;border-radius:32px"><p style="font-size:104px;line-height:1.1">👆</p><p style="font-size:48px;font-weight:800;text-align:center">Шрифт Брайля</p></div>
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#DDEBFF;padding:32px;border-radius:32px"><p style="font-size:104px;line-height:1.1">😊</p><p style="font-size:48px;font-weight:800;text-align:center">Смайлики</p></div>
+</div>
+</section>
+<section id="dekoduvannya" data-transition="fade" style="background:#E8F3FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Що таке декодування?</h2>
+<p style="font-size:72px;font-weight:700;line-height:1.25"><span style="color:#2F6FD6">Декодування</span> — це перетворення коду на зрозуміле повідомлення.</p>
+<div style="display:flex;align-items:center;gap:40px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:32px 56px;border-radius:32px">
+<p style="font-size:36px;font-weight:700;color:#3A4660">Код</p>
+<p style="font-size:64px;font-weight:800">🔴 червоне світло</p>
+</div>
+<x-shape kind="arrow-right" style="width:160px;height:80px;background:#1F2A44"></x-shape>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:32px 56px;border-radius:32px">
+<p style="font-size:36px;font-weight:700;color:#3A4660">Повідомлення</p>
+<p style="font-size:64px;font-weight:800">«Стій!»</p>
+</div>
+</div>
+</section>
+<section id="pryklad" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:44px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Розкодуй слова за ключем!</h2>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#DDEBFF;padding:16px;border-radius:24px"><p style="font-size:48px;font-weight:700;color:#2F6FD6">1</p><p style="font-size:72px;font-weight:800">А</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#DDEBFF;padding:16px;border-radius:24px"><p style="font-size:48px;font-weight:700;color:#2F6FD6">2</p><p style="font-size:72px;font-weight:800">Д</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#DDEBFF;padding:16px;border-radius:24px"><p style="font-size:48px;font-weight:700;color:#2F6FD6">3</p><p style="font-size:72px;font-weight:800">К</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#DDEBFF;padding:16px;border-radius:24px"><p style="font-size:48px;font-weight:700;color:#2F6FD6">4</p><p style="font-size:72px;font-weight:800">Л</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#DDEBFF;padding:16px;border-radius:24px"><p style="font-size:48px;font-weight:700;color:#2F6FD6">5</p><p style="font-size:72px;font-weight:800">О</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#DDEBFF;padding:16px;border-radius:24px"><p style="font-size:48px;font-weight:700;color:#2F6FD6">6</p><p style="font-size:72px;font-weight:800">Т</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:#DDEBFF;padding:16px;border-radius:24px"><p style="font-size:48px;font-weight:700;color:#2F6FD6">7</p><p style="font-size:72px;font-weight:800">Ш</p></div>
+</div>
+<div style="display:flex;flex-direction:column;align-items:start;gap:24px">
+<p style="font-size:64px;font-weight:800;background:#FFE3C2;padding:12px 48px;border-radius:999px">3 – 5 – 2 &#160;= &#160;?</p>
+<p style="font-size:64px;font-weight:800;background:#FFE3C2;padding:12px 48px;border-radius:999px">3 – 5 – 6 &#160;= &#160;?</p>
+<p style="font-size:64px;font-weight:800;background:#FFE3C2;padding:12px 48px;border-radius:999px">7 – 3 – 5 – 4 – 1 &#160;= &#160;?</p>
+</div>
+</section>
+<section id="cherga" data-transition="fade" style="background:#E8F3FF;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Шифр фігурками</h2>
+<div style="display:flex;align-items:center;gap:64px;background:#FFF8E7;padding:32px 48px;border-radius:32px">
+<p style="font-size:48px;font-weight:800;color:#3A4660">Ключ:</p>
+<div style="display:flex;align-items:center;gap:20px"><x-shape kind="ellipse" style="width:100px;height:100px;background:#F28C28"></x-shape><p style="font-size:72px;font-weight:800">= М</p></div>
+<div style="display:flex;align-items:center;gap:20px"><x-shape kind="diamond" style="width:110px;height:110px;background:#2F6FD6"></x-shape><p style="font-size:72px;font-weight:800">= А</p></div>
+<div style="display:flex;align-items:center;gap:20px"><div style="width:96px;height:96px;background:#3BAA5C;border-radius:12px"></div><p style="font-size:72px;font-weight:800">= К</p></div>
+</div>
+<div style="display:flex;align-items:center;gap:24px">
+<x-shape kind="ellipse" style="width:120px;height:120px;background:#F28C28"></x-shape>
+<x-shape kind="diamond" style="width:130px;height:130px;background:#2F6FD6"></x-shape>
+<div style="width:116px;height:116px;background:#3BAA5C;border-radius:14px"></div>
+<p style="font-size:80px;font-weight:800">&#160;= ?</p>
+</div>
+<div style="display:flex;align-items:center;gap:24px">
+<x-shape kind="ellipse" style="width:120px;height:120px;background:#F28C28"></x-shape>
+<x-shape kind="diamond" style="width:130px;height:130px;background:#2F6FD6"></x-shape>
+<x-shape kind="ellipse" style="width:120px;height:120px;background:#F28C28"></x-shape>
+<x-shape kind="diamond" style="width:130px;height:130px;background:#2F6FD6"></x-shape>
+<p style="font-size:80px;font-weight:800">&#160;= ?</p>
+</div>
+</section>
+<section id="rukhanka" data-transition="fade" style="background:#DFF5E1;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Руханка-шифр 🤸</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:32px;border-radius:32px"><p style="font-size:120px;font-weight:800;line-height:1.1;color:#B85A00">1</p><p style="font-size:52px;font-weight:800">присядь</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:32px;border-radius:32px"><p style="font-size:120px;font-weight:800;line-height:1.1;color:#2F6FD6">2</p><p style="font-size:52px;font-weight:800">підстрибни</p></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#FFF8E7;padding:32px;border-radius:32px"><p style="font-size:120px;font-weight:800;line-height:1.1;color:#2E7D46">3</p><p style="font-size:52px;font-weight:800">плесни 👏</p></div>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px;background:#1F2A44;padding:36px;border-radius:32px">
+<p style="font-size:40px;font-weight:700;color:#BFD8F5">Декодуй рухами:</p>
+<p style="font-size:96px;font-weight:800;color:#FFF8E7;letter-spacing:16px">2 – 2 – 3 – 1 – 3</p>
+</div>
+</section>
+<section id="praktyka" data-transition="fade" style="background:#2F6FD6;color:#FFF8E7;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:48px">
+<p style="font-size:160px;line-height:1.1">💻</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:96px;font-weight:700;line-height:1.1;color:#FFF8E7;text-align:center">Практична робота на сайті</h2>
+<p style="font-size:52px;font-weight:700;line-height:1.3;color:#FFE8B0;text-align:center">Виконай завдання «Кодування і декодування»</p>
+<p style="font-size:60px;font-weight:800;background:#FFF8E7;color:#1F2A44;padding:20px 64px;border-radius:999px"><a href="../">fayna-informatyka.github.io</a></p>
+</section>
+<section id="pidsumok" data-transition="fade" style="background:#FFF8E7;color:#1F2A44;font-family:'Nunito', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:88px;font-weight:700;line-height:1.1;color:#1F2A44">Що ми сьогодні дізнались?</h2>
+<div style="display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;gap:32px;background:#FFE3C2;padding:24px 40px;border-radius:32px"><p style="font-size:80px;line-height:1.1">📚</p><p style="font-size:56px;font-weight:700;line-height:1.25"><b>Носій</b> — зберігає інформацію.</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#DDEBFF;padding:24px 40px;border-radius:32px"><p style="font-size:80px;line-height:1.1">🔐</p><p style="font-size:56px;font-weight:700;line-height:1.25"><b>Кодування</b> — записуємо знаками.</p></div>
+<div style="display:flex;align-items:center;gap:32px;background:#DFF5E1;padding:24px 40px;border-radius:32px"><p style="font-size:80px;line-height:1.1">🔓</p><p style="font-size:56px;font-weight:700;line-height:1.25"><b>Декодування</b> — розгадуємо код.</p></div>
+</div>
+<p style="font-size:56px;font-weight:800;color:#2F6FD6">Покажи 👍, якщо все зрозуміло!</p>
+</section>
+</div></div>
+<div id="bar"><a id="home" href="../">← На сайт</a><button id="prev" type="button" aria-label="Попередній слайд">◀</button><span id="num"></span><button id="next" type="button" aria-label="Наступний слайд">▶</button><button id="fs" type="button" aria-label="На весь екран">⛶</button></div>
+<script>
+(function(){var S=[].slice.call(document.querySelectorAll("#stage>section")),st=document.getElementById("stage"),i=0;
+function fit(){var w=innerWidth,h=innerHeight-64,k=Math.min(w/1920,h/1080)*0.98;st.style.transform="scale("+k+") translate(-50%,-50%)"}
+function go(n){i=Math.max(0,Math.min(S.length-1,n));S.forEach(function(s,j){s.classList.toggle("on",j===i);s.setAttribute("aria-hidden",j!==i)});
+document.getElementById("num").textContent=(i+1)+" / "+S.length;try{history.replaceState(null,"","#"+(i+1))}catch(e){}}
+document.getElementById("prev").onclick=function(){go(i-1)};document.getElementById("next").onclick=function(){go(i+1)};
+document.getElementById("fs").onclick=function(){var d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(d.requestFullscreen)d.requestFullscreen()};
+addEventListener("keydown",function(e){if(["ArrowRight","PageDown"," ","Enter"].indexOf(e.key)>=0&&e.target.tagName!=="BUTTON"&&e.target.tagName!=="A"){e.preventDefault();go(i+1)}
+else if(e.key==="ArrowRight"||e.key==="PageDown")go(i+1);else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();go(i-1)}else if(e.key==="Home")go(0);else if(e.key==="End")go(S.length-1)});
+document.getElementById("wrap").addEventListener("click",function(e){if(e.target.closest("a"))return;go(e.clientX>innerWidth/3?i+1:i-1)});
+var x0=null;addEventListener("touchstart",function(e){x0=e.touches[0].clientX},{passive:true});
+addEventListener("touchend",function(e){if(x0===null)return;var d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>40)go(d<0?i+1:i-1);x0=null});
+addEventListener("resize",fit);fit();go((parseInt(location.hash.slice(1),10)||1)-1)})();
+</script></body></html>

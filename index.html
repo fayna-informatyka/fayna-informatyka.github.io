@@ -527,12 +527,14 @@ function prt(T){if(T.t==="choice"){var A=[T.q,T.o,0];if(T.img)A.img=T.img;return
 
 /* вкладка «Практичні завдання»: класи 1–4, кожен клас відкривається своїм паролем */
 var PRC=3,PRO={};
+/* презентації до уроків: показуються поруч із практичними роботами класу */
+var PRES={3:[{title:"Урок 8. Носії інформації. Кодування і декодування повідомлень",n:13,u:"prezentatsii/3-klas-urok-8.html"}]};
 function pracPanel(){
  var h='<div class="prp"><div class="row prt" role="tablist">'+[1,2,3,4].map(function(c){return'<button class="chip" type="button" role="tab" data-pc="'+c+'" aria-selected="'+(c===PRC)+'" aria-pressed="'+(c===PRC)+'">'+(PRO[c]?"📂":"🔒")+" "+c+' клас</button>'}).join("")+'</div>';
  var L=PRO[PRC];
  if(!L)h+='<div class="prl"><div class="big">🔒</div><div class="msg q">'+PRC+' клас</div><div class="msg">Введи пароль, який скаже вчитель</div><div class="row"><input id="ppw" type="password" inputmode="numeric" autocomplete="off" placeholder="Пароль" aria-label="Пароль для '+PRC+' класу" style="'+INP+';width:min(200px,90%)"><button class="btn" id="pgo" type="button">Відкрити</button></div><div class="msg" id="pms"></div></div>';
- else if(!L.length)h+='<div class="empty">Для '+PRC+' класу практичних завдань поки немає 🙂</div>';
- else h+='<div class="grid">'+L.map(function(x,i){return'<article class="card"><div class="ico" style="background:#27C9A0" aria-hidden="true">📝</div><h3>'+esc(x.title)+'</h3><p>Практична робота · '+esc(x.date)+' · '+x.tasks.length+' завдань</p><div class="meta"><span class="grade">'+PRC+' клас</span><button class="go" type="button" data-pi="'+i+'">Почати</button></div></article>'}).join("")+'</div>';
+ else if(!L.length&&!(PRES[PRC]||[]).length)h+='<div class="empty">Для '+PRC+' класу практичних завдань поки немає 🙂</div>';
+ else h+='<div class="grid">'+(PRES[PRC]||[]).map(function(x){return'<article class="card"><div class="ico" style="background:#2F6FD6" aria-hidden="true">📺</div><h3>'+esc(x.title)+'</h3><p>Презентація · '+x.n+' слайдів</p><div class="meta"><span class="grade">'+PRC+' клас</span><a class="go" href="'+x.u+'" style="text-decoration:none">Дивитися</a></div></article>'}).join("")+L.map(function(x,i){return'<article class="card"><div class="ico" style="background:#27C9A0" aria-hidden="true">📝</div><h3>'+esc(x.title)+'</h3><p>Практична робота · '+esc(x.date)+' · '+x.tasks.length+' завдань</p><div class="meta"><span class="grade">'+PRC+' клас</span><button class="go" type="button" data-pi="'+i+'">Почати</button></div></article>'}).join("")+'</div>';
  grid.innerHTML=h+'</div>';
  [].forEach.call(grid.querySelectorAll("[data-pc]"),function(b){b.onclick=function(){PRC=+b.dataset.pc;pracPanel()}});
  [].forEach.call(grid.querySelectorAll("[data-pi]"),function(b){b.onclick=function(){openP(PRC,+b.dataset.pi)}});
