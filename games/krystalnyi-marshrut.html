@@ -235,6 +235,13 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
 .planet-route span i{width:13px;height:13px;border-radius:50%;background:var(--c)}
 .card.help .row{justify-content:flex-end}
 #help{z-index:110}
+#resetDlg{z-index:120}
+.btn.danger{background:transparent;border-color:color-mix(in srgb,var(--warn) 70%,var(--line));color:var(--warn)}
+.btn.danger:hover{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+#resetYes.btn.danger{background:var(--warn);color:#2a0606;border-color:transparent}
+.card.help .row{justify-content:space-between;flex-wrap:wrap}
+.linkbtn{border:0;background:none;color:var(--mute);font:inherit;font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px}
+.linkbtn:hover{color:var(--ink)}
 
 /* ================= PHONES ================= */
 /* Phone, portrait: compact header (planets + language + help, then levels), collapsible hint, two-row run bar */
@@ -384,13 +391,14 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
       <button class="btn" id="spHelp">Як грати</button>
       <button class="btn go" id="spPlay" disabled>Завантаження…</button>
     </div>
+    <button class="linkbtn" id="spReset" hidden>Скинути всі рівні</button>
   </div>
 </div>
 <div class="modal" id="help" hidden>
   <div class="card help" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <h3 id="helpTitle" tabindex="-1">Як грати</h3>
     <ol class="steps" id="helpSteps"></ol>
-    <div class="row"><button class="btn go" id="helpClose">Зрозуміло</button></div>
+    <div class="row"><button class="btn danger" id="resetAll">Скинути всі рівні</button><button class="btn go" id="helpClose">Зрозуміло</button></div>
   </div>
 </div>
 <script>
@@ -406,6 +414,13 @@ button:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
   document.querySelectorAll(".sp-lang button").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-lang") === "en"); });
 })();
 </script>
+<div class="modal" id="resetDlg" hidden>
+  <div class="card" role="alertdialog" aria-modal="true" aria-labelledby="resetTitle" aria-describedby="resetText">
+    <h3 id="resetTitle">Скинути всі рівні?</h3>
+    <p id="resetText">Усі пройдені рівні та складені програми буде видалено, і гра почнеться з першого рівня кожної планети. Це не можна скасувати.</p>
+    <div class="row"><button class="btn" id="resetNo">Скасувати</button><button class="btn danger" id="resetYes">Скинути</button></div>
+  </div>
+</div>
 <div class="modal" id="win" hidden>
   <div class="card" role="dialog" aria-modal="true" aria-labelledby="winTitle">
     <div class="burst">◆ ◆ ◆</div>
@@ -1825,6 +1840,9 @@ const I18N = {
     obstacles: { tree: "дерево", storm: "вихор", rock: "скеля", basalt: "скеля", ice: "крижана брила" }, lang: "Мова",
     newLevels: n => `У грі з'явилися нові рівні: ${n}. Їх позначено рожевою крапкою. Твій прогрес збережено.`,
     soundOn: "Звук увімкнено", soundOff: "Звук вимкнено",
+    resetAll: "Скинути всі рівні", resetTitle: "Скинути всі рівні?", resetYes: "Скинути", resetNo: "Скасувати",
+    resetText: "Усі пройдені рівні та складені програми буде видалено, і гра почнеться з першого рівня кожної планети. Це не можна скасувати.",
+    resetDone: "Усі рівні скинуто. Почнімо спочатку!", resetNothing: "Ще немає пройдених рівнів, тож скидати нічого.",
     lockedShort: "закрито", lockedLevel: n => `Цей рівень ще закритий. Спершу пройди рівень ${n}.`,
     lockedPlanet: p => `Ця планета ще закрита. Спершу пройди всі рівні планети ${p}.`,
     tagline: "Склади програму з блоків і проведи мандрівника крізь п'ять планет.",
@@ -1861,6 +1879,9 @@ const I18N = {
     obstacles: { tree: "tree", storm: "storm vortex", rock: "rock", basalt: "basalt rock", ice: "block of ice" }, lang: "Language",
     newLevels: n => `${n} new level${n === 1 ? "" : "s"} added. They're marked with a pink dot. Your progress is saved.`,
     soundOn: "Sound on", soundOff: "Sound off",
+    resetAll: "Reset all levels", resetTitle: "Reset all levels?", resetYes: "Reset", resetNo: "Cancel",
+    resetText: "All completed levels and saved programs will be deleted, and the game will start again from the first level of each planet. This can't be undone.",
+    resetDone: "All levels have been reset. Let's start again!", resetNothing: "No levels completed yet, so there is nothing to reset.",
     lockedShort: "locked", lockedLevel: n => `This level is still locked. Finish level ${n} first.`,
     lockedPlanet: p => `This planet is still locked. Finish every level on ${p} first.`,
     tagline: "Build a program from blocks and guide the traveler across five planets.",
@@ -2338,6 +2359,7 @@ function renderSplash() {
   const anyDone = state.done.size > 0;
   $("#spPlay").textContent = gameReady ? (anyDone ? tr("continue") : tr("play")) : tr("loadingBtn");
   $("#spPlay").disabled = !gameReady;
+  $("#spReset").textContent = tr("resetAll"); $("#spReset").hidden = !gameReady || !hasProgress();
 }
 function demoHTML(kind) {
   const blk = (type) => `<div class="blk">${simpleHTML(type)}</div>`;
@@ -2348,12 +2370,38 @@ function demoHTML(kind) {
   return "";
 }
 function renderHelp() {
-  $("#helpTitle").textContent = tr("howTo"); $("#helpClose").textContent = tr("gotIt");
+  $("#helpTitle").textContent = tr("howTo"); $("#helpClose").textContent = tr("gotIt"); $("#resetAll").textContent = tr("resetAll");
   $("#helpBtn").setAttribute("aria-label", tr("howTo")); $("#helpBtn").title = tr("howTo");
   $("#helpSteps").innerHTML = tr("help").map(([h, p, demo], i) =>
     `<li class="step"><h4><b>${i + 1}</b>${h}</h4>${p ? `<p>${p}</p>` : ""}${demoHTML(demo)}</li>`).join("");
 }
 function openHelp() { renderHelp(); $("#help").hidden = false; $("#help .card").scrollTop = 0; $("#helpTitle").focus({ preventScroll: true }); try { localStorage.setItem("xr-help-seen", "1"); } catch (e) {} }
+
+// ================= RESET ALL LEVELS =================
+const hasProgress = () => state.done.size > 0 || Object.keys(SAVE.progs).length > 0;
+let resetReturn = null;
+function openReset(from) {
+  if (!hasProgress()) { SFX.play("locked"); flashToast(tr("resetNothing")); return; }
+  resetReturn = from;
+  $("#resetTitle").textContent = tr("resetTitle"); $("#resetText").textContent = tr("resetText");
+  $("#resetYes").textContent = tr("resetYes"); $("#resetNo").textContent = tr("resetNo");
+  $("#resetDlg").hidden = false; $("#resetNo").focus(); SFX.play("tap");
+}
+function closeReset() { $("#resetDlg").hidden = true; resetReturn?.focus?.(); }
+function resetAll() {
+  if (state.running) stopRun();
+  state.done.clear(); SAVE.done = []; SAVE.progs = {}; state.progs = {};
+  clearTimeout(saveTimer); writeSave();
+  $("#resetDlg").hidden = true; $("#help").hidden = true; $("#win").hidden = true;
+  loadLevel(0); renderSplash();
+  SFX.play("remove"); showToast(tr("resetDone"), true);
+}
+$("#resetAll").onclick = e => openReset(e.currentTarget);
+$("#spReset").onclick = e => openReset(e.currentTarget);
+$("#resetNo").onclick = closeReset;
+$("#resetYes").onclick = resetAll;
+$("#resetDlg").addEventListener("click", e => { if (e.target.id === "resetDlg") closeReset(); });
+addEventListener("keydown", e => { if (e.key === "Escape" && !$("#resetDlg").hidden) { e.stopImmediatePropagation(); closeReset(); } }, true);
 $("#helpBtn").onclick = openHelp;
 $("#soundBtn").onclick = () => { SFX.setMuted(!SFX.muted); renderSoundBtn(); };
 $("#spHelp").onclick = openHelp;
