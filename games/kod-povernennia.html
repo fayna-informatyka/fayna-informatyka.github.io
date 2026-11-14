@@ -89,6 +89,15 @@ button:focus-visible{outline:2px solid var(--neon);outline-offset:2px}
 .slot.filled svg{width:20px;height:20px}
 .slot.exec{box-shadow:0 0 0 2px #fff,0 0 16px var(--c)}
 .slot .fn{font-family:var(--font-display);font-weight:700;font-size:12px}
+.cmd,.slot.filled{touch-action:none;-webkit-user-select:none;user-select:none}.slot.filled{cursor:grab}
+.dragghost{position:fixed;left:0;top:0;z-index:60;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--c);color:#0b1020;pointer-events:none;box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 0 2px #fff;opacity:.95}
+.dragghost svg{width:22px;height:22px}.dragghost .fn{font-family:var(--font-display);font-weight:700;font-size:14px}
+body.dragging-cmd,body.dragging-cmd *{cursor:grabbing!important}
+.slot.dragging{opacity:.3}
+.slot.drop-before::before,.slot.drop-after::after{content:'';position:absolute;top:1px;bottom:1px;width:4px;border-radius:3px;background:#fff;box-shadow:0 0 10px var(--neon),0 0 3px var(--neon)}
+.slot.drop-before::before{left:-5px}.slot.drop-after::after{right:-5px}
+.prow.drop{box-shadow:inset 0 0 0 1px rgba(98,227,255,.45);border-radius:12px}
+.tipdnd{display:block;margin-top:6px;color:var(--neon);font-size:.92em}
 #palette{display:flex;gap:6px;flex-wrap:wrap}
 .cmd{flex:1 1 40px;min-width:40px;max-width:64px;height:46px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 16%,transparent);
   color:var(--c);border:1px solid color-mix(in srgb,var(--c) 40%,transparent);transition:transform .1s}
@@ -777,7 +786,7 @@ const I18N = {
     codeInfo: (d, s) => `У коді: ${d} / 100 деталей і ${s} зірок. Імені в коді немає.`, copy: 'Копіювати', copied: 'Скопійовано ✓', done: 'Готово',
     restoreH: 'Маю код повернення', restoreP: 'Введи код і свій нікнейм. Якщо такого гравця тут ще немає, його буде створено.', codeLabel: 'КОД ПОВЕРНЕННЯ', restore: 'Відновити',
     badCode: 'Код не підходить. Перевір, чи немає помилки.', restored: d => `Прогрес відновлено: ${d} / 100 деталей.`,
-    renameH: 'Потрібен новий нікнейм', renameP: 'Цей нікнейм не підходить для гри. Вигадай новий або натисни 🎲 — прогрес залишиться твоїм.', save: 'Зберегти',
+    tipDnD: '💡 Команду можна перетягнути в будь-яке місце програми — навіть між іншими командами.', renameH: 'Потрібен новий нікнейм', renameP: 'Цей нікнейм не підходить для гри. Вигадай новий або натисни 🎲 — прогрес залишиться твоїм.', save: 'Зберегти',
     boardBtn: 'Дошка лідерів', boardH: 'Дошка лідерів', boardSoon: 'Дошка лідерів скоро запрацює. Проходь рівні — твої деталі й зірки вже рахуються!', boardLoading: 'Завантажуємо дошку…',
     boardGoal: (x, g) => `Разом усі пілоти зібрали деталей: <b>${x}</b> · спільна мета: ${g}`, boardCount: (n, a) => `Пілотів на дошці: ${n} · грали цього тижня: ${a}`,
     boardNick: 'Нікнейм', boardLevels: 'Пройдено рівнів', boardStarsCol: 'Зірок', boardEmpty: 'Поки порожньо — стань першим!',
@@ -817,7 +826,7 @@ const I18N = {
     codeInfo: (d, s) => `This code holds ${d} / 100 parts and ${s} stars. No name is stored in it.`, copy: 'Copy', copied: 'Copied ✓', done: 'Done',
     restoreH: 'I have a return code', restoreP: 'Enter the code and your nickname. If this player isn’t on this device yet, they’ll be created.', codeLabel: 'RETURN CODE', restore: 'Restore',
     badCode: 'That code doesn’t work. Check it for typos.', restored: d => `Progress restored: ${d} / 100 parts.`,
-    renameH: 'Pick a new nickname', renameP: 'This nickname isn’t allowed in the game. Make up a new one or tap 🎲 — your progress stays with you.', save: 'Save',
+    tipDnD: '💡 You can drag a command to any place in the program — even between other commands.', renameH: 'Pick a new nickname', renameP: 'This nickname isn’t allowed in the game. Make up a new one or tap 🎲 — your progress stays with you.', save: 'Save',
     boardBtn: 'Leaderboard', boardH: 'Leaderboard', boardSoon: 'The leaderboard is coming soon. Keep playing — your parts and stars already count!', boardLoading: 'Loading the board…',
     boardGoal: (x, g) => `Together all pilots have collected <b>${x}</b> parts · shared goal: ${g}`, boardCount: (n, a) => `Pilots on the board: ${n} · played this week: ${a}`,
     boardNick: 'Nickname', boardLevels: 'Levels completed', boardStarsCol: 'Stars', boardEmpty: 'Empty for now — be the first!',
@@ -2868,7 +2877,8 @@ function renderProgram() {
       s.className = 'slot' + (c ? ' filled' : ''); if (c) { s.style.setProperty('--c', CMD[c].c); s.innerHTML = icon(c); s.setAttribute('aria-label', cmdName(c) + t('remove')); }
       else s.setAttribute('aria-label', t('emptySlot'));
       if (execMark && execMark.row === r && execMark.idx === i) s.classList.add('exec');
-      s.onclick = () => { if (running) return; activeRow = r; if (c) { SFX.play('remove'); program[r].splice(i, 1); saveDraft(); } else SFX.play('select'); renderProgram(); };
+      if (c) s.onpointerdown = e => dragStart(e, c, { r, i });
+      s.onclick = () => { if (running || dragJustEnded) return; activeRow = r; if (c) { SFX.play('remove'); program[r].splice(i, 1); saveDraft(); } else SFX.play('select'); renderProgram(); };
       slots.appendChild(s);
     }
     row.onclick = e => { if (e.target === row || e.target === slots) { activeRow = r; renderProgram(); } };
@@ -2881,9 +2891,10 @@ function renderPalette() {
   for (const c of level.cmds) {
     const b = document.createElement('button'); b.className = 'cmd'; b.style.setProperty('--c', CMD[c].c); b.innerHTML = icon(c); b.title = cmdName(c); b.setAttribute('aria-label', cmdName(c));
     b.disabled = running || (activeRow === 'F1' && c === 'F1') || (activeRow === 'F2' && (c === 'F1' || c === 'F2'));
+    b.onpointerdown = e => dragStart(e, c, null);
     b.onclick = () => {
-      const lim = level.limits[activeRow];
-      if (program[activeRow].length >= lim) { SFX.play('full'); const row = document.querySelector(`.prow[data-row="${activeRow}"]`); row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); return; }
+      if (dragJustEnded) return;
+      if (program[activeRow].length >= level.limits[activeRow]) return rowFull(activeRow);
       SFX.play('add', c); program[activeRow].push(c); saveDraft(); renderProgram();
     };
     p.appendChild(b);
@@ -2894,6 +2905,59 @@ function renderPalette() {
   $('btnClear').disabled = running;
 }
 function saveDraft() { save.drafts[level.n] = program; persist(); }
+function rowFull(r) { SFX.play('full'); const row = document.querySelector(`.prow[data-row="${r}"]`); if (row) { row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); } }
+
+/* ---- drag & drop: drag a command from the palette to any place in a program row (also between commands),
+   or drag a command already in the program to another place. A plain tap keeps working as before. ---- */
+let drag = null, dragJustEnded = false;
+const canPlace = (r, c) => !((r === 'F1' && c === 'F1') || (r === 'F2' && (c === 'F1' || c === 'F2')));
+function dropTarget(x, y) {
+  const el = document.elementFromPoint(x, y), row = el && el.closest('.prow'); if (!row) return null;
+  const r = row.dataset.row, len = program[r].length, slot = el.closest('.slot');
+  let idx = len;
+  if (slot) { const i = [...slot.parentNode.children].indexOf(slot); if (i < len) { const b = slot.getBoundingClientRect(); idx = x < b.left + b.width / 2 ? i : i + 1; } }
+  return { r, idx, rowEl: row };
+}
+function markDrop(tg) {
+  document.querySelectorAll('.drop-before,.drop-after,.prow.drop').forEach(e => e.classList.remove('drop-before', 'drop-after', 'drop'));
+  if (!tg) return;
+  tg.rowEl.classList.add('drop');
+  const slots = tg.rowEl.querySelectorAll('.slot'), len = program[tg.r].length;
+  if (tg.idx < len) slots[tg.idx]?.classList.add('drop-before'); else if (len) slots[len - 1]?.classList.add('drop-after'); else slots[0]?.classList.add('drop-before');
+}
+function dragStart(e, cmd, from) {
+  if (running || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  drag = { cmd, from, id: e.pointerId, x0: e.clientX, y0: e.clientY, on: false, src: e.currentTarget, tg: null };
+}
+function dragStop(drop) {
+  const d = drag; drag = null; if (!d || !d.on) return;
+  d.ghost.remove(); markDrop(null); d.src.classList.remove('dragging'); document.body.classList.remove('dragging-cmd');
+  dragJustEnded = true; setTimeout(() => { dragJustEnded = false; }, 0);   // swallow the click that follows the drop
+  const tg = d.tg; if (!drop || !tg || running) return;
+  let idx = tg.idx;
+  if (d.from && d.from.r === tg.r) {                       // move inside one row
+    if (idx > d.from.i) idx--; if (idx === d.from.i) return;
+    program[tg.r].splice(d.from.i, 1);
+  } else {
+    if (program[tg.r].length >= level.limits[tg.r]) return rowFull(tg.r);
+    if (d.from) program[d.from.r].splice(d.from.i, 1);     // move to another row
+  }
+  program[tg.r].splice(idx, 0, d.cmd); activeRow = tg.r; SFX.play('add', d.cmd); saveDraft(); renderProgram();
+}
+window.addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  if (!drag.on) {
+    if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 7) return;
+    drag.on = true; SFX.play('select'); document.body.classList.add('dragging-cmd');
+    const g = document.createElement('div'); g.className = 'dragghost'; g.style.setProperty('--c', CMD[drag.cmd].c); g.innerHTML = icon(drag.cmd);
+    document.body.appendChild(g); drag.ghost = g; if (drag.from) drag.src.classList.add('dragging');
+  }
+  e.preventDefault();
+  drag.ghost.style.transform = `translate(${e.clientX - 22}px,${e.clientY - 62}px)`;  // held above the finger so the drop marker stays visible
+  const tg = dropTarget(e.clientX, e.clientY); drag.tg = tg && canPlace(tg.r, drag.cmd) ? tg : null; markDrop(drag.tg);
+}, { passive: false });
+window.addEventListener('pointerup', e => { if (drag && e.pointerId === drag.id) dragStop(true); });
+window.addEventListener('pointercancel', e => { if (drag && e.pointerId === drag.id) dragStop(false); });
 function toast(html) { if (!html) { $('toast').hidden = true; return; } $('toastText').innerHTML = html; $('toast').hidden = false; }
 $('toastClose').onclick = () => toast(null);
 const starSvg = on => `<svg viewBox="0 0 24 24" fill="${on ? 'var(--amber)' : 'rgba(150,180,230,.18)'}" style="${on ? 'filter:drop-shadow(0 0 8px var(--amber))' : ''}"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4L2.8 9.5l6.4-.8z"/></svg>`;
@@ -3139,7 +3203,9 @@ function openLevel(n) {
   activeRow = 'main'; screen = 'game';
   $('menu').hidden = true; $('hud').hidden = false; $('panel').hidden = false;
   resetBoard(); renderProgram(); refreshRocket();
-  toast(HINT(n) || t('levelIntro', partName(n)));
+  let tip = '';
+  try { if (n >= 2 && !localStorage.getItem('kp-tip-dnd')) { tip = `<span class="tipdnd">${t('tipDnD')}</span>`; localStorage.setItem('kp-tip-dnd', '1'); } } catch (e) { }
+  toast((HINT(n) || t('levelIntro', partName(n))) + tip);
   requestAnimationFrame(() => { resizeRenderer(); frameBoard(true); });
 }
 function stopRunQuiet() { runId++; running = false; clearTweens(); execMark = null; }
