@@ -94,6 +94,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .mhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.mhead h3{font-size:1.1rem}
 .mtt{display:flex;flex-direction:column;gap:2px;min-width:0}.mauth{font-size:.88rem;font-weight:700;color:var(--muted)}
 .board{display:grid;gap:4px;margin:0 auto 12px;width:min(320px,100%)}
+.board.pxb{gap:3px;width:min(var(--w),calc(50vw - 48px),calc(100vh - 330px),540px);touch-action:none}.pxb .cell{border-radius:6px}
+@media (max-width:640px){.board.pxb{width:min(var(--w),88vw)}}
 .cell{aspect-ratio:1;display:grid;place-items:center;border-radius:10px;background:var(--surface);border:2px solid var(--line);font-size:1.3rem}
 button.cell{cursor:pointer;padding:0;color:inherit;font:inherit}
 .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
@@ -297,12 +299,18 @@ function bk(i){return function(bx,fin){var L=5+(i>>2),S={},k=1+(i>>2);
   win:function(s){return s.x==L-1},
   draw:function(s){var h="";for(var j=0;j<L;j++)h+='<div class="cell">'+(s.x==j?"🐱":S[j]?"🪨":j==L-1?"🏁":"")+"</div>";return h}},fin)}}
 /* 4. піксельний художник */
-function px(i){return function(bx,fin){var N=i<6?4:i<13?5:6,T=[],on={},d=.35+Math.min(i,10)*.02,h=Math.ceil(N/2);
+function px(i){return function(bx,fin){var N=i<4?5:i<9?6:i<15?7:8,T=[],on={},d=.35+Math.min(i,10)*.02,h=Math.ceil(N/2);
  for(var r=0;r<N;r++)for(var c=0;c<h;c++){var v=Math.random()<d?1:0;T[r*N+c]=v;T[r*N+N-1-c]=v}
  T[0]=T[N-1]=1;
- function cs(f){return'<div class="board" style="grid-template-columns:repeat('+N+',1fr);width:'+N*44+'px">'+T.map(f).join("")+"</div>"}
- bx.innerHTML='<div class="row"><div><div class="msg">Зразок</div>'+cs(function(c){return'<div class="cell" style="background:'+(c?"#FF6B8B":"var(--surface)")+'"></div>'})+'</div><div><div class="msg">Твій малюнок</div>'+cs(function(c,j){return'<button class="cell" type="button" data-i="'+j+'" aria-label="Клітинка"></button>'})+'</div></div><div class="row"><button class="btn" id="ck" type="button">Перевірити</button></div><div class="msg" id="ms">Розфарбуй клітинки, як на зразку</div>';
- [].forEach.call(bx.querySelectorAll("button.cell"),function(x){x.onclick=function(){var j=x.dataset.i;on[j]=!on[j];x.style.background=on[j]?"#FF6B8B":""}});
+ function cs(f,k){return'<div class="board pxb"'+(k?' id="pxd"':'')+' style="grid-template-columns:repeat('+N+',1fr);--w:'+N*84+'px">'+T.map(f).join("")+"</div>"}
+ bx.innerHTML='<div class="row"><div><div class="msg">Зразок</div>'+cs(function(c){return'<div class="cell" style="background:'+(c?"#FF6B8B":"var(--surface)")+'"></div>'})+'</div><div><div class="msg">Твій малюнок</div>'+cs(function(c,j){return'<button class="cell" type="button" data-i="'+j+'" aria-label="Клітинка '+(Math.floor(j/N)+1)+', '+(j%N+1)+'"></button>'},1)+'</div></div><div class="row"><button class="btn" id="ck" type="button">Перевірити</button></div><div class="msg" id="ms">Розфарбуй клітинки, як на зразку. Можна клацати або вести мишкою з натиснутою кнопкою</div>';
+ H("mb").classList.add("wide");var pd=H("pxd"),pm=null;
+ function pset(x,v){var j=x.dataset.i;on[j]=v;x.style.background=v?"#FF6B8B":""}
+ function pat(e){var x=document.elementFromPoint(e.clientX,e.clientY);return x&&x.dataset&&x.dataset.i!=null&&pd.contains(x)?x:null}
+ pd.onpointerdown=function(e){var x=pat(e);if(!x)return;e.preventDefault();pm=!on[x.dataset.i];pset(x,pm);try{pd.setPointerCapture(e.pointerId)}catch(_){}};
+ pd.onpointermove=function(e){if(pm==null)return;var x=pat(e);if(x&&!!on[x.dataset.i]!==pm)pset(x,pm)};
+ pd.onpointerup=pd.onpointercancel=function(){pm=null};
+ [].forEach.call(pd.querySelectorAll("button.cell"),function(x){x.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pset(x,!on[x.dataset.i])}}});
  H("ck").onclick=function(){var w=0;T.forEach(function(c,j){if(!!c!=!!on[j])w++});if(w)H("ms").textContent="Помилок: "+w+". Придивись ще!";else{H("ms").textContent="Чудово! Малюнок точний 🎉";fin(true)}}}}
 /* 5. клавіатура */
 var KW=["а","о","л","і","в","мама","тато","кіт","дім","сад","сонце","книга","школа","мишка","екран","клавіша","принтер","файл","програма","інформатика"];
