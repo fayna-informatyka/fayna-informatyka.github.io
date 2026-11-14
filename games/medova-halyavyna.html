@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; connect-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="format-detection" content="telephone=no">
+<title>Медова галявина</title>
+<style>
+:root{--ink:#1F2A5C;--sun:#FFC93C;--coral:#FF6B8B;--mint:#27C9A0;--sky:#4CB5F5;--lilac:#9C88FF;--orange:#FF9F43;--cream:#FFF4D6;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:var(--cream);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{background:#B6E59A}
+#app{height:100%;display:flex;flex-direction:column}
+#hud{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#1F5E3A;border-bottom:4px solid #154A2C;flex-wrap:wrap;z-index:5}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:800;font-size:1.05rem;min-height:44px}
+.pill svg{width:22px;height:22px}
+.lvname{font-weight:800;font-size:1.1rem;color:#FFF4D6}
+.sp{flex:1}
+button{font:inherit;cursor:pointer}
+.btn{min-height:48px;padding:10px 22px;border-radius:16px;border:3px solid var(--ink);background:var(--sun);color:var(--ink);font-weight:800;font-size:1.1rem;box-shadow:0 5px 0 var(--ink);transition:transform .1s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.btn.w{background:#fff}
+.btn.sm{min-height:44px;padding:6px 14px;font-size:1rem;box-shadow:0 3px 0 var(--ink)}
+.btn:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+#field{position:relative;flex:1;overflow:hidden;cursor:crosshair;touch-action:none;background:linear-gradient(#CDEFFF 0,#E8F8D8 32%,#B6E59A 100%)}
+.deco{position:absolute;pointer-events:none;opacity:.9}
+.ent{position:absolute;left:0;top:0;will-change:transform}
+.star svg{width:100%;height:100%;filter:drop-shadow(0 3px 0 rgba(31,42,92,.25));animation:tw 1.6s ease-in-out infinite}
+@keyframes tw{50%{transform:scale(1.12)}}
+.star.hid svg{filter:none;opacity:.55;animation:none}
+.ob{cursor:pointer;z-index:2}
+.ob>svg.body{width:100%;height:100%;display:block;transition:transform .15s}
+.crk{opacity:0;transition:opacity .1s}
+.ov[hidden],#tip[hidden],#banner[hidden]{display:none}
+.ob.cracked .crk{opacity:1}
+.ob.cracked>svg.body{transform:scale(.86)}
+.ob.wig>svg.body{animation:wig .35s}
+@keyframes wig{20%{transform:rotate(-12deg)}50%{transform:rotate(10deg)}80%{transform:rotate(-6deg)}}
+.mi{position:absolute;right:-6px;bottom:-6px;width:30px;height:40px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.4));pointer-events:none}
+#rocket{z-index:3;pointer-events:none;width:64px;height:84px}
+#rocket svg{width:100%;height:100%;overflow:visible}
+#rocket.bump svg{animation:wig .3s}
+.fl{animation:fl .09s ease-in-out infinite alternate;transform-origin:32px 38px}
+@keyframes fl{to{transform:scaleX(.78)}}
+.pt{position:absolute;width:10px;height:10px;border-radius:50%;pointer-events:none;z-index:4;transition:transform .6s ease-out,opacity .6s ease-out}
+#tip{position:absolute;z-index:6;max-width:260px;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:16px;padding:8px 12px;font-weight:800;font-size:1.02rem;line-height:1.3;pointer-events:none;box-shadow:0 4px 0 var(--ink)}
+#banner{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-size:clamp(2rem,6vw,3.4rem);font-weight:900;color:var(--sun);text-shadow:0 4px 0 #1F2A5C;pointer-events:none;z-index:6;text-align:center}
+.ov{position:absolute;inset:0;z-index:10;display:flex;padding:16px;background:rgba(31,42,92,.72);overflow:auto}
+.panel{background:#FFFDF7;color:var(--ink);border:4px solid var(--ink);border-radius:28px;box-shadow:0 8px 0 var(--ink);padding:24px;max-width:760px;width:100%;text-align:center;margin:auto}
+.panel h1{margin:0 0 6px;font-size:clamp(1.8rem,5vw,2.6rem);color:var(--ink)}
+.panel p{margin:6px 0;font-size:1.12rem;font-weight:700;line-height:1.4}
+.leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0;text-align:left}
+.lg{display:flex;align-items:center;gap:8px;background:#EAF8E0;border:3px solid var(--ink);border-radius:18px;padding:10px}
+.lg svg{flex:none}
+.lg b{display:block;font-size:1rem}.lg span{font-size:.92rem;font-weight:700;line-height:1.25}
+.lvls{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;margin:14px 0}
+.lvb{min-height:64px;border-radius:18px;border:3px solid var(--ink);background:#fff;color:var(--ink);font-weight:800;padding:8px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 4px 0 var(--ink)}
+.lvb .no{font-size:1.4rem}.lvb .nm{font-size:.9rem}.lvb .st{font-size:.95rem;letter-spacing:2px;color:#C98A00}
+.lvb:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+.info{text-align:left;display:grid;gap:12px;margin:14px 0}
+.ib{background:#EAF8E0;border:3px solid var(--ink);border-radius:18px;padding:12px 16px}
+.ib h2{margin:0 0 6px;font-size:1.15rem;display:flex;align-items:center;gap:8px}
+.ib p{margin:0;font-size:1.05rem}
+.ib ul{margin:0;padding-left:22px;font-size:1.05rem;font-weight:700;line-height:1.45}
+.age{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:4px 14px;font-weight:900;font-size:1.05rem;margin:2px 4px 2px 0}
+.info-ic{width:30px;height:30px;flex:none}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.big3{display:flex;justify-content:center;gap:8px;margin:10px 0}
+.big3 svg{width:64px;height:64px}
+.note{font-size:.98rem!important;color:#4F5A8A}
+@media (max-width:520px){.pill{padding:4px 10px;font-size:.95rem}.lvname{font-size:.95rem}.panel{padding:18px}}
+@media (prefers-reduced-motion:reduce){.star svg,.fl{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <button class="btn sm w" id="menuB" type="button">☰ Рівні</button>
+    <span class="lvname" id="lvN"></span>
+    <span class="sp"></span>
+    <span class="pill" aria-label="Зібрано квітів"><svg aria-hidden="true" viewBox="0 0 24 24"><g fill="#FF6B8B" stroke="#1F2A5C" stroke-width="1.3"><circle cx="12" cy="5.5" r="4"/><circle cx="18.2" cy="10" r="4"/><circle cx="15.8" cy="17.4" r="4"/><circle cx="8.2" cy="17.4" r="4"/><circle cx="5.8" cy="10" r="4"/></g><circle cx="12" cy="12" r="4" fill="#FFC93C" stroke="#1F2A5C" stroke-width="1.3"/></svg><span id="sc">0/0</span></span>
+    <span class="pill" aria-label="Час"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#1F2A5C" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span id="tm">0,0 с</span></span>
+    <button class="btn sm w" id="sndB" type="button" aria-pressed="false">🔇 Звук</button>
+  </div>
+  <div id="field" aria-label="Галявина. Веди бджілку вказівником миші.">
+    <svg class="deco" style="right:3%;top:5%;width:90px" viewBox="0 0 90 90" aria-hidden="true"><path d="M45 4v12M45 74v12M4 45h12M74 45h12M16 16l8 8M66 66l8 8M74 16l-8 8M24 66l-8 8" stroke="#FFC93C" stroke-width="6" stroke-linecap="round"/><circle cx="45" cy="45" r="22" fill="#FFC93C"/></svg>
+    <svg class="deco" style="left:4%;top:6%;width:120px" viewBox="0 0 120 60" aria-hidden="true"><path d="M20 52c-14 0-16-18-2-20 0-16 20-22 30-10 8-16 36-12 36 6 16-2 22 22 4 24z" fill="#fff" opacity=".9"/></svg>
+    <svg class="deco" style="left:2%;bottom:2%;width:170px" viewBox="0 0 170 60" aria-hidden="true"><path d="M10 60q4-30 10-40q2 20 6 40zM40 60q2-36 14-50q-4 26 0 50zM104 60q6-28 14-36q-4 20-2 36zM138 60q2-24 8-34q2 18 4 34z" fill="#3FA34D"/><path d="M78 40v20" stroke="#3FA34D" stroke-width="3"/><circle cx="78" cy="34" r="8" fill="#fff" stroke="#1F2A5C" stroke-width="2"/><circle cx="78" cy="34" r="3" fill="#FFC93C"/></svg>
+    <div id="rocket" class="ent" aria-hidden="true"><svg viewBox="0 0 64 84">
+      <g class="fl"><ellipse cx="16" cy="38" rx="14" ry="9" fill="#E6F6FF" stroke="#1F2A5C" stroke-width="3" transform="rotate(-25 16 38)"/><ellipse cx="48" cy="38" rx="14" ry="9" fill="#E6F6FF" stroke="#1F2A5C" stroke-width="3" transform="rotate(25 48 38)"/></g>
+      <path d="M32 82l-4-9h8z" fill="#1F2A5C"/>
+      <ellipse cx="32" cy="50" rx="15" ry="22" fill="#FFC93C" stroke="#1F2A5C" stroke-width="3.5"/>
+      <path d="M18 44h28M17.5 54h29M21 64h22" stroke="#1F2A5C" stroke-width="5"/>
+      <path d="M28 14q-4-8-9-8M36 14q4-8 9-8" fill="none" stroke="#1F2A5C" stroke-width="2.5" stroke-linecap="round"/><circle cx="19" cy="6" r="2.8" fill="#1F2A5C"/><circle cx="45" cy="6" r="2.8" fill="#1F2A5C"/>
+      <circle cx="32" cy="23" r="11" fill="#1F2A5C"/><circle cx="28" cy="21" r="2.6" fill="#7FF3FF"/><circle cx="36" cy="21" r="2.6" fill="#7FF3FF"/><path d="M28.5 26q3.5 2.6 7 0" fill="none" stroke="#7FF3FF" stroke-width="1.8" stroke-linecap="round"/>
+    </svg></div>
+    <div id="tip" hidden></div>
+    <div id="banner" hidden></div>
+  </div>
+  <div class="ov" id="ov"></div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var field=$("field"),rocketEl=$("rocket"),tip=$("tip"),ov=$("ov"),banner=$("banner");
+var STAR='<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6L2.5 9.3l6.6-.8z" fill="#FFC93C" stroke="#1F2A5C" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+var FLOWER='<svg viewBox="0 0 24 24"><g fill="#FF6B8B" stroke="#1F2A5C" stroke-width="1.3"><circle cx="12" cy="5.5" r="4"/><circle cx="18.2" cy="10" r="4"/><circle cx="15.8" cy="17.4" r="4"/><circle cx="8.2" cy="17.4" r="4"/><circle cx="5.8" cy="10" r="4"/></g><circle cx="12" cy="12" r="4" fill="#FFC93C" stroke="#1F2A5C" stroke-width="1.3"/></svg>';
+var STAR0='<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6L2.5 9.3l6.6-.8z" fill="#E3E7F2" stroke="#1F2A5C" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+var COL={L:"#3FA34D",R:"#9C88FF",D:"#4CB5F5"};
+function mouseIco(t,w,h){w=w||30;h=h||40;var c=COL[t];
+ return '<svg class="mi" viewBox="0 0 28 38" width="'+w+'" height="'+h+'" aria-hidden="true"><rect x="2" y="2" width="24" height="34" rx="12" fill="#fff" stroke="#1F2A5C" stroke-width="2.5"/>'+
+ (t==="R"?'<path d="M14 3.4A10.6 10.6 0 0 1 24.6 14V16H14z" fill="'+c+'"/>':'<path d="M14 3.4A10.6 10.6 0 0 0 3.4 14V16H14z" fill="'+c+'"/>')+
+ '<path d="M2.5 16h23M14 2v14" stroke="#1F2A5C" stroke-width="2.5"/>'+
+ (t==="D"?'<circle cx="14" cy="27" r="7" fill="#1F2A5C"/><text x="14" y="30.5" text-anchor="middle" font-size="10" font-weight="900" fill="#fff" font-family="Trebuchet MS,sans-serif">×2</text>':'')+'</svg>'}
+var OBS={
+ L:'<svg class="body" viewBox="0 0 100 100"><path d="M14 76c-12-4-10-24 2-26-4-14 12-24 24-16 4-16 28-16 32 0 12-8 28 4 22 18 14 4 12 24-2 24z" fill="#3FA34D" stroke="#1F2A5C" stroke-width="5" stroke-linejoin="round"/><path d="M28 46l-7-6M52 32v-9M76 46l8-5M38 64l-8 3M66 66l8 3M18 60l-8-1M86 62l8-2" stroke="#1F2A5C" stroke-width="4" stroke-linecap="round"/><circle cx="36" cy="52" r="4.5" fill="#D63C63"/><circle cx="64" cy="46" r="4.5" fill="#D63C63"/><circle cx="54" cy="64" r="4.5" fill="#D63C63"/><path class="crk" d="M50 26l-4 20 8 8-6 18M28 62l18-6M74 56H56" fill="none" stroke="#FFF4D6" stroke-width="4" stroke-linecap="round"/></svg>',
+ R:'<svg class="body" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" fill-opacity=".6" stroke="#1F2A5C" stroke-width="4"/><g fill="none" stroke="#1F2A5C" stroke-width="2.5"><path d="M50 4v92M4 50h92M17 17l66 66M83 17L17 83"/><circle cx="50" cy="50" r="12"/><circle cx="50" cy="50" r="24"/><circle cx="50" cy="50" r="36"/></g></svg>',
+ D:'<svg class="body" viewBox="0 0 100 100"><path d="M30 74l-5 12M50 74l-5 14M70 74l-5 12" stroke="#4CB5F5" stroke-width="5" stroke-linecap="round"/><path d="M22 66c-14 0-18-18-4-22 0-16 18-22 28-12 6-16 34-14 34 4 16 0 20 26 2 30z" fill="#DCE6F2" stroke="#1F2A5C" stroke-width="5" stroke-linejoin="round"/><circle cx="40" cy="50" r="3.5" fill="#1F2A5C"/><circle cx="60" cy="50" r="3.5" fill="#1F2A5C"/><path d="M44 59q6-4 12 0" fill="none" stroke="#1F2A5C" stroke-width="3" stroke-linecap="round"/></svg>'
+};
+var SHORT={L:"ліва кнопка",R:"права кнопка",D:"подвійне клацання"};
+var NAME={L:"Колючий кущ",R:"Павутина",D:"Дощова хмарка"};
+var HOW={L:"клацай ЛІВОЮ кнопкою, поки не обріжеш",R:"клацни ПРАВОЮ кнопкою",D:"клацни лівою кнопкою ДВІЧІ швидко"};
+var LV=[
+ {"n": "Квіткова галявина", "d": "Веди бджілку вказівником миші й збирай квіти.", "stars": 6, "guard": 0, "extra": 0, "types": [], "drift": 0, "hints": true, "par": 15},
+ {"n": "Маленькі ромашки", "d": "Квіти зовсім маленькі — веди мишку точно!", "stars": 10, "guard": 0, "extra": 0, "types": [], "drift": 0, "hints": true, "par": 22, "fs": 30},
+ {"n": "Колючі кущі", "d": "Квіти сховалися за кущами. Клацай по кущах ЛІВОЮ кнопкою.", "stars": 8, "guard": 0.75, "extra": 2, "types": ["L"], "drift": 0, "hints": true, "par": 30},
+ {"n": "Густі зарості", "d": "Ці кущі міцніші — клацай ЛІВОЮ кнопкою тричі.", "stars": 10, "guard": 0.75, "extra": 3, "types": ["L"], "drift": 0, "hints": true, "par": 40, "lhp": 3},
+ {"n": "Павутинний гай", "d": "Павутину знімає лише ПРАВА кнопка миші.", "stars": 8, "guard": 0.75, "extra": 2, "types": ["R"], "drift": 0, "hints": true, "par": 30},
+ {"n": "Павуча стежка", "d": "Павутини стало більше. Тисни ПРАВУ кнопку!", "stars": 10, "guard": 0.75, "extra": 3, "types": ["R"], "drift": 0, "hints": true, "par": 38},
+ {"n": "Дощові хмарки", "d": "Хмарку прожене тільки ПОДВІЙНЕ клацання.", "stars": 8, "guard": 0.75, "extra": 2, "types": ["D"], "drift": 0, "hints": true, "par": 35},
+ {"n": "Грозова погода", "d": "Багато хмарок! Клацай ДВІЧІ швидко.", "stars": 10, "guard": 0.75, "extra": 3, "types": ["D"], "drift": 0, "hints": true, "par": 42},
+ {"n": "Кущі й павутина", "d": "Дивись уважно: лівою — кущ, правою — павутина.", "stars": 10, "guard": 0.75, "extra": 2, "types": ["L", "R"], "drift": 0, "hints": true, "par": 40},
+ {"n": "Павутина й хмарки", "d": "Правою — павутина, подвійним клацанням — хмарка.", "stars": 10, "guard": 0.75, "extra": 2, "types": ["R", "D"], "drift": 0, "hints": true, "par": 42},
+ {"n": "Кущі й хмарки", "d": "Лівою — кущ, двічі швидко — хмарка.", "stars": 10, "guard": 0.75, "extra": 2, "types": ["L", "D"], "drift": 0, "hints": true, "par": 42},
+ {"n": "Усе разом", "d": "Тепер усі три перешкоди. Мишка-підказка допоможе!", "stars": 12, "guard": 0.75, "extra": 3, "types": ["L", "R", "D"], "drift": 0, "hints": true, "par": 50},
+ {"n": "Вітряний день", "d": "Вітер жене хмарки й кущі — лови момент!", "stars": 12, "guard": 0.75, "extra": 3, "types": ["L", "R", "D"], "drift": 30, "hints": true, "par": 55},
+ {"n": "Без підказок", "d": "Підказок на мишках більше немає. Ти впораєшся!", "stars": 12, "guard": 0.75, "extra": 3, "types": ["L", "R", "D"], "drift": 0, "hints": false, "par": 55},
+ {"n": "Великий політ", "d": "Фінал: багато перешкод, вітер і жодних підказок!", "stars": 14, "guard": 0.75, "extra": 4, "types": ["L", "R", "D"], "drift": 45, "hints": false, "par": 70}
+];
+var best={};try{best=JSON.parse(localStorage.getItem("fi_mh")||"{}")||{}}catch(e){best={}}
+var snd=false;try{snd=localStorage.getItem("fi_mh_snd")==="1"}catch(e){}
+var AC=null;
+function sfx(k){if(!snd)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;
+ var f={star:[880,1320],hit:[220,180],boom:[300,90],no:[200,150],win:[660,1320]}[k]||[440,440];
+ o.type=k==="star"||k==="win"?"triangle":"square";o.frequency.setValueAtTime(f[0],t);o.frequency.exponentialRampToValueAtTime(f[1],t+.15);
+ g.gain.setValueAtTime(.06,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.25)}catch(e){}}
+function sndUI(){var b=$("sndB");b.textContent=snd?"🔊 Звук":"🔇 Звук";b.setAttribute("aria-pressed",String(snd))}
+$("sndB").onclick=function(){snd=!snd;try{localStorage.setItem("fi_mh_snd",snd?"1":"0")}catch(e){}sndUI();sfx("star")};sndUI();
+
+var W=0,H=0;function measure(){var r=field.getBoundingClientRect();W=r.width;H=r.height}
+window.addEventListener("resize",measure);
+var S=null,raf=0,target={x:0,y:0},touchMode=false;
+var RR=26;
+function place(el,x,y,s){el.style.transform="translate("+(x-s/2)+"px,"+(y-s/2)+"px)"}
+function free(x,y,r){if(Math.hypot(x-S.rx,y-S.ry)<r+150)return false;
+ for(var i=0;i<S.obs.length;i++){var o=S.obs[i];if(Math.hypot(x-o.x,y-o.y)<r+o.s/2+24)return false}
+ for(i=0;i<S.stars.length;i++){var s=S.stars[i];if(Math.hypot(x-s.x,y-s.y)<r+60)return false}return true}
+function spot(r){for(var k=0;k<200;k++){var x=r+20+Math.random()*(W-2*r-40),y=r+20+Math.random()*(H-2*r-40);if(free(x,y,r))return{x:x,y:y}}
+ return{x:r+20+Math.random()*(W-2*r-40),y:r+20+Math.random()*(H-2*r-40)}}
+function addOb(t,x,y,drift,guard){var s=Math.max(64,Math.min(92,Math.min(W,H)*.14));
+ var el=document.createElement("div");el.className="ent ob";el.style.width=el.style.height=s+"px";el.innerHTML=OBS[t]+(S.lv.hints?mouseIco(t):"");
+ var a=Math.random()*Math.PI*2,o={t:t,x:x,y:y,s:s,el:el,hp:t==="L"?(S.lv.lhp||2):1,alive:true,last:0,ht:0,vx:drift?Math.cos(a)*drift:0,vy:drift?Math.sin(a)*drift:0,guard:guard};
+ el.addEventListener("pointerdown",function(e){onObDown(e,o)});
+ el.addEventListener("pointerup",function(e){onObUp(e,o)});
+ field.appendChild(el);place(el,x,y,s);S.obs.push(o);return o}
+function addStar(){var p,lv=S.lv,guard=lv.types.length&&Math.random()<lv.guard;p=spot(guard?46:22);
+ var el=document.createElement("div");el.className="ent star";var s=S.lv.fs||46;el.style.width=el.style.height=s+"px";el.innerHTML=FLOWER;field.insertBefore(el,rocketEl);
+ var st={x:p.x,y:p.y,s:s,el:el,cover:null};S.stars.push(st);place(el,st.x,st.y,s);
+ if(guard){st.cover=addOb(lv.types[Math.floor(Math.random()*lv.types.length)],p.x,p.y,0,true);el.classList.add("hid")}
+ S.spawned++}
+function showTip(text,x,y){tip.textContent=text;tip.hidden=false;var w=Math.min(260,W-20);
+ var tx=Math.max(10,Math.min(W-w-10,x-w/2)),ty=y-90<10?y+60:y-90;tip.style.left=tx+"px";tip.style.top=ty+"px";clearTimeout(S.tipT);S.tipT=setTimeout(function(){tip.hidden=true},2200)}
+function wrong(o,msg){o.el.classList.remove("wig");void o.el.offsetWidth;o.el.classList.add("wig");sfx("no");
+ var how=HOW[o.t];if(touchMode&&o.t==="R")how="натисни й потримай пальцем";
+ showTip(msg||(NAME[o.t]+": "+how),o.x,o.y-o.s/2)}
+function boom(o){o.alive=false;sfx("boom");var c=COL[o.t];
+ for(var i=0;i<10;i++){var p=document.createElement("div");p.className="pt";p.style.background=c;p.style.left=o.x-5+"px";p.style.top=o.y-5+"px";field.appendChild(p);
+  (function(p,a,d){requestAnimationFrame(function(){requestAnimationFrame(function(){p.style.transform="translate("+Math.cos(a)*d+"px,"+Math.sin(a)*d+"px) scale(.3)";p.style.opacity="0"})});setTimeout(function(){p.remove()},650)})(p,i/10*Math.PI*2,50+Math.random()*40)}
+ o.el.remove();S.obs=S.obs.filter(function(x){return x!==o});
+ S.stars.forEach(function(s){if(s.cover===o){s.cover=null;s.el.classList.remove("hid")}})}
+function hit(o,b){if(!o.alive||S.done)return;
+ if(b==="R"){if(o.t==="R")boom(o);else wrong(o);return}
+ if(o.t==="L"){o.hp--;if(o.hp<=0)boom(o);else{o.el.classList.add("cracked");sfx("hit")}return}
+ if(o.t==="D"){var now=performance.now();if(now-o.last<450){clearTimeout(o.ht);boom(o)}else{o.last=now;clearTimeout(o.ht);o.ht=setTimeout(function(){if(o.alive)wrong(o,"Майже! Клацни ДВІЧІ швидко 👆👆")},460)}return}
+ wrong(o)}
+function onObDown(e,o){e.preventDefault();e.stopPropagation();
+ if(e.pointerType==="touch"){touchMode=true;clearTimeout(o.lp);o.lpDone=false;o.lp=setTimeout(function(){o.lpDone=true;hit(o,"R")},550);return}
+ if(e.button===2)hit(o,"R");else if(e.button===0)hit(o,"L")}
+function onObUp(e,o){if(e.pointerType!=="touch")return;clearTimeout(o.lp);if(!o.lpDone)hit(o,"L")}
+document.addEventListener("contextmenu",function(e){e.preventDefault()});
+field.addEventListener("pointermove",function(e){var r=field.getBoundingClientRect();target.x=e.clientX-r.left;target.y=e.clientY-r.top;if(e.pointerType==="touch")touchMode=true});
+field.addEventListener("pointerdown",function(e){var r=field.getBoundingClientRect();target.x=e.clientX-r.left;target.y=e.clientY-r.top});
+
+function clearField(){[].slice.call(field.querySelectorAll(".ob,.star,.pt")).forEach(function(x){x.remove()});tip.hidden=true}
+function start(i){cancelAnimationFrame(raf);ov.hidden=true;ov.innerHTML="";measure();clearField();
+ var lv=LV[i];S={i:i,lv:lv,obs:[],stars:[],got:0,spawned:0,rx:80,ry:H/2,ang:0,t:0,done:false,last:performance.now(),bumpT:0,tipT:0};
+ target.x=S.rx;target.y=S.ry;$("lvN").textContent=(i+1)+". "+lv.n;
+ for(var k=0;k<Math.min(3,lv.stars);k++)addStar();
+ for(k=0;k<lv.extra;k++){var p=spot(46);addOb(lv.types[k%lv.types.length],p.x,p.y,lv.drift,false)}
+ hud();banner.textContent="Старт!";banner.hidden=false;setTimeout(function(){banner.hidden=true},900);
+ showTip(lv.d,W/2,H*.75);
+ raf=requestAnimationFrame(loop)}
+function hud(){$("sc").textContent=S.got+"/"+S.lv.stars;$("tm").textContent=S.t.toFixed(1).replace(".",",")+" с"}
+function loop(now){var dt=Math.min(.05,(now-S.last)/1000);S.last=now;if(S.done)return;
+ if(!document.hidden)S.t+=dt;
+ var k=1-Math.pow(.0009,dt),px=S.rx,py=S.ry;
+ S.rx+=(target.x-S.rx)*k;S.ry+=(target.y-S.ry)*k;
+ S.rx=Math.max(RR,Math.min(W-RR,S.rx));S.ry=Math.max(RR,Math.min(H-RR,S.ry));
+ S.obs.forEach(function(o){if(o.vx||o.vy){o.x+=o.vx*dt;o.y+=o.vy*dt;var r=o.s/2;
+   if(o.x<r||o.x>W-r)o.vx*=-1;if(o.y<r||o.y>H-r)o.vy*=-1;o.x=Math.max(r,Math.min(W-r,o.x));o.y=Math.max(r,Math.min(H-r,o.y));place(o.el,o.x,o.y,o.s)}
+  var dx=S.rx-o.x,dy=S.ry-o.y,d=Math.hypot(dx,dy)||1,m=RR+o.s*.42;
+  if(d<m){S.rx=o.x+dx/d*m;S.ry=o.y+dy/d*m;
+   if(now-S.bumpT>900){S.bumpT=now;rocketEl.classList.remove("bump");void rocketEl.offsetWidth;rocketEl.classList.add("bump");
+    if(o.guard||S.lv.hints)wrong(o,"Бджілка не пролетить! "+NAME[o.t]+": "+(touchMode&&o.t==="R"?"натисни й потримай пальцем":HOW[o.t]))}}});
+ var vx=S.rx-px,vy=S.ry-py;if(Math.hypot(vx,vy)>.6){var a=Math.atan2(vy,vx)*180/Math.PI+90,da=((a-S.ang+540)%360)-180;S.ang+=da*Math.min(1,dt*10)}
+ rocketEl.style.transform="translate("+(S.rx-32)+"px,"+(S.ry-42)+"px) rotate("+S.ang+"deg)";
+ for(var i=S.stars.length-1;i>=0;i--){var s=S.stars[i];if(!s.cover&&Math.hypot(S.rx-s.x,S.ry-s.y)<RR+s.s/2-3){
+   s.el.remove();S.stars.splice(i,1);S.got++;sfx("star");
+   if(S.spawned<S.lv.stars)addStar()}}
+ hud();
+ if(S.got>=S.lv.stars){finish();return}
+ raf=requestAnimationFrame(loop)}
+function rate(lv,t){return t<=lv.par?3:t<=lv.par*1.6?2:1}
+function finish(){S.done=true;sfx("win");tip.hidden=true;var n=rate(S.lv,S.t),i=S.i;
+ if(!best[i+1]||best[i+1]<n){best[i+1]=n;try{localStorage.setItem("fi_mh",JSON.stringify(best))}catch(e){}}
+ var st="";for(var k=0;k<3;k++)st+=k<n?STAR:STAR0;
+ var last=i===LV.length-1;
+ ov.innerHTML='<div class="panel" role="dialog" aria-labelledby="fh"><h1 id="fh">'+(last?"Найкраща бджілка галявини!":"Рівень пройдено!")+'</h1><div class="big3" aria-label="Оцінка: '+n+' з 3">'+st+'</div>'+
+  '<p>Рівень «'+S.lv.n+'» · час: '+S.t.toFixed(1).replace(".",",")+' с</p>'+(n<3?'<p class="note">Три зірки — якщо встигнеш за '+S.lv.par+' с.</p>':'')+
+  '<div class="row">'+(!last?'<button class="btn" id="nx" type="button">Наступний рівень →</button>':'')+'<button class="btn w" id="rp" type="button">↻ Ще раз</button><button class="btn w" id="ml" type="button">☰ Усі рівні</button></div></div>';
+ ov.hidden=false;
+ if($("nx"))$("nx").onclick=function(){start(i+1)};$("rp").onclick=function(){start(i)};$("ml").onclick=menu;
+ ($("nx")||$("rp")).focus()}
+function menu(){if(S){S.done=true;cancelAnimationFrame(raf)}clearField();$("lvN").textContent="";
+ var nxt=0;while(nxt<LV.length-1&&best[nxt+1])nxt++;
+ var lv=LV.map(function(l,i){var b=best[i+1]||0,s="";for(var k=0;k<3;k++)s+=k<b?"★":"☆";
+  return '<button class="lvb" type="button" data-l="'+i+'"><span class="no">'+(i+1)+'</span><span class="nm">'+l.n+'</span><span class="st" aria-label="'+b+' з 3 зірок">'+s+'</span></button>'}).join("");
+ ov.innerHTML='<div class="panel" role="dialog" aria-labelledby="mh"><h1 id="mh">Медова галявина</h1>'+
+  '<p>Веди бджілку <b>вказівником миші</b> і збирай квіти. Перешкоди на шляху прибирай потрібною кнопкою!</p>'+
+  '<div class="leg">'+["L","R","D"].map(function(t){return '<div class="lg"><svg viewBox="0 0 100 100" width="52" height="52" aria-hidden="true">'+OBS[t].replace(/^<svg[^>]*>/,"").replace(/<\/svg>$/,"")+'</svg>'+mouseIco(t,26,36).replace('class="mi" ','')+'<div><b>'+NAME[t]+'</b><span>'+SHORT[t]+'</span></div></div>'}).join("")+'</div>'+
+  '<div class="lvls">'+lv+'</div><div class="row"><button class="btn" id="go" type="button">▶ Почати рівень '+(nxt+1)+'</button><button class="btn w" id="ab" type="button">ℹ Про гру</button></div>'+
+  '<p class="note" id="tn" hidden>Цей тренажер для комп’ютерної мишки. На планшеті: веди бджілку пальцем, «праве клацання» — натисни й потримай.</p></div>';
+ ov.hidden=false;
+ [].forEach.call(ov.querySelectorAll("[data-l]"),function(b){b.onclick=function(){start(+b.dataset.l)}});
+ $("go").onclick=function(){start(nxt)};$("ab").onclick=intro;$("go").focus({preventScroll:true});
+ if(window.matchMedia&&!matchMedia("(pointer:fine)").matches)$("tn").hidden=false}
+function intro(){if(S){S.done=true;cancelAnimationFrame(raf)}clearField();$("lvN").textContent="";
+ ov.innerHTML='<div class="panel" role="dialog" aria-labelledby="ih"><h1 id="ih">Медова галявина</h1><p>Тренажер для комп’ютерної мишки</p>'+
+ '<div class="info">'+
+ '<div class="ib"><h2><svg class="info-ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#1F2A5C" stroke-width="2.2"><circle cx="12" cy="12" r="9" fill="#FF6B8B"/><circle cx="12" cy="12" r="5" fill="#fff"/><circle cx="12" cy="12" r="1.8" fill="#1F2A5C"/></svg>Мета гри</h2>'+
+ '<p>Допомогти бджілці зібрати всі квіти на галявині. Бджілка летить за вказівником миші, а колючі кущі, павутину й дощові хмарки треба прибирати правильною дією мишкою. Чим швидше — тим більше зірок!</p></div>'+
+ '<div class="ib"><h2><svg class="info-ic" viewBox="0 0 28 38" aria-hidden="true"><rect x="2" y="2" width="24" height="34" rx="12" fill="#fff" stroke="#1F2A5C" stroke-width="2.5"/><path d="M14 3.4A10.6 10.6 0 0 0 3.4 14V16H14z" fill="#3FA34D"/><path d="M2.5 16h23M14 2v14" stroke="#1F2A5C" stroke-width="2.5"/></svg>Які навички тренуються</h2><ul>'+
+ '<li>Плавне й точне переміщення вказівника миші</li>'+
+ '<li>Клацання лівою кнопкою</li>'+
+ '<li>Клацання правою кнопкою</li>'+
+ '<li>Подвійне клацання</li>'+
+ '<li>Увага, швидкість реакції та вміння розрізняти, яку дію виконати</li></ul></div>'+
+ '<div class="ib"><h2><svg class="info-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6L2.5 9.3l6.6-.8z" fill="#FFC93C" stroke="#1F2A5C" stroke-width="1.8" stroke-linejoin="round"/></svg>Для кого</h2>'+
+ '<p><span class="age">6–9 років</span><span class="age">1–3 клас</span></p><p style="margin-top:8px">15 рівнів від простого до складного: рівні 1–8 — для першокласників, які лише знайомляться з мишкою, 9–15 — для тих, хто вже впевнено нею користується.</p></div>'+
+ '</div><div class="row"><button class="btn" id="toL" type="button">Далі — до рівнів →</button></div></div>';
+ ov.hidden=false;$("toL").onclick=menu;$("toL").focus({preventScroll:true})}
+$("menuB").onclick=menu;
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&S&&!S.done)menu()});
+measure();intro();
+})();
+</script>
+</body>
+</html>
