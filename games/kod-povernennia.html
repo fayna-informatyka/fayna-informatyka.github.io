@@ -771,6 +771,7 @@ const I18N = {
     codeInfo: (d, s) => `У коді: ${d} / 100 деталей і ${s} зірок. Імені в коді немає.`, copy: 'Копіювати', copied: 'Скопійовано ✓', done: 'Готово',
     restoreH: 'Маю код повернення', restoreP: 'Введи код і свій нікнейм. Якщо такого гравця тут ще немає, його буде створено.', codeLabel: 'КОД ПОВЕРНЕННЯ', restore: 'Відновити',
     badCode: 'Код не підходить. Перевір, чи немає помилки.', restored: d => `Прогрес відновлено: ${d} / 100 деталей.`,
+    renameH: 'Потрібен новий нікнейм', renameP: 'Цей нікнейм не підходить для гри. Вигадай новий або натисни 🎲 — прогрес залишиться твоїм.', save: 'Зберегти',
     boardBtn: 'Дошка лідерів', boardH: 'Дошка лідерів', boardSoon: 'Дошка лідерів скоро запрацює. Проходь рівні — твої деталі й зірки вже рахуються!', boardLoading: 'Завантажуємо дошку…',
     boardGoal: (x, g) => `Разом усі пілоти зібрали деталей: <b>${x}</b> · спільна мета: ${g}`, boardCount: (n, a) => `Пілотів на дошці: ${n} · грали цього тижня: ${a}`,
     boardParts: 'Найбільше деталей', boardStars: 'Найбільше зірок', boardEmpty: 'Поки порожньо — стань першим!',
@@ -810,6 +811,7 @@ const I18N = {
     codeInfo: (d, s) => `This code holds ${d} / 100 parts and ${s} stars. No name is stored in it.`, copy: 'Copy', copied: 'Copied ✓', done: 'Done',
     restoreH: 'I have a return code', restoreP: 'Enter the code and your nickname. If this player isn’t on this device yet, they’ll be created.', codeLabel: 'RETURN CODE', restore: 'Restore',
     badCode: 'That code doesn’t work. Check it for typos.', restored: d => `Progress restored: ${d} / 100 parts.`,
+    renameH: 'Pick a new nickname', renameP: 'This nickname isn’t allowed in the game. Make up a new one or tap 🎲 — your progress stays with you.', save: 'Save',
     boardBtn: 'Leaderboard', boardH: 'Leaderboard', boardSoon: 'The leaderboard is coming soon. Keep playing — your parts and stars already count!', boardLoading: 'Loading the board…',
     boardGoal: (x, g) => `Together all pilots have collected <b>${x}</b> parts · shared goal: ${g}`, boardCount: (n, a) => `Pilots on the board: ${n} · played this week: ${a}`,
     boardParts: 'Most parts', boardStars: 'Most stars', boardEmpty: 'Empty for now — be the first!',
@@ -1911,7 +1913,15 @@ function writeSave(id, sv) { memSaves[id] = sv; try { localStorage.setItem(saveK
 function readSave(id) { const s = loadSave(saveKey(id)); return Object.keys(s.done).length || !memSaves[id] ? s : memSaves[id]; }
 function usePlayer(id) {
   profiles.cur = id; persistProfiles(); save = readSave(id);
-  resetRocket(); level = null; showMenu(); renderWho(); boardSync(true);
+  resetRocket(); level = null; showMenu(); renderWho();
+  if (nickProblem(curProfile().nick)) renameModal(); else boardSync(true);
+}
+// nicknames saved before the filter existed (or by an older version) must be replaced before playing on
+function renameModal() {
+  const p = curProfile(); if (!p) return;
+  modal(`<h2>${t('renameH')}</h2><p>${t('renameP')}</p>${nickField('nickRen')}<p class="err" id="err" role="alert"></p>`,
+    [{ label: t('save'), primary: true, check: () => checkNick('nickRen'), fn: () => { p.nick = $('nickRen').value.trim(); persistProfiles(); renderWho(); boardSync(true); } }]);
+  wireDice(); setTimeout(() => $('nickRen')?.focus(), 50);
 }
 function createPlayer(nick, sv) {
   const id = 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
@@ -1922,7 +1932,7 @@ function createPlayer(nick, sv) {
   }
   profiles.list.push({ id, nick: nick.trim() }); writeSave(id, sv || emptySave()); usePlayer(id);
 }
-function renderWho() { const p = curProfile(), el = document.getElementById('who'); if (el) el.innerHTML = p ? `${t('player')}: <b>${escapeHtml(p.nick)}</b>` : ''; }
+function renderWho() { const p = curProfile(), el = document.getElementById('who'); if (el) el.innerHTML = p ? `${t('player')}: <b>${nickProblem(p.nick) ? '••••' : escapeHtml(p.nick)}</b>` : ''; }
 const escapeHtml = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 function nickField(id, value = '') {
@@ -1938,7 +1948,7 @@ function checkNick(inputId, allowExisting) {
 
 function whoModal() {
   const list = profiles.list.map(p => { const d = Object.keys(readSave(p.id).done).length;
-    return `<div class="pitem"><button class="pbtn${p.id === profiles.cur ? ' on' : ''}" data-pid="${p.id}"><b>${escapeHtml(p.nick)}</b><span>${d} / 100</span></button><button class="pdel" data-del="${p.id}" aria-label="${t('delete')} ${escapeHtml(p.nick)}">×</button></div>`; }).join('');
+    return `<div class="pitem"><button class="pbtn${p.id === profiles.cur ? ' on' : ''}" data-pid="${p.id}"><b>${nickProblem(p.nick) ? '••••' : escapeHtml(p.nick)}</b><span>${d} / 100</span></button><button class="pdel" data-del="${p.id}" aria-label="${t('delete')} ${escapeHtml(p.nick)}">×</button></div>`; }).join('');
   modal(`<h2>${t('whoH')}</h2><p>${t('whoP')}</p>${list ? `<div class="plist">${list}</div><p class="or">${t('orNew')}</p>` : ''}${nickField('nickNew')}<p class="err" id="err" role="alert"></p>`,
     [{ label: t('haveCode'), fn: () => restoreModal() },
      { label: t('newPlayer'), primary: true, check: () => checkNick('nickNew'), fn: () => createPlayer($('nickNew').value) }]);
@@ -2022,7 +2032,7 @@ function nickIsBad(raw) {
 const uidOf = p => { if (!p.uid) { p.uid = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => b.toString(16).padStart(2, '0')).join(''); persistProfiles(); } return p.uid; };
 let syncTimer = 0;
 function boardSync(now) {
-  const p = curProfile(); if (!BOARD_URL || !p || p.board === false) return;
+  const p = curProfile(); if (!BOARD_URL || !p || p.board === false || nickProblem(p.nick)) return;
   const parts = Object.keys(save.done).length; if (!parts) return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => {
@@ -2057,6 +2067,7 @@ function profilesOnBoot() {
   const m = /[#&]kp=([0-9A-Za-z-]+)/.exec(location.hash);
   if (m) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { } restoreModal('KP-' + m[1]); return; }
   if (!curProfile()) whoModal();
+  else if (nickProblem(curProfile().nick)) renameModal();
 }
 try { const l = localStorage.getItem('moon-builder-lang'); if (l === 'en' || l === 'uk') LANG = l; } catch (e) { }
 function applyStatic() {
