@@ -761,12 +761,12 @@ const I18N = {
     lvDone: d => `, пройдено, зірок ${d}`, lvLocked: ', закрито', resetQ: 'Скинути прогрес?', resetP: 'Усі пройдені рівні, зірки й зібрані деталі ракети цього гравця буде видалено з цього пристрою.',
     cancel: 'Скасувати', resetBtn: 'Скинути', langAria: 'Мова гри', soundOn: 'Увімкнути звук', soundOff: 'Вимкнути звук',
     player: 'Гравець', switchPlayer: 'Вийти', myCode: 'Мій код',
-    whoH: 'Хто грає?', whoP: 'Введи свій нікнейм і натисни «Увійти» або створи нового гравця. Прогрес кожного зберігається окремо на цьому пристрої.', login: 'Увійти', loginNoNick: 'Такого гравця на цьому пристрої немає. Перевір нікнейм або натисни «Новий гравець».', rememberMe: 'Це мій особистий пристрій — не питати щоразу',
+    whoH: 'Хто грає?', whoP: 'Введи свій космічний нікнейм. Якщо ти вже грав на цьому пристрої — продовжиш з того місця, де зупинився.', play: 'Грати', welcomeBack: (n, l) => `З поверненням, <b>${n}</b>! Рівень ${l}`, welcomeNew: n => `Новий пілот <b>${n}</b> — вперед!`, login: 'Увійти', loginNoNick: 'Такого гравця на цьому пристрої немає. Перевір нікнейм або натисни «Новий гравець».', rememberMe: 'Це мій особистий пристрій — не питати щоразу',
     nickLabel: 'КОСМІЧНИЙ НІКНЕЙМ', nickPh: 'Наприклад, ЗорянийЛис42', dice: 'Випадковий нікнейм', newPlayer: 'Новий гравець', haveCode: 'Маю код повернення',
     nickHint: 'Тільки вигадане ім’я: без справжнього імені, прізвища та класу.',
     nickLen: 'Нікнейм має бути від 3 до 20 символів.', nickSpace: 'Нікнейм — одне слово без пробілів, наприклад «ЗорянийЛис42».',
     nickChars: 'Можна лише літери, цифри, «-» і «_».', nickReal: 'Схоже на справжнє ім’я, прізвище або клас. Вигадай космічний нікнейм або натисни 🎲.',
-    nickTaken: 'Такий нікнейм уже зайнятий на цьому пристрої. Якщо він твій — натисни «Увійти», інакше вигадай інший.',
+    nickTaken: 'Такий нікнейм уже є на цьому пристрої. Вигадай інший.',
     codeH: 'Твій код повернення', codeP: 'Запиши код у зошит або сфотографуй QR. На іншому пристрої натисни «Маю код повернення» — і продовжиш з того ж місця.',
     codeInfo: (d, s) => `У коді: ${d} / 100 деталей і ${s} зірок. Імені в коді немає.`, copy: 'Копіювати', copied: 'Скопійовано ✓', done: 'Готово',
     restoreH: 'Маю код повернення', restoreP: 'Введи код і свій нікнейм. Якщо такого гравця тут ще немає, його буде створено.', codeLabel: 'КОД ПОВЕРНЕННЯ', restore: 'Відновити',
@@ -801,12 +801,12 @@ const I18N = {
     lvDone: d => `, completed, ${d} stars`, lvLocked: ', locked', resetQ: 'Reset progress?', resetP: 'All of this player’s completed levels, stars and collected rocket parts will be deleted from this device.',
     cancel: 'Cancel', resetBtn: 'Reset', langAria: 'Game language', soundOn: 'Turn sound on', soundOff: 'Turn sound off',
     player: 'Player', switchPlayer: 'Log out', myCode: 'My code',
-    whoH: 'Who’s playing?', whoP: 'Type your nickname and tap “Log in”, or add a new player. Each player’s progress is saved separately on this device.', login: 'Log in', loginNoNick: 'There’s no such player on this device. Check the nickname or tap “New player”.', rememberMe: 'This is my own device — don’t ask every time',
+    whoH: 'Who’s playing?', whoP: 'Type your space nickname. If you’ve played on this device before, you’ll continue right where you left off.', play: 'Play', welcomeBack: (n, l) => `Welcome back, <b>${n}</b>! Level ${l}`, welcomeNew: n => `New pilot <b>${n}</b> — let’s go!`, login: 'Log in', loginNoNick: 'There’s no such player on this device. Check the nickname or tap “New player”.', rememberMe: 'This is my own device — don’t ask every time',
     nickLabel: 'SPACE NICKNAME', nickPh: 'For example, StarFox42', dice: 'Random nickname', newPlayer: 'New player', haveCode: 'I have a return code',
     nickHint: 'Made-up names only: no real first name, surname or class.',
     nickLen: 'A nickname must be 3–20 characters long.', nickSpace: 'Use one word without spaces, like “StarFox42”.',
     nickChars: 'Only letters, digits, “-” and “_” are allowed.', nickReal: 'That looks like a real name, surname or class. Make up a space nickname or tap 🎲.',
-    nickTaken: 'This nickname is already taken on this device. If it’s yours, tap “Log in”; otherwise make up another one.',
+    nickTaken: 'This nickname already exists on this device. Make up another one.',
     codeH: 'Your return code', codeP: 'Write the code down or take a photo of the QR. On another device, tap “I have a return code” to continue where you left off.',
     codeInfo: (d, s) => `This code holds ${d} / 100 parts and ${s} stars. No name is stored in it.`, copy: 'Copy', copied: 'Copied ✓', done: 'Done',
     restoreH: 'I have a return code', restoreP: 'Enter the code and your nickname. If this player isn’t on this device yet, they’ll be created.', codeLabel: 'RETURN CODE', restore: 'Restore',
@@ -1836,7 +1836,7 @@ try { const p = JSON.parse(localStorage.getItem(PKEY) || 'null'); if (p && Array
 // only a player who ticked "my own device" stays logged in across visits.
 { let s = null; try { s = sessionStorage.getItem('kp-cur'); } catch (e) { }
   const rem = profiles.list.find(x => x.id === profiles.cur && x.remember);
-  profiles.cur = profiles.list.some(x => x.id === s) ? s : rem ? rem.id : null; }
+  profiles.cur = null; }  // the game always starts with "Who's playing?"
 const saveKey = id => SAVE_KEY + ':' + id;
 function loadSave(key) { try { const s = JSON.parse(localStorage.getItem(key) || 'null'); if (s && s.done) return { done: s.done, drafts: s.drafts || {} }; } catch (e) { } return emptySave(); }
 const curProfile = () => profiles.list.find(p => p.id === profiles.cur) || null;
@@ -1958,18 +1958,18 @@ function checkNick(inputId, allowExisting) {
 }
 
 function whoModal() {
-  modal(`<h2>${t('whoH')}</h2><p>${t('whoP')}</p>${nickField('nickNew')}${rememberField()}<p class="err" id="err" role="alert"></p>`,
+  modal(`<h2>${t('whoH')}</h2><p>${t('whoP')}</p>${nickField('nickNew')}<p class="err" id="err" role="alert"></p>`,
     [{ label: t('haveCode'), fn: () => restoreModal() },
-     { label: t('newPlayer'), check: () => checkNick('nickNew'), fn: () => createPlayer($('nickNew').value, null, $('remember').checked) },
-     { label: t('login'), primary: true, check: () => {
+     { label: t('play'), primary: true, check: () => findByNick($('nickNew').value) ? true : checkNick('nickNew'), fn: () => {
          const p = findByNick($('nickNew').value);
-         if (!p) { $('err').textContent = t('loginNoNick'); $('nickNew').focus(); return false; }
-         p.remember = $('remember').checked; return true;
-       }, fn: () => { const p = findByNick($('nickNew').value); persistProfiles(); usePlayer(p.id); } }]);
+         if (p) { usePlayer(p.id); if (!nickProblem(p.nick)) greet(t('welcomeBack', escapeHtml(p.nick), nextLevel())); }
+         else { createPlayer($('nickNew').value, null, false); greet(t('welcomeNew', escapeHtml(curProfile().nick))); }
+       } }]);
   wireDice();
   $('nickNew').addEventListener('keydown', e => { if (e.key === 'Enter') document.querySelector('#card .primary')?.click(); });
   setTimeout(() => $('nickNew')?.focus(), 50);
 }
+function greet(html) { toast(html); setTimeout(() => { if ($('toastText').innerHTML === html) toast(null); }, 4500); }
 function logout() {
   boardSync(true); profiles.cur = null; persistProfiles(); save = emptySave();
   resetRocket(); level = null; showMenu(); renderWho(); whoModal();
@@ -2103,8 +2103,8 @@ document.querySelectorAll('[data-langtoggle]').forEach(b => b.onclick = () => se
 applyStatic();
 const persist = () => { if (profiles.cur) writeSave(profiles.cur, save); };
 const doneCount = () => Object.keys(save.done).length;
-// The first level of every stage (1, 21, 41, 61, 81) is always open; the rest unlock one by one.
-const unlocked = n => n % 20 === 1 || !!save.done[n - 1];
+// Only level 1 is open at the start; every next level unlocks when the previous one is completed.
+const unlocked = n => n === 1 || !!save.done[n - 1];
 const nextLevel = () => { for (let n = 1; n <= 100; n++) if (!save.done[n]) return n; return 100; };
 const stageProgress = s => { let c = 0; for (let n = s * 20 + 1; n <= s * 20 + 20; n++) if (save.done[n]) c++; return c / 20; };
 
