@@ -1844,7 +1844,11 @@ try { const p = JSON.parse(localStorage.getItem(PKEY) || 'null'); if (p && Array
   const rem = profiles.list.find(x => x.id === profiles.cur && x.remember);
   profiles.cur = null; }  // the game always starts with "Who's playing?"
 const saveKey = id => SAVE_KEY + ':' + id;
-function loadSave(key) { try { const s = JSON.parse(localStorage.getItem(key) || 'null'); if (s && s.done) return { done: s.done, drafts: s.drafts || {} }; } catch (e) { } return emptySave(); }
+function loadSave(key) {
+  try { const s = JSON.parse(localStorage.getItem(key) || 'null');
+    if (s && s.done) { const done = {}; for (const [n, v] of Object.entries(s.done)) if (+n >= 1 && +n <= 100) done[n] = Math.min(3, Math.max(1, Math.round(+v) || 1)); return { done, drafts: s.drafts || {} }; } } catch (e) { }
+  return emptySave();
+}
 const curProfile = () => profiles.list.find(p => p.id === profiles.cur) || null;
 const persistProfiles = () => {
   const p = curProfile();
@@ -1897,7 +1901,9 @@ function randomNick() {
   for (let i = 0; i < 50; i++) { const n = r(a) + r(b) + (10 + Math.floor(Math.random() * 90)); if (!nickProblem(n) && !findByNick(n)) return n; }
   return r(a) + r(b) + Date.now() % 1000;
 }
-const findByNick = n => profiles.list.find(p => p.nick.toLowerCase() === n.trim().toLowerCase()) || null;
+const LOOK = { а: 'a', в: 'b', е: 'e', є: 'e', з: '3', і: 'i', ї: 'i', к: 'k', м: 'm', н: 'h', о: 'o', р: 'p', с: 'c', т: 't', у: 'y', х: 'x' };
+const nickKey = n => [...String(n).trim().toLowerCase()].map(c => LOOK[c] || c).join('');
+const findByNick = n => profiles.list.find(p => nickKey(p.nick) === nickKey(n)) || null;
 
 /* --- return code: per stage, the completed prefix (0–20) and the stars of each completed level --- */
 const B32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
@@ -2061,10 +2067,11 @@ const uidOf = p => { if (!p.uid) { p.uid = Array.from(crypto.getRandomValues(new
 let syncTimer = 0;
 function boardSync(now) {
   const p = curProfile(); if (!BOARD_URL || !p || p.board === false || nickProblem(p.nick)) return;
-  const parts = Object.keys(save.done).length; if (!parts) return;
+  const parts = Object.keys(save.done).length, stars = sumStars(save.done), body = JSON.stringify({ id: uidOf(p), nick: p.nick, parts, stars });
+  if (!parts) return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => {
-    fetch(BOARD_URL, { method: 'POST', body: JSON.stringify({ id: uidOf(p), nick: p.nick, parts, stars: sumStars(save.done) }) })
+    fetch(BOARD_URL, { method: 'POST', body })
       .then(r => r.json()).then(j => { if (j && j.ok && j.nick && j.nick !== p.boardNick) { p.boardNick = j.nick; persistProfiles(); } }).catch(() => { });
   }, now ? 0 : 800);
 }
