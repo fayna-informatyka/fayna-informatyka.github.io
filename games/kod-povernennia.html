@@ -162,6 +162,13 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
 .pdel{width:40px;border-radius:12px;border:1px solid var(--line);color:var(--muted);font-size:20px}
 .or{font-size:12px!important;color:var(--muted)!important;text-align:center}
 .kcode{font:800 20px/1.35 ui-monospace,"DejaVu Sans Mono",monospace;letter-spacing:.05em;text-align:center;padding:12px;border-radius:12px;background:rgba(98,227,255,.08);border:1px solid rgba(98,227,255,.3);color:var(--neon);word-break:break-all;user-select:all;-webkit-user-select:all}
+.card:has(.bd){max-width:600px}.bd{display:flex;flex-direction:column;gap:12px}.goal{font-size:14px;color:var(--ink)}.goal b{color:var(--neon)}
+.gbar{height:10px;border-radius:10px;background:rgba(150,180,230,.14);overflow:hidden;margin:6px 0}.gbar i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--mint));box-shadow:0 0 12px rgba(98,227,255,.5)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.bd h3{margin:0 0 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}.lb li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:10px;background:rgba(13,19,33,.6);border:1px solid transparent;font-size:13px}
+.lb li b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lb li .v{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}.lb li.me{border-color:var(--neon);background:rgba(98,227,255,.1)}
+.rk{width:22px;text-align:center;font-weight:800;color:var(--muted)}.mine{color:var(--ink)!important}.mine b{color:var(--neon)}.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}.chk input{width:18px;height:18px;accent-color:var(--neon)}
+.cta{display:flex;gap:8px}@media (max-width:480px){.cta{flex-direction:column}.cta .lbbtn{width:100%}}.cta #btnContinue{flex:1;width:auto}.lbbtn{width:auto;flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;color:#ffe2b0;border-color:rgba(255,181,71,.45);background:rgba(255,181,71,.1)}.lbbtn span:first-child{font-size:18px}
 .qr{align-self:center;width:150px;height:150px;border-radius:10px;overflow:hidden}.qr svg{display:block;width:100%;height:100%}
 
 /* Modal */
@@ -226,11 +233,13 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
     padding-block:calc(12px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:12px}
   h1{font-size:26px}.lede{font-size:12.5px;line-height:1.45}.eyebrow{font-size:10px}
   .big{height:40px;font-size:13.5px}
+  .lbbtn{padding:0 10px}.lbbtn span:first-child{font-size:15px}
   .stab{padding:5px 2px}.stab b{font-size:11px}.stab span{font-size:9.5px}
   .stageinfo{padding:8px 10px;gap:4px}.stageinfo h2{font-size:13px}.stageinfo p{font-size:11.5px}
   .levels{grid-template-columns:repeat(10,1fr);gap:4px}
   .lv{height:34px;border-radius:8px;font-size:11px;gap:2px}.lv .st i{width:4px;height:4px}
   .menu-foot{font-size:10.5px}
+  .lb li{padding:3px 6px;font-size:11.5px}.cols{gap:8px}.goal{font-size:12px}.bd{gap:6px}
   .kcode{font-size:15px;padding:8px}.qr{width:104px;height:104px}.card input{height:36px;font-size:15px}.dice{width:36px}.plist{max-height:110px}.pbtn{padding:6px 10px}
   #modal{padding-block:8px}
   .card{max-width:min(560px,92vw);max-height:calc(100% - 16px);overflow:auto;padding:14px 16px;gap:8px;border-radius:16px}
@@ -272,7 +281,7 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
       <h1 data-i18n-html="h1">Код <em>повернення</em></h1>
       <p class="lede" data-i18n="lede">Космонавт застряг на Місяці. Програмуй його маршрут, збери 100 деталей нової ракети й поверни його на Землю.</p>
       <div class="progress"><div class="pbar"><i id="pfill"></i></div><span id="ptext"></span></div>
-      <button id="btnContinue" class="primary big"></button>
+      <div class="cta"><button id="btnContinue" class="primary big"></button><button id="btnBoard" class="ghost big lbbtn"><span aria-hidden="true">🏆</span><span data-i18n="boardBtn">Дошка лідерів</span></button></div>
       <div class="stages" id="stageTabs"></div>
       <div class="stageinfo" id="stageInfo"></div>
       <div class="levels" id="levelGrid"></div>
@@ -762,6 +771,12 @@ const I18N = {
     codeInfo: (d, s) => `У коді: ${d} / 100 деталей і ${s} зірок. Імені в коді немає.`, copy: 'Копіювати', copied: 'Скопійовано ✓', done: 'Готово',
     restoreH: 'Маю код повернення', restoreP: 'Введи код і свій нікнейм. Якщо такого гравця тут ще немає, його буде створено.', codeLabel: 'КОД ПОВЕРНЕННЯ', restore: 'Відновити',
     badCode: 'Код не підходить. Перевір, чи немає помилки.', restored: d => `Прогрес відновлено: ${d} / 100 деталей.`,
+    boardBtn: 'Дошка лідерів', boardH: 'Дошка лідерів', boardSoon: 'Дошка лідерів скоро запрацює. Проходь рівні — твої деталі й зірки вже рахуються!', boardLoading: 'Завантажуємо дошку…',
+    boardGoal: (x, g) => `Разом усі пілоти зібрали деталей: <b>${x}</b> · спільна мета: ${g}`, boardCount: (n, a) => `Пілотів на дошці: ${n} · грали цього тижня: ${a}`,
+    boardParts: 'Найбільше деталей', boardStars: 'Найбільше зірок', boardEmpty: 'Поки порожньо — стань першим!',
+    boardMe: (n, r, all) => `Ти — <b>${n}</b>: ${r} місце з ${all}. Кожна нова деталь піднімає тебе вище!`,
+    boardNotYet: 'Пройди рівень — і твій нікнейм з’явиться на дошці.', boardOff: 'Дошка зараз недоступна. Перевір інтернет і спробуй пізніше.',
+    boardShowMe: 'Показувати мій нікнейм на дошці', nickBad: 'Цей нікнейм не підходить. Вигадай інший або натисни 🎲.',
     delQ: n => `Видалити гравця ${n}?`, delP: 'Його прогрес на цьому пристрої буде видалено. Відновити можна лише кодом повернення.', delete: 'Видалити',
   },
   en: {
@@ -795,6 +810,12 @@ const I18N = {
     codeInfo: (d, s) => `This code holds ${d} / 100 parts and ${s} stars. No name is stored in it.`, copy: 'Copy', copied: 'Copied ✓', done: 'Done',
     restoreH: 'I have a return code', restoreP: 'Enter the code and your nickname. If this player isn’t on this device yet, they’ll be created.', codeLabel: 'RETURN CODE', restore: 'Restore',
     badCode: 'That code doesn’t work. Check it for typos.', restored: d => `Progress restored: ${d} / 100 parts.`,
+    boardBtn: 'Leaderboard', boardH: 'Leaderboard', boardSoon: 'The leaderboard is coming soon. Keep playing — your parts and stars already count!', boardLoading: 'Loading the board…',
+    boardGoal: (x, g) => `Together all pilots have collected <b>${x}</b> parts · shared goal: ${g}`, boardCount: (n, a) => `Pilots on the board: ${n} · played this week: ${a}`,
+    boardParts: 'Most parts', boardStars: 'Most stars', boardEmpty: 'Empty for now — be the first!',
+    boardMe: (n, r, all) => `You are <b>${n}</b>: place ${r} of ${all}. Every new part lifts you higher!`,
+    boardNotYet: 'Complete a level and your nickname will appear on the board.', boardOff: 'The board isn’t available right now. Check your connection and try later.',
+    boardShowMe: 'Show my nickname on the board', nickBad: 'That nickname won’t work. Make up another one or tap 🎲.',
     delQ: n => `Delete player ${n}?`, delP: 'Their progress on this device will be deleted. Only a return code can bring it back.', delete: 'Delete',
   },
 };
@@ -1836,6 +1857,7 @@ function nickProblem(raw) {
   if (/\s/.test(s)) return 'nickSpace';
   if (s.length < 3 || s.length > 20) return 'nickLen';
   if (!/^[\p{L}\d_-]+$/u.test(s)) return 'nickChars';
+  if (nickIsBad(s)) return 'nickBad';
   if (/(клас|class|школ|school|ліцей|гімназ|lyceum|gymnas)/i.test(s)) return 'nickReal';
   if (/\d{1,2}[-_]?[\p{L}](?!\p{L})/u.test(s) || /(^|[^\d])\d{5,}/.test(s)) return 'nickReal';
   const parts = s.replace(/([\p{Ll}])([\p{Lu}])/gu, '$1 $2').toLowerCase().replace(/[ʼ’`]/g, "'").split(/[\s\d_-]+/).filter(Boolean);
@@ -1889,7 +1911,7 @@ function writeSave(id, sv) { memSaves[id] = sv; try { localStorage.setItem(saveK
 function readSave(id) { const s = loadSave(saveKey(id)); return Object.keys(s.done).length || !memSaves[id] ? s : memSaves[id]; }
 function usePlayer(id) {
   profiles.cur = id; persistProfiles(); save = readSave(id);
-  resetRocket(); level = null; showMenu(); renderWho();
+  resetRocket(); level = null; showMenu(); renderWho(); boardSync(true);
 }
 function createPlayer(nick, sv) {
   const id = 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
@@ -1925,7 +1947,7 @@ function whoModal() {
   document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
     const p = profiles.list.find(x => x.id === b.dataset.del);
     modal(`<h2>${t('delQ', escapeHtml(p.nick))}</h2><p>${t('delP')}</p>`, [{ label: t('cancel'), fn: whoModal }, { label: t('delete'), primary: true, fn: () => {
-      profiles.list = profiles.list.filter(x => x.id !== p.id); try { localStorage.removeItem(saveKey(p.id)); } catch (e) { }
+      boardRemove(p); profiles.list = profiles.list.filter(x => x.id !== p.id); try { localStorage.removeItem(saveKey(p.id)); } catch (e) { }
       if (profiles.cur === p.id) { profiles.cur = null; save = emptySave(); resetRocket(); level = null; showMenu(); renderWho(); }
       persistProfiles(); whoModal(); } }]);
   });
@@ -1961,6 +1983,75 @@ function restoreModal(prefill = '') {
   wireDice(); setTimeout(() => (prefill ? $('nickR') : $('codeIn')).focus(), 50);
 }
 
+
+/* --- Moon heroes board (optional): set BOARD_URL to the teacher's Google Apps Script web-app URL --- */
+const BOARD_URL = '';
+// Profanity check for nicknames (Ukrainian, Russian surzhyk and English), resistant to l33t, look-alike letters and repeats.
+const BAD_ANY = {
+  cyr: ['хуй', 'хуе', 'хуё', 'хуя', 'хуи', 'хул', 'пизд', 'пізд', 'бляд', 'блят', 'ебан', 'ебал', 'ебат', 'ебуч', 'ебну', 'ебл', 'йоб', 'їба', 'сука', 'суки', 'сучк', 'сучар',
+    'мудак', 'мудил', 'гандон', 'шлюх', 'підар', 'пидар', 'пидор', 'підор', 'педик', 'педр', 'залуп', 'говн', 'гівн', 'срак', 'сран', 'жоп', 'дроч', 'курв', 'дебіл', 'дебил', 'дауна',
+    'секс', 'порн', 'нацист', 'гітлер', 'гитлер', 'русня', 'чмо'],
+  lat: ['fuck', 'fuk', 'fck', 'phuk', 'shit', 'bitch', 'btch', 'cunt', 'whore', 'slut', 'pussy', 'porn', 'nigg', 'niga', 'fagg', 'nazi', 'hitler', 'retard', 'xyi', 'xuy', 'huy', 'hui', 'pizd', 'blyat', 'blya', 'suka', 'kurw', 'kurv', 'fuak', 'ashol', 'azhol'],
+};
+const BAD_EXACT = ['бля', 'лох', 'fk', 'ass', 'xer', 'хер', 'wtf', 'stfu'];
+const BAD_START = { cyr: ['дурн', 'ідіот', 'идиот', 'тупи'], lat: ['dick', 'cock', 'arse', 'sex', 'penis', 'boob', 'tits', 'idiot', 'stupid', 'dumb', 'loser', 'rape'] };
+const TO_CYR = { a: 'а', b: 'в', c: 'с', e: 'е', i: 'і', k: 'к', m: 'м', h: 'н', o: 'о', p: 'р', t: 'т', x: 'х', y: 'у', u: 'и', '0': 'о', '3': 'з', '4': 'ч', '6': 'б', '9': 'я', '@': 'а', ё: 'е', є: 'е', ы: 'и', й: 'и', ї: 'і', ъ: '', ь: '' };
+const TO_LAT = { а: 'a', в: 'b', с: 'c', е: 'e', є: 'e', і: 'i', ї: 'i', к: 'k', м: 'm', н: 'h', о: 'o', р: 'p', т: 't', х: 'x', у: 'y', и: 'u', '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '@': 'a', '$': 's', '!': 'i', '|': 'i' };
+const squeeze = s => s.replace(/(.)\1+/g, '$1');
+function nickIsBad(raw) {
+  const parts = String(raw).replace(/([\p{Ll}\d])([\p{Lu}])/gu, '$1 $2').split(/[\s_\-.·*]+/).filter(Boolean).map(p => p.toLowerCase());
+  const forms = p => {
+    const cyr = squeeze([...p].map(ch => TO_CYR[ch] ?? ch).join(''));
+    const lat = squeeze([...p].map(ch => TO_LAT[ch] ?? ch).join('').replace(/ph/g, 'f').replace(/ck/g, 'k').replace(/q/g, 'k'));
+    return { cyr, lat };
+  };
+  const all = forms(parts.join(''));
+  const S = nickIsBad.S || (nickIsBad.S = {  // stems pass through the same normalisation as the nickname
+    anyC: BAD_ANY.cyr.map(b => forms(b).cyr), anyL: BAD_ANY.lat.map(b => forms(b).lat),
+    stC: BAD_START.cyr.map(b => forms(b).cyr), stL: BAD_START.lat.map(b => forms(b).lat), ex: BAD_EXACT.flatMap(b => [forms(b).cyr, forms(b).lat]) });
+  if (S.anyC.some(b => all.cyr.includes(b)) || S.anyL.some(b => all.lat.includes(b))) return true;
+  for (const p of parts.concat([parts.join('')])) {
+    // a start-of-word check only reads a part in the script(s) it is actually written in, so «Сокіл» never turns into «cok…»
+    const f = forms(p), cy = /\p{Script=Cyrillic}/u.test(p), la = /[a-z]/.test(p) || !cy;
+    if (S.ex.includes(f.cyr) || S.ex.includes(f.lat)) return true;
+    if ((cy || la) && S.stC.some(b => f.cyr.startsWith(b)) && (cy || /[a-z]/.test(p))) return true;
+    if (la && S.stL.some(b => f.lat.startsWith(b))) return true;
+  }
+  return false;
+}
+const uidOf = p => { if (!p.uid) { p.uid = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => b.toString(16).padStart(2, '0')).join(''); persistProfiles(); } return p.uid; };
+let syncTimer = 0;
+function boardSync(now) {
+  const p = curProfile(); if (!BOARD_URL || !p || p.board === false) return;
+  const parts = Object.keys(save.done).length; if (!parts) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    fetch(BOARD_URL, { method: 'POST', body: JSON.stringify({ id: uidOf(p), nick: p.nick, parts, stars: sumStars(save.done) }) })
+      .then(r => r.json()).then(j => { if (j && j.ok && j.nick && j.nick !== p.boardNick) { p.boardNick = j.nick; persistProfiles(); } }).catch(() => { });
+  }, now ? 0 : 800);
+}
+function boardRemove(p) { if (BOARD_URL && p && p.uid) fetch(BOARD_URL, { method: 'POST', body: JSON.stringify({ id: p.uid, remove: true }) }).catch(() => { }); }
+function boardModal() {
+  const p = curProfile();
+  modal(`<h2>🏆 ${t('boardH')}</h2><div id="bd" class="bd"><p class="hintline">${t('boardLoading')}</p></div>${p ? `<label class="chk"><input type="checkbox" id="bdMe" ${p.board === false ? '' : 'checked'}> ${t('boardShowMe')}</label>` : ''}`,
+    [{ label: t('done'), primary: true }]);
+  if (!BOARD_URL) { $('bd').innerHTML = `<p>${t('boardSoon')}</p>`; $('bdMe')?.closest('label')?.remove(); return; }
+  const cb = $('bdMe');
+  if (cb) cb.onchange = () => { p.board = cb.checked; persistProfiles(); if (cb.checked) boardSync(true); else boardRemove(p); setTimeout(loadBoard, 1500); };
+  loadBoard();
+}
+function loadBoard() {
+  const p = curProfile(); if (!$('bd')) return;
+  fetch(BOARD_URL + '?id=' + (p && p.uid ? p.uid : '')).then(r => r.json()).then(j => {
+    if (!$('bd') || !j || !j.ok) throw 0;
+    const goal = Math.max(500, Math.ceil((j.total + 1) / 500) * 500), medal = ['🥇', '🥈', '🥉'];
+    const row = (r, i, v) => `<li class="${r.me ? 'me' : ''}"><span class="rk">${medal[i] || i + 1}</span><b>${escapeHtml(r.nick)}</b><span class="v">${v}</span></li>`;
+    $('bd').innerHTML = `<div class="goal"><div>${t('boardGoal', j.total, goal)}</div><div class="gbar"><i style="width:${Math.min(100, j.total / goal * 100)}%"></i></div><div class="hintline">${t('boardCount', j.players, j.active)}</div></div>
+      <div class="cols"><div><h3>${t('boardParts')}</h3><ol class="lb">${j.parts.map((r, i) => row(r, i, r.parts + ' / 100')).join('') || `<li>${t('boardEmpty')}</li>`}</ol></div>
+      <div><h3>${t('boardStars')}</h3><ol class="lb">${j.stars.map((r, i) => row(r, i, r.stars + ' ★')).join('') || `<li>${t('boardEmpty')}</li>`}</ol></div></div>
+      ${j.me ? `<p class="mine">${t('boardMe', escapeHtml(j.me.nick), j.me.rank, j.players)}</p>` : p && p.board !== false ? `<p class="hintline">${t('boardNotYet')}</p>` : ''}`;
+  }).catch(() => { if ($('bd')) $('bd').innerHTML = `<p class="err">${t('boardOff')}</p>`; });
+}
 function profilesOnBoot() {
   renderWho();
   const m = /[#&]kp=([0-9A-Za-z-]+)/.exec(location.hash);
@@ -2840,7 +2931,7 @@ function endRun(ok, msg) {
 async function onSuccess() {
   const n = level.n, used = program.main.length + program.F1.length + program.F2.length;
   const stars = used <= level.optimal ? 3 : used <= level.optimal + 2 ? 2 : 1;
-  const first = !save.done[n]; save.done[n] = Math.max(save.done[n] || 0, stars); persist();
+  const first = !save.done[n]; save.done[n] = Math.max(save.done[n] || 0, stars); persist(); boardSync();
   cinematic = true; A.cheer = 1; SFX.play('success'); burst(A.root.position.clone().add(new THREE.Vector3(0, 1, 0)), 0xffd36a, 60, 3, .12);
   const hy = A.root.position.y; await tween(.9, k => { A.root.position.y = hy + Math.sin(k * Math.PI) * .35; }); A.root.position.y = hy;
   A.cheer = 0;
@@ -3015,9 +3106,10 @@ $('btnRun').onclick = run;
 $('btnClear').onclick = () => { if (running) return; if (program[activeRow].length) SFX.play('clear'); program[activeRow] = []; saveDraft(); renderProgram(); };
 $('btnSpeed').onclick = () => { SFX.play('ui'); speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('btnSpeed').textContent = '×' + speed; };
 $('btnWho').onclick = () => { SFX.play('ui'); whoModal(); };
+$('btnBoard').onclick = () => { SFX.play('ui'); boardModal(); };
 $('btnCode').onclick = () => { SFX.play('ui'); codeModal(); };
 $('btnReset').onclick = () => modal(`<h2>${t('resetQ')}</h2><p>${t('resetP')}</p>`,
-  [{ label: t('cancel') }, { label: t('resetBtn'), primary: true, fn: () => { save = { done: {}, drafts: {} }; persist(); resetRocket(); level = null; showMenu(); } }]);
+  [{ label: t('cancel') }, { label: t('resetBtn'), primary: true, fn: () => { save = { done: {}, drafts: {} }; persist(); boardRemove(curProfile()); resetRocket(); level = null; showMenu(); } }]);
 
 /* ---------------- main loop ---------------- */
 const clock = new THREE.Clock(); let menuAng = .6;
