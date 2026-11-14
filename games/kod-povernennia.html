@@ -767,7 +767,7 @@ const I18N = {
     lvDone: d => `, пройдено, зірок ${d}`, lvLocked: ', закрито', resetQ: 'Скинути прогрес?', resetP: 'Усі пройдені рівні, зірки й зібрані деталі ракети цього гравця буде видалено з цього пристрою.',
     cancel: 'Скасувати', resetBtn: 'Скинути', langAria: 'Мова гри', soundOn: 'Увімкнути звук', soundOff: 'Вимкнути звук',
     player: 'Гравець', switchPlayer: 'Вийти', myCode: 'Мій код',
-    whoH: 'Хто грає?', whoP: 'Введи свій космічний нікнейм. Якщо ти вже грав на цьому пристрої — продовжиш з того місця, де зупинився.', play: 'Грати', welcomeBack: (n, l) => `З поверненням, <b>${n}</b>! Рівень ${l}`, welcomeNew: n => `Новий пілот <b>${n}</b> — вперед!`, login: 'Увійти', loginNoNick: 'Такого гравця на цьому пристрої немає. Перевір нікнейм або натисни «Новий гравець».', rememberMe: 'Це мій особистий пристрій — не питати щоразу',
+    whoH: 'Хто грає?', whoP: 'Введи свій космічний нікнейм. Якщо ти вже грав на цьому пристрої — продовжиш з того місця, де зупинився.', play: 'Грати', playGuest: 'Грати без нікнейма', guest: 'гість', guestHi: 'Гра без нікнейма: прогрес не збережеться після закриття гри і не потрапить на дошку лідерів.', welcomeBack: (n, l) => `З поверненням, <b>${n}</b>! Рівень ${l}`, welcomeNew: n => `Новий пілот <b>${n}</b> — вперед!`, login: 'Увійти', loginNoNick: 'Такого гравця на цьому пристрої немає. Перевір нікнейм або натисни «Новий гравець».', rememberMe: 'Це мій особистий пристрій — не питати щоразу',
     nickLabel: 'КОСМІЧНИЙ НІКНЕЙМ', nickPh: 'Наприклад, ЗорянийЛис42', dice: 'Випадковий нікнейм', newPlayer: 'Новий гравець', haveCode: 'Маю код повернення',
     nickHint: 'Тільки вигадане ім’я: без справжнього імені, прізвища та класу.',
     nickLen: 'Нікнейм має бути від 3 до 20 символів.', nickSpace: 'Нікнейм — одне слово без пробілів, наприклад «ЗорянийЛис42».',
@@ -807,7 +807,7 @@ const I18N = {
     lvDone: d => `, completed, ${d} stars`, lvLocked: ', locked', resetQ: 'Reset progress?', resetP: 'All of this player’s completed levels, stars and collected rocket parts will be deleted from this device.',
     cancel: 'Cancel', resetBtn: 'Reset', langAria: 'Game language', soundOn: 'Turn sound on', soundOff: 'Turn sound off',
     player: 'Player', switchPlayer: 'Log out', myCode: 'My code',
-    whoH: 'Who’s playing?', whoP: 'Type your space nickname. If you’ve played on this device before, you’ll continue right where you left off.', play: 'Play', welcomeBack: (n, l) => `Welcome back, <b>${n}</b>! Level ${l}`, welcomeNew: n => `New pilot <b>${n}</b> — let’s go!`, login: 'Log in', loginNoNick: 'There’s no such player on this device. Check the nickname or tap “New player”.', rememberMe: 'This is my own device — don’t ask every time',
+    whoH: 'Who’s playing?', whoP: 'Type your space nickname. If you’ve played on this device before, you’ll continue right where you left off.', play: 'Play', playGuest: 'Play without a nickname', guest: 'guest', guestHi: 'Playing without a nickname: progress isn’t saved after you close the game and won’t appear on the leaderboard.', welcomeBack: (n, l) => `Welcome back, <b>${n}</b>! Level ${l}`, welcomeNew: n => `New pilot <b>${n}</b> — let’s go!`, login: 'Log in', loginNoNick: 'There’s no such player on this device. Check the nickname or tap “New player”.', rememberMe: 'This is my own device — don’t ask every time',
     nickLabel: 'SPACE NICKNAME', nickPh: 'For example, StarFox42', dice: 'Random nickname', newPlayer: 'New player', haveCode: 'I have a return code',
     nickHint: 'Made-up names only: no real first name, surname or class.',
     nickLen: 'A nickname must be 3–20 characters long.', nickSpace: 'Use one word without spaces, like “StarFox42”.',
@@ -1928,6 +1928,7 @@ const sumStars = d => Object.values(d).reduce((a, b) => a + b, 0);
 function writeSave(id, sv) { memSaves[id] = sv; try { localStorage.setItem(saveKey(id), JSON.stringify(sv)); } catch (e) { } }
 function readSave(id) { const s = loadSave(saveKey(id)); return Object.keys(s.done).length || !memSaves[id] ? s : memSaves[id]; }
 function usePlayer(id) {
+  guest = false;
   profiles.cur = id; persistProfiles(); save = readSave(id);
   resetRocket(); level = null; showMenu(); renderWho();
   if (nickProblem(curProfile().nick)) renameModal(); else boardSync(true);
@@ -1948,7 +1949,7 @@ function createPlayer(nick, sv, remember) {
   }
   profiles.list.push({ id, nick: nick.trim(), remember: !!remember }); writeSave(id, sv || emptySave()); usePlayer(id);
 }
-function renderWho() { const p = curProfile(), el = document.getElementById('who'); if (el) el.innerHTML = p ? `${t('player')}: <b>${nickProblem(p.nick) ? '••••' : escapeHtml(p.nick)}</b>` : ''; }
+function renderWho() { const p = curProfile(), el = document.getElementById('who'); if (el) el.innerHTML = p ? `${t('player')}: <b>${nickProblem(p.nick) ? '••••' : escapeHtml(p.nick)}</b>` : guest ? `${t('player')}: <b>${t('guest')}</b>` : ''; }
 const escapeHtml = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 function nickField(id, value = '') {
@@ -1966,19 +1967,29 @@ function checkNick(inputId, allowExisting) {
 function whoModal() {
   modal(`<h2>${t('whoH')}</h2><p>${t('whoP')}</p>${nickField('nickNew')}<p class="err" id="err" role="alert"></p>`,
     [{ label: t('haveCode'), fn: () => restoreModal() },
+     { label: t('playGuest'), fn: playAsGuest },
      { label: t('play'), primary: true, check: () => findByNick($('nickNew').value) ? true : checkNick('nickNew'), fn: () => {
-         const p = findByNick($('nickNew').value);
+         const p = findByNick($('nickNew').value), carry = guest && Object.keys(save.done).length ? save : null;
+         guest = false;
          if (p) { usePlayer(p.id); if (!nickProblem(p.nick)) greet(t('welcomeBack', escapeHtml(p.nick), nextLevel())); }
-         else { createPlayer($('nickNew').value, null, false); greet(t('welcomeNew', escapeHtml(curProfile().nick))); }
+         else { createPlayer($('nickNew').value, carry, false); greet(t('welcomeNew', escapeHtml(curProfile().nick))); }
        } }]);
   wireDice();
   $('nickNew').addEventListener('keydown', e => { if (e.key === 'Enter') document.querySelector('#card .primary')?.click(); });
   setTimeout(() => $('nickNew')?.focus(), 50);
 }
+// Guest: plays without a nickname; progress lives only in memory until the tab closes and never reaches the leaderboard.
+// If the guest then picks a new nickname, the progress so far moves to that player.
+let guest = false;
+function playAsGuest() {
+  profiles.cur = null; persistProfiles(); guest = true; save = emptySave();
+  resetRocket(); level = null; showMenu(); renderWho(); greet(t('guestHi'));
+}
 function greet(html) { toast(html); setTimeout(() => { if ($('toastText').innerHTML === html) toast(null); }, 4500); }
 function logout() {
-  boardSync(true); profiles.cur = null; persistProfiles(); save = emptySave();
-  resetRocket(); level = null; showMenu(); renderWho(); whoModal();
+  boardSync(true); profiles.cur = null; persistProfiles();
+  if (!guest) { save = emptySave(); resetRocket(); level = null; showMenu(); }  // a guest keeps progress so it can move to a new nickname
+  renderWho(); whoModal();
 }
 
 function codeModal() {
