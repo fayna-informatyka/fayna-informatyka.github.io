@@ -164,7 +164,13 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
 .kcode{font:800 20px/1.35 ui-monospace,"DejaVu Sans Mono",monospace;letter-spacing:.05em;text-align:center;padding:12px;border-radius:12px;background:rgba(98,227,255,.08);border:1px solid rgba(98,227,255,.3);color:var(--neon);word-break:break-all;user-select:all;-webkit-user-select:all}
 .card:has(.bd){max-width:600px}.bd{display:flex;flex-direction:column;gap:12px}.goal{font-size:14px;color:var(--ink)}.goal b{color:var(--neon)}
 .gbar{height:10px;border-radius:10px;background:rgba(150,180,230,.14);overflow:hidden;margin:6px 0}.gbar i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--mint));box-shadow:0 0 12px rgba(98,227,255,.5)}
-.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.bd h3{margin:0 0 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lbt{width:100%;border-collapse:separate;border-spacing:0 4px;font-size:13px;font-variant-numeric:tabular-nums}
+.lbt th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:left;padding:0 8px 2px}.lbt th:nth-child(n+3){text-align:right}
+.lbt td{background:rgba(13,19,33,.6);padding:7px 8px;border-block:1px solid transparent}.lbt td:first-child{border-radius:10px 0 0 10px;border-left:1px solid transparent}.lbt td:last-child{border-radius:0 10px 10px 0;border-right:1px solid transparent}
+.lbt .nk{font-weight:700;max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lbt .num{text-align:right;white-space:nowrap}.lbt small{color:var(--muted);margin-left:1px}.lbt .st{color:var(--amber)}
+.lvbar{display:inline-block;vertical-align:middle;width:46px;height:5px;border-radius:5px;background:rgba(150,180,230,.15);overflow:hidden;margin-right:8px}.lvbar i{display:block;height:100%;background:var(--neon)}
+.lbt tr.me td{background:rgba(98,227,255,.1);border-color:var(--neon)}.lbt tr.gap td{background:none;text-align:center;color:var(--muted);padding:0}
+.bd{max-height:min(60vh,520px);overflow:auto}.bd h3{margin:0 0 6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}.lb li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:10px;background:rgba(13,19,33,.6);border:1px solid transparent;font-size:13px}
 .lb li b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lb li .v{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}.lb li.me{border-color:var(--neon);background:rgba(98,227,255,.1)}
 .rk{width:22px;text-align:center;font-weight:800;color:var(--muted)}.mine{color:var(--ink)!important}.mine b{color:var(--neon)}.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}.chk input{width:18px;height:18px;accent-color:var(--neon)}
@@ -239,7 +245,7 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
   .levels{grid-template-columns:repeat(10,1fr);gap:4px}
   .lv{height:34px;border-radius:8px;font-size:11px;gap:2px}.lv .st i{width:4px;height:4px}
   .menu-foot{font-size:10.5px}
-  .lb li{padding:3px 6px;font-size:11.5px}.cols{gap:8px}.goal{font-size:12px}.bd{gap:6px}
+  .lbt{font-size:11.5px;border-spacing:0 2px}.lbt td{padding:4px 6px}.lvbar{width:30px;margin-right:5px}.bd{gap:6px;max-height:none}
   .kcode{font-size:15px;padding:8px}.qr{width:104px;height:104px}.card input{height:36px;font-size:15px}.dice{width:36px}.plist{max-height:110px}.pbtn{padding:6px 10px}
   #modal{padding-block:8px}
   .card{max-width:min(560px,92vw);max-height:calc(100% - 16px);overflow:auto;padding:14px 16px;gap:8px;border-radius:16px}
@@ -774,8 +780,8 @@ const I18N = {
     renameH: 'Потрібен новий нікнейм', renameP: 'Цей нікнейм не підходить для гри. Вигадай новий або натисни 🎲 — прогрес залишиться твоїм.', save: 'Зберегти',
     boardBtn: 'Дошка лідерів', boardH: 'Дошка лідерів', boardSoon: 'Дошка лідерів скоро запрацює. Проходь рівні — твої деталі й зірки вже рахуються!', boardLoading: 'Завантажуємо дошку…',
     boardGoal: (x, g) => `Разом усі пілоти зібрали деталей: <b>${x}</b> · спільна мета: ${g}`, boardCount: (n, a) => `Пілотів на дошці: ${n} · грали цього тижня: ${a}`,
-    boardParts: 'Найбільше деталей', boardStars: 'Найбільше зірок', boardEmpty: 'Поки порожньо — стань першим!',
-    boardMe: (n, r, all) => `Ти — <b>${n}</b>: ${r} місце з ${all}. Кожна нова деталь піднімає тебе вище!`,
+    boardNick: 'Нікнейм', boardLevels: 'Пройдено рівнів', boardStarsCol: 'Зірок', boardEmpty: 'Поки порожньо — стань першим!',
+    boardMe: (n, r, all) => `Ти — <b>${n}</b>: ${r} місце з ${all}. Кожен новий рівень піднімає тебе вище!`,
     boardNotYet: 'Пройди рівень — і твій нікнейм з’явиться на дошці.', boardOff: 'Дошка зараз недоступна. Перевір інтернет і спробуй пізніше.',
     boardShowMe: 'Показувати мій нікнейм на дошці', nickBad: 'Цей нікнейм не підходить. Вигадай інший або натисни 🎲.',
     delQ: n => `Видалити гравця ${n}?`, delP: 'Його прогрес на цьому пристрої буде видалено. Відновити можна лише кодом повернення.', delete: 'Видалити',
@@ -814,8 +820,8 @@ const I18N = {
     renameH: 'Pick a new nickname', renameP: 'This nickname isn’t allowed in the game. Make up a new one or tap 🎲 — your progress stays with you.', save: 'Save',
     boardBtn: 'Leaderboard', boardH: 'Leaderboard', boardSoon: 'The leaderboard is coming soon. Keep playing — your parts and stars already count!', boardLoading: 'Loading the board…',
     boardGoal: (x, g) => `Together all pilots have collected <b>${x}</b> parts · shared goal: ${g}`, boardCount: (n, a) => `Pilots on the board: ${n} · played this week: ${a}`,
-    boardParts: 'Most parts', boardStars: 'Most stars', boardEmpty: 'Empty for now — be the first!',
-    boardMe: (n, r, all) => `You are <b>${n}</b>: place ${r} of ${all}. Every new part lifts you higher!`,
+    boardNick: 'Nickname', boardLevels: 'Levels completed', boardStarsCol: 'Stars', boardEmpty: 'Empty for now — be the first!',
+    boardMe: (n, r, all) => `You are <b>${n}</b>: place ${r} of ${all}. Every new level lifts you higher!`,
     boardNotYet: 'Complete a level and your nickname will appear on the board.', boardOff: 'The board isn’t available right now. Check your connection and try later.',
     boardShowMe: 'Show my nickname on the board', nickBad: 'That nickname won’t work. Make up another one or tap 🎲.',
     delQ: n => `Delete player ${n}?`, delP: 'Their progress on this device will be deleted. Only a return code can bring it back.', delete: 'Delete',
@@ -2065,12 +2071,13 @@ function loadBoard() {
   const p = curProfile(); if (!$('bd')) return;
   fetch(BOARD_URL + '?id=' + (p && p.uid ? p.uid : '')).then(r => r.json()).then(j => {
     if (!$('bd') || !j || !j.ok) throw 0;
-    const goal = Math.max(500, Math.ceil((j.total + 1) / 500) * 500), medal = ['🥇', '🥈', '🥉'];
-    const row = (r, i, v) => `<li class="${r.me ? 'me' : ''}"><span class="rk">${medal[i] || i + 1}</span><b>${escapeHtml(r.nick)}</b><span class="v">${v}</span></li>`;
-    $('bd').innerHTML = `<div class="goal"><div>${t('boardGoal', j.total, goal)}</div><div class="gbar"><i style="width:${Math.min(100, j.total / goal * 100)}%"></i></div><div class="hintline">${t('boardCount', j.players, j.active)}</div></div>
-      <div class="cols"><div><h3>${t('boardParts')}</h3><ol class="lb">${j.parts.map((r, i) => row(r, i, r.parts + ' / 100')).join('') || `<li>${t('boardEmpty')}</li>`}</ol></div>
-      <div><h3>${t('boardStars')}</h3><ol class="lb">${j.stars.map((r, i) => row(r, i, r.stars + ' ★')).join('') || `<li>${t('boardEmpty')}</li>`}</ol></div></div>
-      ${j.me ? `<p class="mine">${t('boardMe', escapeHtml(j.me.nick), j.me.rank, j.players)}</p>` : p && p.board !== false ? `<p class="hintline">${t('boardNotYet')}</p>` : ''}`;
+    const medal = ['🥇', '🥈', '🥉'];
+    const row = r => `<tr class="${r.me ? 'me' : ''}"><td class="rk">${medal[r.rank - 1] || r.rank}</td><td class="nk">${escapeHtml(r.nick)}</td><td class="num"><span class="lvbar"><i style="width:${r.levels}%"></i></span>${r.levels}<small>/100</small></td><td class="num">${r.stars} <span class="st">★</span></td></tr>`;
+    const rows = j.top.map(row).join('') + (j.me && !j.top.some(r => r.me) ? `<tr class="gap"><td colspan="4">⋯</td></tr>` + row(j.me) : '');
+    $('bd').innerHTML = j.top.length
+      ? (j.me ? `<p class="mine">${t('boardMe', escapeHtml(j.me.nick), j.me.rank, j.players)}</p>` : p && p.board !== false ? `<p class="hintline">${t('boardNotYet')}</p>` : '')
+        + `<table class="lbt"><thead><tr><th>#</th><th>${t('boardNick')}</th><th>${t('boardLevels')}</th><th>${t('boardStarsCol')}</th></tr></thead><tbody>${rows}</tbody></table>`
+      : `<p>${t('boardEmpty')}</p>`;
   }).catch(() => { if ($('bd')) $('bd').innerHTML = `<p class="err">${t('boardOff')}</p>`; });
 }
 function profilesOnBoot() {
