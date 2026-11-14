@@ -160,7 +160,7 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
 .pitem{display:flex;gap:6px}.pbtn{flex:1;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(13,19,33,.7);color:var(--ink);font-weight:700}
 .pbtn span{color:var(--muted);font-size:12px}.pbtn.on{border-color:var(--neon);background:rgba(98,227,255,.08)}
 .pdel{width:40px;border-radius:12px;border:1px solid var(--line);color:var(--muted);font-size:20px}
-.or{font-size:12px!important;color:var(--muted)!important;text-align:center}
+.card input.pin{letter-spacing:.4em;font-family:ui-monospace,"DejaVu Sans Mono",monospace;max-width:160px}.card .row>*{min-width:max-content}
 .kcode{font:800 20px/1.35 ui-monospace,"DejaVu Sans Mono",monospace;letter-spacing:.05em;text-align:center;padding:12px;border-radius:12px;background:rgba(98,227,255,.08);border:1px solid rgba(98,227,255,.3);color:var(--neon);word-break:break-all;user-select:all;-webkit-user-select:all}
 .card:has(.bd){max-width:600px}.bd{display:flex;flex-direction:column;gap:12px}.goal{font-size:14px;color:var(--ink)}.goal b{color:var(--neon)}
 .gbar{height:10px;border-radius:10px;background:rgba(150,180,230,.14);overflow:hidden;margin:6px 0}.gbar i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--mint));box-shadow:0 0 12px rgba(98,227,255,.5)}
@@ -760,16 +760,16 @@ const I18N = {
     stage: 'Етап', goal: 'Мета', gameplay: 'Геймплей', reward: 'Нагорода', showAssembly: 'Показати збирання етапу',
     lvDone: d => `, пройдено, зірок ${d}`, lvLocked: ', закрито', resetQ: 'Скинути прогрес?', resetP: 'Усі пройдені рівні, зірки й зібрані деталі ракети цього гравця буде видалено з цього пристрою.',
     cancel: 'Скасувати', resetBtn: 'Скинути', langAria: 'Мова гри', soundOn: 'Увімкнути звук', soundOff: 'Вимкнути звук',
-    player: 'Гравець', switchPlayer: 'Змінити гравця', myCode: 'Мій код',
-    whoH: 'Хто грає?', whoP: 'Обери себе або створи нового гравця. Прогрес кожного зберігається окремо й лише на цьому пристрої.', orNew: 'або новий гравець',
-    nickLabel: 'КОСМІЧНИЙ НІКНЕЙМ', nickPh: 'Наприклад, ЗорянийЛис42', dice: 'Випадковий нікнейм', newPlayer: 'Почати гру', haveCode: 'Маю код повернення',
+    player: 'Гравець', switchPlayer: 'Вийти', myCode: 'Мій код',
+    whoH: 'Хто грає?', whoP: 'Увійди своїм нікнеймом і PIN або створи нового гравця. Прогрес кожного зберігається окремо на цьому пристрої.', login: 'Увійти', loginNoNick: 'Такого гравця на цьому пристрої немає. Перевір нікнейм або натисни «Новий гравець».', pinLabel: 'PIN (4 ЦИФРИ)', pinFormat: 'PIN — це 4 цифри. Придумай їх і запам’ятай.', pinWrong: 'PIN не підходить. Спробуй ще раз.', pinLocked: 'Забагато спроб. Зачекай пів хвилини.', rememberMe: 'Це мій особистий пристрій — не питати щоразу',
+    nickLabel: 'КОСМІЧНИЙ НІКНЕЙМ', nickPh: 'Наприклад, ЗорянийЛис42', dice: 'Випадковий нікнейм', newPlayer: 'Новий гравець', haveCode: 'Маю код повернення',
     nickHint: 'Тільки вигадане ім’я: без справжнього імені, прізвища та класу.',
     nickLen: 'Нікнейм має бути від 3 до 20 символів.', nickSpace: 'Нікнейм — одне слово без пробілів, наприклад «ЗорянийЛис42».',
     nickChars: 'Можна лише літери, цифри, «-» і «_».', nickReal: 'Схоже на справжнє ім’я, прізвище або клас. Вигадай космічний нікнейм або натисни 🎲.',
-    nickTaken: 'Такий гравець уже є на цьому пристрої. Обери його зі списку вище.',
+    nickTaken: 'Такий нікнейм уже зайнятий на цьому пристрої. Якщо він твій — натисни «Увійти», інакше вигадай інший.',
     codeH: 'Твій код повернення', codeP: 'Запиши код у зошит або сфотографуй QR. На іншому пристрої натисни «Маю код повернення» — і продовжиш з того ж місця.',
     codeInfo: (d, s) => `У коді: ${d} / 100 деталей і ${s} зірок. Імені в коді немає.`, copy: 'Копіювати', copied: 'Скопійовано ✓', done: 'Готово',
-    restoreH: 'Маю код повернення', restoreP: 'Введи код і свій нікнейм. Якщо такого гравця тут ще немає, його буде створено.', codeLabel: 'КОД ПОВЕРНЕННЯ', restore: 'Відновити',
+    restoreH: 'Маю код повернення', restoreP: 'Введи код, свій нікнейм і PIN. Якщо такого гравця тут ще немає, його буде створено з цим PIN.', codeLabel: 'КОД ПОВЕРНЕННЯ', restore: 'Відновити',
     badCode: 'Код не підходить. Перевір, чи немає помилки.', restored: d => `Прогрес відновлено: ${d} / 100 деталей.`,
     renameH: 'Потрібен новий нікнейм', renameP: 'Цей нікнейм не підходить для гри. Вигадай новий або натисни 🎲 — прогрес залишиться твоїм.', save: 'Зберегти',
     boardBtn: 'Дошка лідерів', boardH: 'Дошка лідерів', boardSoon: 'Дошка лідерів скоро запрацює. Проходь рівні — твої деталі й зірки вже рахуються!', boardLoading: 'Завантажуємо дошку…',
@@ -800,16 +800,16 @@ const I18N = {
     stage: 'Stage', goal: 'Goal', gameplay: 'Gameplay', reward: 'Reward', showAssembly: 'Show stage assembly',
     lvDone: d => `, completed, ${d} stars`, lvLocked: ', locked', resetQ: 'Reset progress?', resetP: 'All of this player’s completed levels, stars and collected rocket parts will be deleted from this device.',
     cancel: 'Cancel', resetBtn: 'Reset', langAria: 'Game language', soundOn: 'Turn sound on', soundOff: 'Turn sound off',
-    player: 'Player', switchPlayer: 'Switch player', myCode: 'My code',
-    whoH: 'Who’s playing?', whoP: 'Pick yourself or add a new player. Each player’s progress is saved separately, only on this device.', orNew: 'or a new player',
-    nickLabel: 'SPACE NICKNAME', nickPh: 'For example, StarFox42', dice: 'Random nickname', newPlayer: 'Start playing', haveCode: 'I have a return code',
+    player: 'Player', switchPlayer: 'Log out', myCode: 'My code',
+    whoH: 'Who’s playing?', whoP: 'Log in with your nickname and PIN, or add a new player. Each player’s progress is saved separately on this device.', login: 'Log in', loginNoNick: 'There’s no such player on this device. Check the nickname or tap “New player”.', pinLabel: 'PIN (4 DIGITS)', pinFormat: 'A PIN is 4 digits. Make one up and remember it.', pinWrong: 'Wrong PIN. Try again.', pinLocked: 'Too many tries. Wait half a minute.', rememberMe: 'This is my own device — don’t ask every time',
+    nickLabel: 'SPACE NICKNAME', nickPh: 'For example, StarFox42', dice: 'Random nickname', newPlayer: 'New player', haveCode: 'I have a return code',
     nickHint: 'Made-up names only: no real first name, surname or class.',
     nickLen: 'A nickname must be 3–20 characters long.', nickSpace: 'Use one word without spaces, like “StarFox42”.',
     nickChars: 'Only letters, digits, “-” and “_” are allowed.', nickReal: 'That looks like a real name, surname or class. Make up a space nickname or tap 🎲.',
-    nickTaken: 'This player already exists on this device. Pick them from the list above.',
+    nickTaken: 'This nickname is already taken on this device. If it’s yours, tap “Log in”; otherwise make up another one.',
     codeH: 'Your return code', codeP: 'Write the code down or take a photo of the QR. On another device, tap “I have a return code” to continue where you left off.',
     codeInfo: (d, s) => `This code holds ${d} / 100 parts and ${s} stars. No name is stored in it.`, copy: 'Copy', copied: 'Copied ✓', done: 'Done',
-    restoreH: 'I have a return code', restoreP: 'Enter the code and your nickname. If this player isn’t on this device yet, they’ll be created.', codeLabel: 'RETURN CODE', restore: 'Restore',
+    restoreH: 'I have a return code', restoreP: 'Enter the code, your nickname and PIN. If this player isn’t on this device yet, they’ll be created with this PIN.', codeLabel: 'RETURN CODE', restore: 'Restore',
     badCode: 'That code doesn’t work. Check it for typos.', restored: d => `Progress restored: ${d} / 100 parts.`,
     renameH: 'Pick a new nickname', renameP: 'This nickname isn’t allowed in the game. Make up a new one or tap 🎲 — your progress stays with you.', save: 'Save',
     boardBtn: 'Leaderboard', boardH: 'Leaderboard', boardSoon: 'The leaderboard is coming soon. Keep playing — your parts and stars already count!', boardLoading: 'Loading the board…',
@@ -1832,10 +1832,22 @@ const PKEY = 'kp-profiles', SAVE_KEY = 'moon-builder-v1', GAME_URL = 'https://fa
 const emptySave = () => ({ done: {}, drafts: {} });
 let profiles = { list: [], cur: null };
 try { const p = JSON.parse(localStorage.getItem(PKEY) || 'null'); if (p && Array.isArray(p.list)) profiles = { list: p.list.filter(x => x && x.id && x.nick), cur: p.cur || null }; } catch (e) { }
+// Who is logged in lives in sessionStorage (closing the tab logs out on a shared class computer);
+// only a player who ticked "my own device" stays logged in across visits.
+{ let s = null; try { s = sessionStorage.getItem('kp-cur'); } catch (e) { }
+  const rem = profiles.list.find(x => x.id === profiles.cur && x.remember);
+  profiles.cur = profiles.list.some(x => x.id === s) ? s : rem ? rem.id : null; }
 const saveKey = id => SAVE_KEY + ':' + id;
 function loadSave(key) { try { const s = JSON.parse(localStorage.getItem(key) || 'null'); if (s && s.done) return { done: s.done, drafts: s.drafts || {} }; } catch (e) { } return emptySave(); }
 const curProfile = () => profiles.list.find(p => p.id === profiles.cur) || null;
-const persistProfiles = () => { try { localStorage.setItem(PKEY, JSON.stringify(profiles)); } catch (e) { } };
+const persistProfiles = () => {
+  const p = curProfile();
+  try { localStorage.setItem(PKEY, JSON.stringify({ list: profiles.list, cur: p && p.remember ? p.id : null })); } catch (e) { }
+  try { profiles.cur ? sessionStorage.setItem('kp-cur', profiles.cur) : sessionStorage.removeItem('kp-cur'); } catch (e) { }
+};
+const pinHash = (id, pin) => { let h = 0x811c9dc5; for (const ch of id + ':' + pin + ':kp') { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(36); };
+const pinOk = v => /^\d{4}$/.test(v);
+let pinFails = 0, pinLockUntil = 0;
 let save = curProfile() ? loadSave(saveKey(profiles.cur)) : emptySave();
 const memSaves = {};  // fallback when storage is blocked
 
@@ -1923,14 +1935,14 @@ function renameModal() {
     [{ label: t('save'), primary: true, check: () => checkNick('nickRen'), fn: () => { p.nick = $('nickRen').value.trim(); persistProfiles(); renderWho(); boardSync(true); } }]);
   wireDice(); setTimeout(() => $('nickRen')?.focus(), 50);
 }
-function createPlayer(nick, sv) {
+function createPlayer(nick, sv, pin, remember) {
   const id = 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   if (!profiles.list.length) {  // first player on this device adopts the old single-player save
     const old = loadSave(SAVE_KEY);
     if (!sv && Object.keys(old.done).length) sv = old;
     try { localStorage.removeItem(SAVE_KEY); } catch (e) { }
   }
-  profiles.list.push({ id, nick: nick.trim() }); writeSave(id, sv || emptySave()); usePlayer(id);
+  profiles.list.push({ id, nick: nick.trim(), pin: pinHash(id, pin), remember: !!remember }); writeSave(id, sv || emptySave()); usePlayer(id);
 }
 function renderWho() { const p = curProfile(), el = document.getElementById('who'); if (el) el.innerHTML = p ? `${t('player')}: <b>${nickProblem(p.nick) ? '••••' : escapeHtml(p.nick)}</b>` : ''; }
 const escapeHtml = s => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -1939,6 +1951,22 @@ function nickField(id, value = '') {
   return `<label class="fld"><span>${t('nickLabel')}</span><div class="nickrow"><input id="${id}" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" value="${escapeHtml(value)}" placeholder="${t('nickPh')}"><button type="button" class="ghost dice" data-dice="${id}" aria-label="${t('dice')}" title="${t('dice')}">🎲</button></div></label><p class="hintline">${t('nickHint')}</p>`;
 }
 function wireDice() { document.querySelectorAll('[data-dice]').forEach(b => b.onclick = () => { SFX.play('ui'); const i = $(b.dataset.dice); i.value = randomNick(); i.focus(); $('err').textContent = ''; }); }
+function pinField(id) {
+  return `<label class="fld"><span>${t('pinLabel')}</span><input id="${id}" class="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••"></label>`;
+}
+const rememberField = () => `<label class="chk"><input type="checkbox" id="remember"> ${t('rememberMe')}</label>`;
+function checkPinNew(inputId) { if (!pinOk($(inputId).value)) { $('err').textContent = t('pinFormat'); $(inputId).focus(); return false; } return true; }
+// existing player: PIN must match (an older player without a PIN sets one now)
+function checkPinFor(p, inputId) {
+  const v = $(inputId).value;
+  if (Date.now() < pinLockUntil) { $('err').textContent = t('pinLocked'); return false; }
+  if (!pinOk(v)) { $('err').textContent = t('pinFormat'); $(inputId).focus(); return false; }
+  if (p.pin && p.pin !== pinHash(p.id, v)) {
+    if (++pinFails >= 5) { pinFails = 0; pinLockUntil = Date.now() + 30000; }
+    $('err').textContent = t('pinWrong'); $(inputId).value = ''; $(inputId).focus(); return false;
+  }
+  pinFails = 0; if (!p.pin) p.pin = pinHash(p.id, v); return true;
+}
 function checkNick(inputId, allowExisting) {
   const v = $(inputId).value.trim(), pr = nickProblem(v);
   if (pr) { $('err').textContent = t(pr); $(inputId).focus(); return false; }
@@ -1947,21 +1975,22 @@ function checkNick(inputId, allowExisting) {
 }
 
 function whoModal() {
-  const list = profiles.list.map(p => { const d = Object.keys(readSave(p.id).done).length;
-    return `<div class="pitem"><button class="pbtn${p.id === profiles.cur ? ' on' : ''}" data-pid="${p.id}"><b>${nickProblem(p.nick) ? '••••' : escapeHtml(p.nick)}</b><span>${d} / 100</span></button><button class="pdel" data-del="${p.id}" aria-label="${t('delete')} ${escapeHtml(p.nick)}">×</button></div>`; }).join('');
-  modal(`<h2>${t('whoH')}</h2><p>${t('whoP')}</p>${list ? `<div class="plist">${list}</div><p class="or">${t('orNew')}</p>` : ''}${nickField('nickNew')}<p class="err" id="err" role="alert"></p>`,
+  modal(`<h2>${t('whoH')}</h2><p>${t('whoP')}</p>${nickField('nickNew')}${pinField('pinIn')}${rememberField()}<p class="err" id="err" role="alert"></p>`,
     [{ label: t('haveCode'), fn: () => restoreModal() },
-     { label: t('newPlayer'), primary: true, check: () => checkNick('nickNew'), fn: () => createPlayer($('nickNew').value) }]);
+     { label: t('newPlayer'), check: () => checkNick('nickNew') && checkPinNew('pinIn'), fn: () => createPlayer($('nickNew').value, null, $('pinIn').value, $('remember').checked) },
+     { label: t('login'), primary: true, check: () => {
+         const p = findByNick($('nickNew').value);
+         if (!p) { $('err').textContent = t('loginNoNick'); $('nickNew').focus(); return false; }
+         if (!checkPinFor(p, 'pinIn')) return false;
+         p.remember = $('remember').checked; return true;
+       }, fn: () => { const p = findByNick($('nickNew').value); persistProfiles(); usePlayer(p.id); } }]);
   wireDice();
-  document.querySelectorAll('[data-pid]').forEach(b => b.onclick = () => { SFX.play('ui'); $('modal').hidden = true; usePlayer(b.dataset.pid); });
-  document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
-    const p = profiles.list.find(x => x.id === b.dataset.del);
-    modal(`<h2>${t('delQ', escapeHtml(p.nick))}</h2><p>${t('delP')}</p>`, [{ label: t('cancel'), fn: whoModal }, { label: t('delete'), primary: true, fn: () => {
-      boardRemove(p); profiles.list = profiles.list.filter(x => x.id !== p.id); try { localStorage.removeItem(saveKey(p.id)); } catch (e) { }
-      if (profiles.cur === p.id) { profiles.cur = null; save = emptySave(); resetRocket(); level = null; showMenu(); renderWho(); }
-      persistProfiles(); whoModal(); } }]);
-  });
-  setTimeout(() => (profiles.list.length ? document.querySelector('.pbtn') : $('nickNew'))?.focus(), 50);
+  $('pinIn').addEventListener('keydown', e => { if (e.key === 'Enter') document.querySelector('#card .primary')?.click(); });
+  setTimeout(() => $('nickNew')?.focus(), 50);
+}
+function logout() {
+  boardSync(true); profiles.cur = null; persistProfiles(); save = emptySave();
+  resetRocket(); level = null; showMenu(); renderWho(); whoModal();
 }
 
 function codeModal() {
@@ -1979,15 +2008,17 @@ function codeModal() {
 
 function restoreModal(prefill = '') {
   const p = curProfile();
-  modal(`<h2>${t('restoreH')}</h2><p>${t('restoreP')}</p><label class="fld"><span>${t('codeLabel')}</span><input id="codeIn" class="mono" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KP-XXXX-XXXX" value="${escapeHtml(prefill)}"></label>${nickField('nickR', p ? p.nick : '')}<p class="err" id="err" role="alert"></p>`,
+  modal(`<h2>${t('restoreH')}</h2><p>${t('restoreP')}</p><label class="fld"><span>${t('codeLabel')}</span><input id="codeIn" class="mono" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KP-XXXX-XXXX" value="${escapeHtml(prefill)}"></label>${nickField('nickR', p ? p.nick : '')}${pinField('pinR')}<p class="err" id="err" role="alert"></p>`,
     [{ label: t('cancel'), fn: () => { if (!curProfile()) whoModal(); } },
      { label: t('restore'), primary: true, check: () => {
          if (!decodeProgress($('codeIn').value)) { $('err').textContent = t('badCode'); $('codeIn').focus(); return false; }
-         return checkNick('nickR', true);
+         if (!checkNick('nickR', true)) return false;
+         const ex = findByNick($('nickR').value);
+         return ex ? checkPinFor(ex, 'pinR') : checkPinNew('pinR');
        }, fn: () => {
          const done = decodeProgress($('codeIn').value), nick = $('nickR').value.trim(), ex = findByNick(nick);
          if (ex) { const sv = readSave(ex.id); for (const [n, s] of Object.entries(done)) sv.done[n] = Math.max(sv.done[n] || 0, s); writeSave(ex.id, sv); usePlayer(ex.id); }
-         else createPlayer(nick, { done, drafts: {} });
+         else createPlayer(nick, { done, drafts: {} }, $('pinR').value, false);
          toast(t('restored', Object.keys(save.done).length));
        } }]);
   wireDice(); setTimeout(() => (prefill ? $('nickR') : $('codeIn')).focus(), 50);
@@ -3116,11 +3147,11 @@ $('btnMenu').onclick = showMenu;
 $('btnRun').onclick = run;
 $('btnClear').onclick = () => { if (running) return; if (program[activeRow].length) SFX.play('clear'); program[activeRow] = []; saveDraft(); renderProgram(); };
 $('btnSpeed').onclick = () => { SFX.play('ui'); speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('btnSpeed').textContent = '×' + speed; };
-$('btnWho').onclick = () => { SFX.play('ui'); whoModal(); };
+$('btnWho').onclick = () => { SFX.play('ui'); logout(); };
 $('btnBoard').onclick = () => { SFX.play('ui'); boardModal(); };
 $('btnCode').onclick = () => { SFX.play('ui'); codeModal(); };
-$('btnReset').onclick = () => modal(`<h2>${t('resetQ')}</h2><p>${t('resetP')}</p>`,
-  [{ label: t('cancel') }, { label: t('resetBtn'), primary: true, fn: () => { save = { done: {}, drafts: {} }; persist(); boardRemove(curProfile()); resetRocket(); level = null; showMenu(); } }]);
+$('btnReset').onclick = () => { const p = curProfile(); if (!p) return whoModal(); modal(`<h2>${t('resetQ')}</h2><p>${t('resetP')}</p>${pinField('pinReset')}<p class="err" id="err" role="alert"></p>`,
+  [{ label: t('cancel') }, { label: t('resetBtn'), primary: true, check: () => checkPinFor(p, 'pinReset'), fn: () => { save = { done: {}, drafts: {} }; persist(); boardRemove(curProfile()); persistProfiles(); resetRocket(); level = null; showMenu(); } }]); };
 
 /* ---------------- main loop ---------------- */
 const clock = new THREE.Clock(); let menuAng = .6;
