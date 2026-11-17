@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; connect-src 'none'">
 <meta name="referrer" content="no-referrer">
-<title>Чарівна стежка</title>
+<title>Пригоди друзів</title>
 <style>
 :root{--ink:#2C3550;--mute:#5E6782;--bg:#EEF0EA;--card:#FFFDF8;--line:#2C3550;--fw:#4F7FA8;--lt:#5E9A7C;--rt:#C98A4B;--rp:#8C78B8;--ok:#5E9A7C;--bad:#C2665A;--sun:#E9C46A}
 *,*::before,*::after{box-sizing:border-box}
@@ -109,7 +109,7 @@ button[disabled]{opacity:.45;cursor:not-allowed}
 <div id="app">
   <div id="top">
     <button class="tb" id="bMap" type="button">☰ Рівні</button>
-    <div id="ttl">Чарівна стежка<small id="sub"></small></div>
+    <div id="ttl">Пригоди друзів<small id="sub"></small></div>
     <span class="sp"></span>
     <button class="tb" id="bChar" type="button">🙂 Друг</button>
     <button class="tb" id="bSnd" type="button" aria-pressed="false">🔇 Звук</button>
@@ -515,7 +515,7 @@ function showMap(){var cur=G.n||1,h='<div class="panel" role="dialog" aria-label
  showOv(h);[].forEach.call($("ov").querySelectorAll("[data-l]"),function(b){b.onclick=function(){var n=+b.dataset.l;if(!unlocked(n)){bubble("Спершу пройди рівень "+(n-1)+" 🔒","bad");return}hideOv();loadLevel(n)}});
  $("mi").onclick=showIntro;$("mc").onclick=showChars;
 }
-function showIntro(){showOv('<div class="panel" role="dialog" aria-labelledby="ih"><h1 id="ih">Чарівна стежка</h1><p>Гра-алгоритм у 3D-світі</p><div class="info">'+
+function showIntro(){showOv('<div class="panel" role="dialog" aria-labelledby="ih"><h1 id="ih">Пригоди друзів</h1><p>Гра-алгоритм у 3D-світі</p><div class="info">'+
  '<div class="ib"><h2>🎯 Мета гри</h2><p>Склади з карток-стрілочок програму, щоб твій друг дійшов стежкою до скриньки з кристалом. Друг виконує команди по черзі — так само, як комп’ютер виконує алгоритм.</p></div>'+
  '<div class="ib"><h2>🧠 Які навички тренуються</h2><ul><li>Складати алгоритм із команд «Вперед», «Ліворуч», «Праворуч»</li><li>Розрізняти напрямки з погляду виконавця</li><li>Використовувати команду «Повтори»</li><li>Знаходити й виправляти помилки в алгоритмі</li><li>Увагу, планування й терпіння</li></ul></div>'+
  '<div class="ib"><h2>👧👦 Для кого</h2><p><span class="age">6–7 років</span><span class="age">1 клас</span></p><p style="margin-top:6px">100 рівнів: 1–40 — перші кроки й довгі стежки, 41–80 — команда «Повтори», 81–100 — знайди помилку в програмі.</p></div>'+
