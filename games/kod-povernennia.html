@@ -111,6 +111,42 @@ body.dragging-cmd,body.dragging-cmd *{cursor:grabbing!important}
   box-shadow:0 0 24px rgba(98,227,255,.35)}
 .primary.stop{background:var(--danger);box-shadow:0 0 24px rgba(255,107,129,.35);color:#1a0509}
 #btnRun{flex:1}
+/* Draft (чернетка): write the whole route freely, find repeated groups, turn them into functions.
+   Wide screens show it in the panel; phones and portrait tablets open it as a full-screen sheet. */
+.draft{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;border:1px dashed rgba(150,180,230,.3);background:rgba(8,12,24,.45);min-height:0}
+.draft.active{border-color:rgba(98,227,255,.55);background:rgba(98,227,255,.05)}
+.dhead{display:flex;align-items:center;gap:8px}.dhead b{font-family:var(--font-display);font-size:13px;letter-spacing:.12em;text-transform:uppercase}
+.dhead span{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;flex:1}
+.dclose{display:none}
+.dhint{margin:0;font-size:12.5px;line-height:1.45;color:var(--muted)}.dhint b{color:var(--ink)}.dhint:empty{display:none}.dwarn{color:#ffb4c0;font-weight:700}
+.drow{padding:4px;min-height:44px}.drow .slots{gap:12px 4px}
+.drow .slot.sel{box-shadow:0 0 0 2px #fff,0 0 14px rgba(255,255,255,.5)}
+.drow .slot.mk::after{content:'';position:absolute;left:-2px;right:-2px;bottom:-6px;height:3px;background:var(--mk)}
+.drow .slot.mk.m0::after{left:2px;border-radius:3px 0 0 3px}.drow .slot.mk.m1::after{right:2px;border-radius:0 3px 3px 0}
+.drow .slot.mk{margin-bottom:4px}
+#draftFns{display:flex;flex-direction:column;gap:4px}#draftFns:empty{display:none}
+.dfn{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}.dfn b{font-family:var(--font-display);color:var(--c)}
+.dfn .mini{display:flex;gap:3px}.dfn .mini i{width:18px;height:18px;border-radius:5px;background:var(--c);display:grid;place-items:center;color:#0b1020;font-style:normal}.dfn .mini svg{width:12px;height:12px}.dfn .mini .fn{font-size:8px}
+.dpal{display:none;gap:6px}
+.dacts{display:flex;gap:6px;flex-wrap:wrap}.dacts button{flex:1 1 auto;height:38px;font-size:12.5px;padding:0 10px}
+.dacts .mk{background:color-mix(in srgb,var(--c) 18%,transparent);border-color:color-mix(in srgb,var(--c) 50%,transparent);color:var(--c)}
+.draftbtn{padding:0 11px}.draftbtn svg{width:18px;height:18px}
+@media (min-width:900px) and (min-aspect-ratio:1/1) and (min-height:561px){
+  #panel{max-height:100%}
+  body.has-draft .draft{flex:1}
+  body.has-draft #draft{display:flex}
+}
+/* sheet mode: everywhere the panel is not a tall side column */
+@media not all and (min-width:900px) and (min-aspect-ratio:1/1) and (min-height:561px){
+  body.has-draft #btnDraft{display:inline-flex!important;align-items:center}
+  #draft{display:none}
+  body.draft-open #draft{display:flex;position:fixed;inset:0;z-index:30;border-radius:0;border:0;background:rgba(8,12,24,.97);backdrop-filter:blur(10px);
+    padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) max(14px,env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));overflow-y:auto}
+  body.draft-open .dclose{display:grid;margin-left:auto}
+  body.draft-open .dpal{display:flex}
+  body.draft-open .dpal .cmd{max-width:72px;height:44px}
+  body.draft-open .drow .slot{width:38px;height:38px}
+}
 .primary svg{width:16px;height:16px}
 
 /* Menu */
@@ -287,7 +323,16 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
     <div class="actions">
       <button id="btnClear" class="ghost" data-i18n="clear">Очистити</button>
       <button id="btnSpeed" class="ghost">×1</button>
+      <button id="btnDraft" class="ghost draftbtn" hidden data-i18n-aria="draftOpen" aria-label="Чернетка"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></button>
       <button id="btnRun" class="primary"></button>
+    </div>
+      <div id="draft" class="draft" hidden>
+      <div class="dhead"><b data-i18n="draftTitle">Чернетка</b><span id="draftCount"></span><button id="draftClose" class="iconbtn dclose" data-i18n-aria="close" aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <p class="dhint" id="draftHint"></p>
+      <div id="draftRow" class="prow drow" data-row="draft"><div class="slots" id="draftSlots"></div></div>
+      <div id="draftFns"></div>
+      <div id="draftPal" class="dpal"></div>
+      <div class="dacts" id="draftActs"></div>
     </div>
   </section>
   <div id="menu" hidden>
@@ -786,7 +831,16 @@ const I18N = {
     codeInfo: (d, s) => `У коді: ${d} / 100 деталей і ${s} зірок. Імені в коді немає.`, copy: 'Копіювати', copied: 'Скопійовано ✓', done: 'Готово',
     restoreH: 'Маю код повернення', restoreP: 'Введи код і свій нікнейм. Якщо такого гравця тут ще немає, його буде створено.', codeLabel: 'КОД ПОВЕРНЕННЯ', restore: 'Відновити',
     badCode: 'Код не підходить. Перевір, чи немає помилки.', restored: d => `Прогрес відновлено: ${d} / 100 деталей.`,
-    tipDnD: '💡 Команду можна перетягнути в будь-яке місце програми — навіть між іншими командами.', renameH: 'Потрібен новий нікнейм', renameP: 'Цей нікнейм не підходить для гри. Вигадай новий або натисни 🎲 — прогрес залишиться твоїм.', save: 'Зберегти',
+    tipDnD: '💡 Команду можна перетягнути в будь-яке місце програми — навіть між іншими командами.',
+    draftTitle: 'Чернетка', draftOpen: 'Відкрити чернетку', close: 'Закрити',
+    draftEmpty: 'Склади тут <b>увесь маршрут</b> — без обмежень. Потім знайди <b>групу команд, що повторюється</b>, і зроби з неї функцію.',
+    draftWrite: 'Торкнись чернетки, щоб додавати сюди команди. Шукай групи, що повторюються.',
+    draftSelHint: 'Торкнись <b>першої</b> і <b>останньої</b> команди групи.',
+    draftSelect: '✂ Виділити групу', makeFn: f => `Зробити ${f}`, collapse: f => `Згорнути в ${f}`, toMain: 'Перенести в ОСН', draftClear: 'Очистити',
+    fnFound: (f, k) => `трапляється в чернетці ${k} ${k === 1 ? 'раз' : k < 5 ? 'рази' : 'разів'}`,
+    draftTooLong: (n, m) => `У чернетці ${n} команд, а в ОСН лише ${m} місць. Знайди повтори й зроби функцію!`,
+    fnTooLong: (f, n, m) => `У групі ${n} команд, а в ${f} лише ${m} місць. Виділи меншу групу.`,
+    fnSelf: f => `${f} не може містити саму себе.`, toMainDone: 'Чернетку перенесено в ОСН. Тепер натисни «Запуск»!', renameH: 'Потрібен новий нікнейм', renameP: 'Цей нікнейм не підходить для гри. Вигадай новий або натисни 🎲 — прогрес залишиться твоїм.', save: 'Зберегти',
     boardBtn: 'Дошка лідерів', boardH: 'Дошка лідерів', boardSoon: 'Дошка лідерів скоро запрацює. Проходь рівні — твої деталі й зірки вже рахуються!', boardLoading: 'Завантажуємо дошку…',
     boardGoal: (x, g) => `Разом усі пілоти зібрали деталей: <b>${x}</b> · спільна мета: ${g}`, boardCount: (n, a) => `Пілотів на дошці: ${n} · грали цього тижня: ${a}`,
     boardNick: 'Нікнейм', boardLevels: 'Пройдено рівнів', boardStarsCol: 'Зірок', boardEmpty: 'Поки порожньо — стань першим!',
@@ -826,7 +880,16 @@ const I18N = {
     codeInfo: (d, s) => `This code holds ${d} / 100 parts and ${s} stars. No name is stored in it.`, copy: 'Copy', copied: 'Copied ✓', done: 'Done',
     restoreH: 'I have a return code', restoreP: 'Enter the code and your nickname. If this player isn’t on this device yet, they’ll be created.', codeLabel: 'RETURN CODE', restore: 'Restore',
     badCode: 'That code doesn’t work. Check it for typos.', restored: d => `Progress restored: ${d} / 100 parts.`,
-    tipDnD: '💡 You can drag a command to any place in the program — even between other commands.', renameH: 'Pick a new nickname', renameP: 'This nickname isn’t allowed in the game. Make up a new one or tap 🎲 — your progress stays with you.', save: 'Save',
+    tipDnD: '💡 You can drag a command to any place in the program — even between other commands.',
+    draftTitle: 'Draft', draftOpen: 'Open the draft', close: 'Close',
+    draftEmpty: 'Write <b>the whole route</b> here — no limits. Then find <b>a group of commands that repeats</b> and turn it into a function.',
+    draftWrite: 'Tap the draft to add commands here. Look for groups that repeat.',
+    draftSelHint: 'Tap the <b>first</b> and the <b>last</b> command of the group.',
+    draftSelect: '✂ Select a group', makeFn: f => `Make ${f}`, collapse: f => `Fold into ${f}`, toMain: 'Move to MAIN', draftClear: 'Clear',
+    fnFound: (f, k) => `appears in the draft ${k} ${k === 1 ? 'time' : 'times'}`,
+    draftTooLong: (n, m) => `The draft has ${n} commands but MAIN has only ${m} slots. Find repeats and make a function!`,
+    fnTooLong: (f, n, m) => `The group has ${n} commands but ${f} has only ${m} slots. Select a smaller group.`,
+    fnSelf: f => `${f} can’t contain itself.`, toMainDone: 'The draft is now in MAIN. Press “Run”!', renameH: 'Pick a new nickname', renameP: 'This nickname isn’t allowed in the game. Make up a new one or tap 🎲 — your progress stays with you.', save: 'Save',
     boardBtn: 'Leaderboard', boardH: 'Leaderboard', boardSoon: 'The leaderboard is coming soon. Keep playing — your parts and stars already count!', boardLoading: 'Loading the board…',
     boardGoal: (x, g) => `Together all pilots have collected <b>${x}</b> parts · shared goal: ${g}`, boardCount: (n, a) => `Pilots on the board: ${n} · played this week: ${a}`,
     boardNick: 'Nickname', boardLevels: 'Levels completed', boardStarsCol: 'Stars', boardEmpty: 'Empty for now — be the first!',
@@ -934,7 +997,7 @@ window.addEventListener('keydown', () => SFX.unlock(), { capture: true });
 // generic soft click for menu and dialog buttons; game controls have their own sounds
 document.addEventListener('click', e => {
   const b = e.target.closest && e.target.closest('button'); if (!b || b.disabled) return;
-  if (b.closest('#palette, #rows') || ['btnRun', 'btnClear', 'btnSpeed'].includes(b.id) || b.hasAttribute('data-soundtoggle')) return;
+  if (b.closest('#palette, #rows, #draft') || ['btnRun', 'btnClear', 'btnSpeed'].includes(b.id) || b.hasAttribute('data-soundtoggle')) return;
   SFX.play('ui');
 });
 renderSoundBtns();
@@ -2863,6 +2926,9 @@ function hud() {
   $('hudTick').textContent = t('tick') + ' ' + tick;
 }
 function rowsFor() { return ['main', 'F1', 'F2'].filter(r => r === 'main' || level.limits[r] > 0); }
+const DRAFT_MAX = 40;
+const LIM = r => r === 'draft' ? DRAFT_MAX : level.limits[r];
+const draftOn = () => !!level && level.limits.F1 > 0;   // the draft comes with functions (from level 21)
 function renderProgram() {
   const rows = $('rows'); rows.innerHTML = '';
   for (const r of rowsFor()) {
@@ -2884,7 +2950,7 @@ function renderProgram() {
     row.onclick = e => { if (e.target === row || e.target === slots) { activeRow = r; renderProgram(); } };
     row.append(lab, slots); rows.appendChild(row);
   }
-  renderPalette();
+  renderPalette(); renderDraft();
 }
 function renderPalette() {
   const p = $('palette'); p.innerHTML = '';
@@ -2894,7 +2960,7 @@ function renderPalette() {
     b.onpointerdown = e => dragStart(e, c, null);
     b.onclick = () => {
       if (dragJustEnded) return;
-      if (program[activeRow].length >= level.limits[activeRow]) return rowFull(activeRow);
+      if (program[activeRow].length >= LIM(activeRow)) return rowFull(activeRow);
       SFX.play('add', c); program[activeRow].push(c); saveDraft(); renderProgram();
     };
     p.appendChild(b);
@@ -2939,7 +3005,7 @@ function dragStop(drop) {
     if (idx > d.from.i) idx--; if (idx === d.from.i) return;
     program[tg.r].splice(d.from.i, 1);
   } else {
-    if (program[tg.r].length >= level.limits[tg.r]) return rowFull(tg.r);
+    if (program[tg.r].length >= LIM(tg.r)) return rowFull(tg.r);
     if (d.from) program[d.from.r].splice(d.from.i, 1);     // move to another row
   }
   program[tg.r].splice(idx, 0, d.cmd); activeRow = tg.r; SFX.play('add', d.cmd); saveDraft(); renderProgram();
@@ -3193,13 +3259,110 @@ function resetRocket() {
   ROCKET.nozzleGlows.forEach(g => g.material.emissiveIntensity = .4); refreshRocket();
 }
 
+/* ---------------- draft (чернетка) ---------------- */
+let draftSel = null, draftSelecting = false, draftMsg = '';
+// messages show inside the draft when it is open as a sheet (the sheet covers the game's toast)
+function dmsg(html) { if (document.body.classList.contains('draft-open')) { draftMsg = html; renderDraft(); } else toast(html); }
+// non-overlapping places where `pat` occurs in `seq`
+function findRuns(seq, pat) { const out = []; if (pat.length < 2) return out; for (let i = 0; i + pat.length <= seq.length;) { if (pat.every((c, j) => seq[i + j] === c)) { out.push(i); i += pat.length; } else i++; } return out; }
+const fnRows = () => ['F1', 'F2'].filter(f => level.limits[f] > 0);
+function renderDraft() {
+  document.body.classList.toggle('has-draft', draftOn());
+  if (!draftOn()) { setDraftSheet(false); $('draft').hidden = true; return; }
+  const box = $('draft'), d = program.draft, isActive = activeRow === 'draft';
+  box.hidden = false; box.classList.toggle('active', isActive);
+  $('draftCount').textContent = d.length ? `${d.length}` : '';
+  // underline every place where a function's body appears in the draft
+  const mark = new Array(d.length).fill(null), found = {};
+  for (const f of fnRows()) { const pat = program[f]; found[f] = 0;
+    for (const i of findRuns(d, pat)) { if (pat.some((_, j) => mark[i + j])) continue; found[f]++; pat.forEach((_, j) => { mark[i + j] = { f, j, n: pat.length }; }); } }
+  const sel = draftSel ? [Math.min(draftSel.a, draftSel.b), Math.max(draftSel.a, draftSel.b)] : null;
+  const slots = $('draftSlots'); slots.innerHTML = '';
+  const n = Math.min(DRAFT_MAX, d.length + 1);
+  for (let i = 0; i < n; i++) {
+    const c = d[i], s = document.createElement('button');
+    s.className = 'slot' + (c ? ' filled' : '');
+    if (c) {
+      s.style.setProperty('--c', CMD[c].c); s.innerHTML = icon(c); s.setAttribute('aria-label', cmdName(c));
+      if (sel && i >= sel[0] && i <= sel[1]) s.classList.add('sel');
+      const m = mark[i]; if (m) { s.classList.add('mk'); s.style.setProperty('--mk', CMD[m.f].c); if (m.j === 0) s.classList.add('m0'); if (m.j === m.n - 1) s.classList.add('m1'); }
+      s.onpointerdown = e => { if (!draftSelecting) dragStart(e, c, { r: 'draft', i }); };
+    } else s.setAttribute('aria-label', t('emptySlot'));
+    s.onclick = () => {
+      if (running || dragJustEnded) return;
+      activeRow = 'draft';
+      if (c && draftSelecting) { SFX.play('select'); draftSel = !draftSel || draftSel.a !== draftSel.b ? { a: i, b: i } : { a: draftSel.a, b: i }; }
+      else if (c) { SFX.play('remove'); d.splice(i, 1); draftSel = null; saveDraft(); }
+      else SFX.play('select');
+      renderProgram();
+    };
+    slots.appendChild(s);
+  }
+  $('draftRow').onclick = e => { if (e.target.id === 'draftRow' || e.target === slots) { activeRow = 'draft'; renderProgram(); } };
+  box.onclick = e => { if (e.target === box || e.target.closest('.dhead,.dhint')) { if (activeRow !== 'draft') { activeRow = 'draft'; SFX.play('select'); renderProgram(); } } };
+  // hint line
+  $('draftHint').innerHTML = draftMsg ? `<span class="dwarn">${draftMsg}</span>` : draftSelecting ? t('draftSelHint') : !d.length ? t('draftEmpty') : !isActive ? t('draftWrite') : '';
+  draftMsg = '';
+  // functions found in the draft
+  $('draftFns').innerHTML = fnRows().filter(f => program[f].length >= 2 && found[f] > 0).map(f =>
+    `<div class="dfn" style="--c:${CMD[f].c}"><b>${f}</b><span class="mini">${program[f].map(x => `<i style="background:${CMD[x].c}">${icon(x)}</i>`).join('')}</span><span>${t('fnFound', f, found[f])}</span></div>`).join('');
+  // the sheet's own palette (phones)
+  const dp = $('draftPal'); dp.innerHTML = '';
+  for (const c of level.cmds) {
+    const b = document.createElement('button'); b.className = 'cmd'; b.style.setProperty('--c', CMD[c].c); b.innerHTML = icon(c); b.setAttribute('aria-label', cmdName(c)); b.disabled = running;
+    b.onpointerdown = e => dragStart(e, c, null);
+    b.onclick = () => { if (dragJustEnded) return; if (d.length >= DRAFT_MAX) return rowFull('draft'); SFX.play('add', c); d.push(c); activeRow = 'draft'; saveDraft(); renderProgram(); };
+    dp.appendChild(b);
+  }
+  // actions
+  const acts = $('draftActs'); acts.innerHTML = '';
+  const btn = (label, fn, cls = 'ghost', css = '') => { const b = document.createElement('button'); b.className = cls; b.innerHTML = label; if (css) b.style.cssText = css; b.disabled = running; b.onclick = e => { e.stopPropagation(); fn(); }; acts.appendChild(b); };
+  if (draftSelecting) {
+    for (const f of fnRows()) if (sel) btn(t('makeFn', f), () => makeFnFromDraft(f, sel), 'ghost mk', `--c:${CMD[f].c}`);
+    btn(t('cancel'), () => { draftSelecting = false; draftSel = null; renderProgram(); });
+  } else {
+    if (d.length >= 2) btn(t('draftSelect'), () => { draftSelecting = true; draftSel = null; activeRow = 'draft'; SFX.play('select'); renderProgram(); });
+    for (const f of fnRows()) if (program[f].length >= 2 && found[f] > 0) btn(t('collapse', f), () => collapseDraft(f), 'ghost mk', `--c:${CMD[f].c}`);
+    if (d.length) btn(t('toMain'), draftToMain, 'primary');
+  }
+}
+function makeFnFromDraft(f, [a, b]) {
+  const body = program.draft.slice(a, b + 1);
+  if (f === 'F1' ? body.includes('F1') : body.includes('F1') || body.includes('F2')) { dmsg(t('fnSelf', f)); return; }
+  if (body.length > level.limits[f]) { rowFull(f); dmsg(t('fnTooLong', f, body.length, level.limits[f])); return; }
+  program[f] = body; draftSelecting = false; draftSel = null; SFX.play('add', f); saveDraft(); renderProgram();
+  const row = document.querySelector(`.prow[data-row="${f}"]`); if (row) { row.classList.remove('shake'); void row.offsetWidth; row.classList.add('shake'); }
+}
+function collapseDraft(f) {
+  const pat = program[f], d = program.draft, out = [];
+  for (let i = 0; i < d.length;) { if (pat.length >= 2 && pat.every((c, j) => d[i + j] === c)) { out.push(f); i += pat.length; } else out.push(d[i++]); }
+  program.draft = out; draftSel = null; SFX.play('add', f); saveDraft(); renderProgram();
+}
+function draftToMain() {
+  const d = program.draft;
+  if (d.length > level.limits.main) { rowFull('main'); dmsg(t('draftTooLong', d.length, level.limits.main)); return; }
+  program.main = [...d]; activeRow = 'main'; SFX.play('add', 'F'); saveDraft();
+  setDraftSheet(false); renderProgram(); toast(t('toMainDone'));
+}
+// the sheet lives on <body> while open (the panel's blur would otherwise trap a fixed element inside the panel)
+function setDraftSheet(open) {
+  document.body.classList.toggle('draft-open', open);
+  const box = $('draft');
+  if (open && box.parentNode !== document.body) document.body.appendChild(box);
+  if (!open && box.parentNode !== $('panel')) $('panel').appendChild(box);
+}
+$('btnDraft').onclick = () => { if (running) return; SFX.play('ui'); setDraftSheet(true); activeRow = 'draft'; renderProgram(); };
+$('draftClose').onclick = () => { SFX.play('ui'); setDraftSheet(false); draftSelecting = false; draftSel = null; if (activeRow === 'draft') activeRow = 'main'; renderProgram(); };
+
 /* ---------------- screens ---------------- */
 function openLevel(n) {
   if (!unlocked(n)) return;
   stopRunQuiet();
   level = buildLevel(n); buildBoard();
-  program = save.drafts[n] ? { main: [...save.drafts[n].main || []], F1: [...save.drafts[n].F1 || []], F2: [...save.drafts[n].F2 || []] } : { main: [], F1: [], F2: [] };
-  for (const r of ['main', 'F1', 'F2']) program[r] = program[r].filter(c => level.cmds.includes(c)).slice(0, level.limits[r]);
+  const sd = save.drafts[n] || {};
+  program = { main: [...sd.main || []], F1: [...sd.F1 || []], F2: [...sd.F2 || []], draft: [...sd.draft || []] };
+  for (const r of ['main', 'F1', 'F2', 'draft']) program[r] = program[r].filter(c => level.cmds.includes(c)).slice(0, LIM(r));
+  draftSel = null; draftSelecting = false; setDraftSheet(false);
   activeRow = 'main'; screen = 'game';
   $('menu').hidden = true; $('hud').hidden = false; $('panel').hidden = false;
   resetBoard(); renderProgram(); refreshRocket();
@@ -3248,7 +3411,7 @@ function renderMenu() {
 }
 $('btnMenu').onclick = showMenu;
 $('btnRun').onclick = run;
-$('btnClear').onclick = () => { if (running) return; if (program[activeRow].length) SFX.play('clear'); program[activeRow] = []; saveDraft(); renderProgram(); };
+$('btnClear').onclick = () => { if (running) return; if (program[activeRow].length) SFX.play('clear'); program[activeRow] = []; if (activeRow === 'draft') draftSel = null; saveDraft(); renderProgram(); };
 $('btnSpeed').onclick = () => { SFX.play('ui'); speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('btnSpeed').textContent = '×' + speed; };
 $('btnWho').onclick = () => { SFX.play('ui'); logout(); };
 $('btnBoard').onclick = () => { SFX.play('ui'); boardModal(); };
