@@ -262,7 +262,7 @@ button.slot:hover{background:#fff}
     <p class="meta2" id="titleProg"></p>
     <div class="row"><button class="btn primary" id="titleGo" type="button">Почати гру</button><button class="btn" id="resetBtn2" type="button">Почати спочатку</button></div>
     <div class="ask" id="resetAsk" hidden>Увесь прогрес буде стерто. Точно почати спочатку? <button class="btn" id="resetYes" type="button">Так, стерти</button><button class="btn" id="resetNo" type="button">Ні</button></div>
-    <button class="linkbtn" id="teacherBtn" type="button">Режим учителя: відкрити всі рівні</button>
+    <button class="linkbtn" id="teacherBtn" type="button" hidden>Режим учителя: відкрити всі рівні</button>
   </div>
 </div>
 <div class="modal" id="certModal" hidden>
@@ -1515,7 +1515,7 @@ codeEl.addEventListener("scroll",()=>{gutterEl.style.transform="translateY("+(-c
 codeEl.addEventListener("keydown",e=>{if(e.key==="Tab"){e.preventDefault();codeEl.setRangeText("  ",codeEl.selectionStart,codeEl.selectionEnd,"end");codeEl.dispatchEvent(new Event("input"))}});
 
 /* ===================== UI ===================== */
-let teacher=store.get("pz-teacher","0")==="1";
+let teacher=false;store.set("pz-teacher","0");
 const unlocked=i=>teacher||i===0||done.has(i)||done.has(i-1);
 const worldOf=i=>Math.floor(i/8);
 const worldDone=w=>{let n=0;for(let k=0;k<8;k++)if(done.has(w*8+k))n++;return n};
