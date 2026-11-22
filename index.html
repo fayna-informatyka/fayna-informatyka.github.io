@@ -96,6 +96,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .board{display:grid;gap:4px;margin:0 auto 12px;width:min(320px,100%)}
 .board.pxb{gap:3px;width:min(var(--w),calc(50vw - 48px),calc(100vh - 330px),540px);touch-action:none}.pxb .cell{border-radius:6px}
 @media (max-width:640px){.board.pxb{width:min(var(--w),88vw)}}
+.board.pxb20{gap:1px;width:min(var(--w),calc(50vw - 48px),calc(100vh - 400px),560px)}.pxb20 .cell{border-radius:2px;border-width:1px;border-color:#C9CED6}
+@media (max-width:640px){.board.pxb20{width:min(var(--w),92vw)}}
+.pxpal{gap:8px;margin:6px 0}.pxc{width:44px;height:44px;border-radius:50%;border:3px solid var(--line);padding:0;font-size:1.2rem;background:var(--surface)}.pxc[aria-pressed=true]{box-shadow:0 0 0 4px #E9C46A;transform:scale(1.1)}
 .cell{aspect-ratio:1;display:grid;place-items:center;border-radius:10px;background:var(--surface);border:2px solid var(--line);font-size:1.3rem}
 button.cell{cursor:pointer;padding:0;color:inherit;font:inherit}
 .row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
@@ -223,7 +226,7 @@ var APPS=[
 {title:"Кристальний маршрут",desc:"Склади програму з блоків і проведи мандрівника крізь п’ять планет: 100 рівнів, українською та англійською.",cat:"Алгоритми",grade:"2–4 клас",icon:"💎",color:"#4CB5F5",url:"https://claude.ai/artifact/XMSHC8myhUu4sp29x17kDY",added:"2026-11-08"},
  {title:"Блоки-кодери",desc:"З’єднуй кольорові блоки й оживляй героя.",cat:"Кодування",grade:"2–4 клас",icon:"🧩",color:"#9C88FF",url:""},
  {title:"Основи Python",desc:"Курс програмування з 8 уроків: print, змінні, цикли, умови, черепашка-художник і свій проєкт. Код запускається просто на сторінці.",cat:"Кодування",grade:"4 клас",icon:"🐍",color:"#3B6CF6",url:"",added:"2026-11-15"},
-{title:"Піксельний художник",desc:"Розфарбуй клітинки за кодом і побач малюнок.",cat:"Кодування",grade:"2–3 клас",icon:"👾",color:"#4CB5F5",url:""},
+{title:"Піксельний художник",desc:"Перемалюй піксельну картинку 20×20 за зразком: серце, будиночок, рибка, котик та інші.",cat:"Малювання",grade:"1–4 клас",icon:"👾",color:"#4CB5F5",url:""},
  {title:"Клавіатурні перегони",desc:"Друкуй літери — і твоя машинка їде швидше.",cat:"Клавіатура й мишка",grade:"3–4 клас",icon:"⌨️",color:"#FF6B8B",url:""},
  {title:"Медова галявина",desc:"Веди бджілку мишкою й збирай квіти. Кущі, павутину й хмарки прибирай лівою, правою кнопкою та подвійним клацанням.",cat:"Клавіатура й мишка",grade:"1–3 клас",icon:"🐝",color:"#27C9A0",url:"",added:"2026-11-14"},
 {title:"Космічний ловець",desc:"Лови ⭐ мишкою, оминай ☄️. 8 рівнів та 3 рівні складності.",cat:"Клавіатура й мишка",grade:"1–4 клас",icon:"🚀",color:"#9C88FF",url:""},
@@ -301,19 +304,38 @@ function bk(i){return function(bx,fin){var L=5+(i>>2),S={},k=1+(i>>2);
   win:function(s){return s.x==L-1},
   draw:function(s){var h="";for(var j=0;j<L;j++)h+='<div class="cell">'+(s.x==j?"🐱":S[j]?"🪨":j==L-1?"🏁":"")+"</div>";return h}},fin)}}
 /* 4. піксельний художник */
-function px(i){return function(bx,fin){var N=i<4?5:i<9?6:i<15?7:8,T=[],on={},d=.35+Math.min(i,10)*.02,h=Math.ceil(N/2);
- for(var r=0;r<N;r++)for(var c=0;c<h;c++){var v=Math.random()<d?1:0;T[r*N+c]=v;T[r*N+N-1-c]=v}
- T[0]=T[N-1]=1;
- function cs(f,k){return'<div class="board pxb"'+(k?' id="pxd"':'')+' style="grid-template-columns:repeat('+N+',1fr);--w:'+N*84+'px">'+T.map(f).join("")+"</div>"}
- bx.innerHTML='<div class="row"><div><div class="msg">Зразок</div>'+cs(function(c){return'<div class="cell" style="background:'+(c?"#FF6B8B":"var(--surface)")+'"></div>'})+'</div><div><div class="msg">Твій малюнок</div>'+cs(function(c,j){return'<button class="cell" type="button" data-i="'+j+'" aria-label="Клітинка '+(Math.floor(j/N)+1)+', '+(j%N+1)+'"></button>'},1)+'</div></div><div class="row"><button class="btn" id="ck" type="button">Перевірити</button></div><div class="msg" id="ms">Розфарбуй клітинки, як на зразку. Можна клацати або вести мишкою з натиснутою кнопкою</div>';
+/* 6. піксельний художник: 20×20, малюнки за зразком */
+var PXC={R:"#E5484D",Y:"#F2C14E",G:"#3FA34D",B:"#3B82F6",K:"#2C3550",O:"#F28C28",P:"#FF6B8B",W:"#8B5A36",L:"#8FD3F2",V:"#9B6BC9"};
+var PXN={R:"червоний",Y:"жовтий",G:"зелений",B:"синій",K:"чорний",O:"помаранчевий",P:"рожевий",W:"коричневий",L:"блакитний",V:"фіолетовий"};
+function pxPic(i){var N=20,f,g=[];function D(r,c,y,x){return Math.hypot(r-y,c-x)}
+ var P=[
+  ["Серце",function(r,c){var x=(c-9.5)/8.2,y=(9-r)/8.2+.1;var v=Math.pow(x*x+y*y-1,3)-x*x*y*y*y;return v<=0?(v>-.02&&false?"K":"R"):"."}],
+  ["Смайлик",function(r,c){var d=D(r,c,9.5,9.5);if(d>9.3)return".";if(d>8.2)return"K";if((r===6||r===7)&&(c===6||c===7||c===12||c===13))return"K";var m=D(r,c,9,9.5);if(r>=11&&m>=4.6&&m<=5.8&&c>=4&&c<=15)return"K";return"Y"}],
+  ["Будиночок",function(r,c){if(r===19)return"G";if(r>=2&&r<=8&&Math.abs(c-9.5)<=r-1)return"O";if(r>=9&&r<=18&&c>=3&&c<=16){if(r>=13&&c>=8&&c<=11)return"W";if(r>=10&&r<=12&&((c>=4&&c<=6)||(c>=13&&c<=15)))return"L";return"Y"}return"."}],
+  ["Ялинка",function(r,c){if(r<=1&&Math.abs(c-9.5)<=1)return"Y";if(r>=16&&r<=18&&c>=8&&c<=11)return"W";var t=[[2,7,1],[6,11,2],[10,15,3]];for(var k=0;k<3;k++){var a=t[k];if(r>=a[0]&&r<=a[1]&&Math.abs(c-9.5)<=(r-a[0])+a[2])return"G"}return"."}],
+  ["Сонце",function(r,c){var d=D(r,c,9.5,9.5);if(d<=5)return"Y";var a=(Math.atan2(r-9.5,c-9.5)*180/Math.PI+360)%45;if(d>=6.4&&d<=9.8&&(a<9||a>36))return"O";return"."}],
+  ["Рибка",function(r,c){var x=(c-8)/7,y=(r-10)/4.6;if(r===8&&c===4)return"K";if(x*x+y*y<=1){if(r<=7&&c>=7&&c<=10)return"Y";return"O"}if(c>=14&&c<=18&&Math.abs(r-10)<=c-13.5)return"O";if(r>=4&&r<=5&&c>=7&&c<=10&&r>=12-c)return"Y";return"."}],
+  ["Квітка",function(r,c){if(D(r,c,6.5,9.5)<=1.9)return"Y";for(var k=0;k<6;k++){var a=k/6*Math.PI*2;if(D(r,c,6.5+Math.sin(a)*3.6,9.5+Math.cos(a)*3.6)<=2.1)return"P"}if(c>=9&&c<=10&&r>=11&&r<=19)return"G";if(D(r,c,14.5,6.5)<=1.9||D(r,c,16,13)<=1.9)return"G";return"."}],
+  ["Яблуко",function(r,c){if(c>=9&&c<=10&&r>=2&&r<=5)return"W";if(D(r,c,3.5,13)<=2&&r<=5)return"G";var d=Math.min(D(r,c,11.5,7),D(r,c,11.5,12.5));if(d<=6.6&&r>=5)return(D(r,c,8.5,6)<=1.4)?"P":"R";return"."}],
+  ["Монітор",function(r,c){if(r===18&&c>=5&&c<=14)return"K";if(r>=15&&r<=17&&c>=8&&c<=11)return"K";if(r>=2&&r<=14&&c>=1&&c<=18){if(r===2||r===14||c===1||c===18)return"K";if(D(r,c,6,14)<=2)return"Y";if(r>=10&&Math.abs(c-7)<=r-9)return"G";return"L"}return"."}],
+  ["Зірка",function(r,c){function ins(y,x){var pts=[];for(var k=0;k<10;k++){var an=-Math.PI/2+k*Math.PI/5,rr=k%2?4.2:9.8;pts.push([9.5+Math.cos(an)*rr,10.3+Math.sin(an)*rr])}var o=false;for(var i=0,j=9;i<10;j=i++){var xi=pts[i][0],yi=pts[i][1],xj=pts[j][0],yj=pts[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))o=!o}return o}
+   if(!ins(r,c))return".";if(!ins(r-1,c)||!ins(r+1,c)||!ins(r,c-1)||!ins(r,c+1))return"O";return"Y"}],
+  ["Метелик",function(r,c){if(c>=9&&c<=10&&r>=4&&r<=16)return"K";if((r===2||r===3)&&(c===7||c===12))return"K";var x=Math.abs(c-9.5);if(x<1)return".";var u=D(r,c,7.5,c<10?5:14),l=D(r,c,13.5,c<10?6:13);if(u<=4.4)return u<=1.6?"Y":"V";if(l<=3.4)return l<=1.2?"Y":"B";return"."}],
+  ["Котик",function(r,c){var x=Math.abs(c-9.5);if(r>=3&&r<=7&&x>=3&&x<=6.5&&x>=r-1&&x<=r+2.5)return"O";var d=D(r,c,11,9.5);if(d<=7.4&&r>=5){if((r===9||r===10)&&(c===6||c===13))return"K";if(r===12&&(c===9||c===10))return"P";if(r===14&&c>=8&&c<=11)return"K";return"O"}return"."}]];
+ var p=P[i%P.length];for(var r=0;r<N;r++)for(var c=0;c<N;c++)g.push(p[1](r,c));return{name:p[0],g:g,N:N}}
+function px(i){return function(bx,fin){var pic=pxPic(i),N=pic.N,T=pic.g,on={},cols=[];T.forEach(function(k){if(k!=="."&&cols.indexOf(k)<0)cols.push(k)});var cur=cols[0];
+ function cs(f,k){return'<div class="board pxb pxb20"'+(k?' id="pxd"':'')+' style="grid-template-columns:repeat('+N+',1fr);--w:'+N*28+'px">'+T.map(f).join("")+"</div>"}
+ bx.innerHTML='<div class="msg"><b>'+pic.name+'</b> — перемалюй картинку клітинка за клітинкою</div><div class="row pxpal">'+cols.map(function(k){return'<button type="button" class="pxc" data-k="'+k+'" aria-label="'+PXN[k]+'" aria-pressed="'+(k===cur)+'" style="background:'+PXC[k]+'"></button>'}).join("")+'<button type="button" class="pxc pxe" data-k="." aria-label="Гумка" aria-pressed="false">🧽</button></div>'+
+  '<div class="row"><div><div class="msg">Зразок</div>'+cs(function(k){return'<div class="cell" style="background:'+(k==="."?"var(--surface)":PXC[k])+'"></div>'})+'</div><div><div class="msg">Твій малюнок</div>'+cs(function(k,j){return'<button class="cell" type="button" data-i="'+j+'" aria-label="Клітинка '+(Math.floor(j/N)+1)+', '+(j%N+1)+'"></button>'},1)+'</div></div><div class="row"><button class="btn" id="ck" type="button">Перевірити</button></div><div class="msg" id="ms">Обери колір і клацай або веди мишкою з натиснутою кнопкою. 🧽 — гумка</div>';
  H("mb").classList.add("wide");var pd=H("pxd"),pm=null;
- function pset(x,v){var j=x.dataset.i;on[j]=v;x.style.background=v?"#FF6B8B":""}
+ [].forEach.call(bx.querySelectorAll(".pxc"),function(b){b.onclick=function(){cur=b.dataset.k;[].forEach.call(bx.querySelectorAll(".pxc"),function(x){x.setAttribute("aria-pressed",String(x===b))})}});
+ function pset(x,v){var j=x.dataset.i;if(v===".")delete on[j];else on[j]=v;x.style.background=v==="."?"":PXC[v]}
  function pat(e){var x=document.elementFromPoint(e.clientX,e.clientY);return x&&x.dataset&&x.dataset.i!=null&&pd.contains(x)?x:null}
- pd.onpointerdown=function(e){var x=pat(e);if(!x)return;e.preventDefault();pm=!on[x.dataset.i];pset(x,pm);try{pd.setPointerCapture(e.pointerId)}catch(_){}};
- pd.onpointermove=function(e){if(pm==null)return;var x=pat(e);if(x&&!!on[x.dataset.i]!==pm)pset(x,pm)};
+ pd.onpointerdown=function(e){var x=pat(e);if(!x)return;e.preventDefault();pm=(on[x.dataset.i]===cur&&cur!==".")?".":cur;pset(x,pm);try{pd.setPointerCapture(e.pointerId)}catch(_){}};
+ pd.onpointermove=function(e){if(pm==null)return;var x=pat(e);if(x&&(on[x.dataset.i]||".")!==pm)pset(x,pm)};
  pd.onpointerup=pd.onpointercancel=function(){pm=null};
- [].forEach.call(pd.querySelectorAll("button.cell"),function(x){x.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pset(x,!on[x.dataset.i])}}});
- H("ck").onclick=function(){var w=0;T.forEach(function(c,j){if(!!c!=!!on[j])w++});if(w)H("ms").textContent="Помилок: "+w+". Придивись ще!";else{H("ms").textContent="Чудово! Малюнок точний 🎉";fin(true)}}}}
+ [].forEach.call(pd.querySelectorAll("button.cell"),function(x){x.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pset(x,on[x.dataset.i]===cur?".":cur)}}});
+ H("ck").onclick=function(){var w=0;T.forEach(function(k,j){if((on[j]||".")!==k)w++});if(w)H("ms").textContent="Помилок: "+w+". Придивись ще!";else{H("ms").textContent="Чудово! Малюнок точний 🎉";fin(true)}}}}
 /* 5. клавіатура */
 var KW=["а","о","л","і","в","мама","тато","кіт","дім","сад","сонце","книга","школа","мишка","екран","клавіша","принтер","файл","програма","інформатика"];
 function kb(i){return function(bx,fin){var w=KW[i];
@@ -631,7 +653,7 @@ function pracRestore(){var r=ssGet("fi_ret");ssSet("fi_ret",null);var jobs=[1,2,
 function openP(c,i){var P=PRO[c][i];stop();try{if(window.goatcounter&&goatcounter.count)goatcounter.count({path:"практична: "+c+" клас · "+P.title,title:P.title,event:true})}catch(e){}
  WHO=c+" клас · Практична: "+P.title;H("mt").textContent=c+" клас · "+P.title;var mb=H("mb");mb.innerHTML="";mb.className="";
  rounds(mb,P.tasks.length,function(k){return prt(PEN&&P.en?P.en[k]:P.tasks[k])},{lang:!!P.en});md.hidden=false;var f=md.requestFullscreen&&md.requestFullscreen();if(f&&f.catch)f.catch(function(){});H("mx").focus()}
-var GAMES={"Робот у лабіринті":function(b){rounds(b,20,mz)},"Сортувальна машина":function(b){rounds(b,20,sorter())},"Блоки-кодери":function(b){rounds(b,20,bk)},"Піксельний художник":function(b){rounds(b,20,px)},"Клавіатурні перегони":function(b){rounds(b,20,kb)},"Цифровий мольберт":function(b){rounds(b,20,dw)},"Знайди закономірність":function(b){rounds(b,20,pt)},"Так чи ні?":qz(YNQ,1),"Безпечний інтернет":qz(SAF),"Вікторина: Соцмережі":qz(SN),"Вікторина: Онлайн-ігри":qz(OG),"Тест: Комп’ютер і пристрої":qz(T1),"Тест: Інформація та дані":qz(T2),"Тест: Алгоритми":qz(T3),"Тест: Безпека й інтернет":qz(T4),"Тест: Scratch (4 клас)":qz(SC),"Олімпіада · 1 клас":oly(1),"Олімпіада · 2 клас":oly(2),"Олімпіада · 3 клас":oly(3),"Олімпіада · 4 клас":oly(4),"Копіюй і вставляй":function(b){rounds(b,20,cp)},"Пропущені слова":function(b){rounds(b,20,gp)},"Stairbuilder":function(b){frameGame(b,"games/stairbuilder.html")},"Код повернення":function(b){frameGame(b,"games/kod-povernennia.html")},"Основи Python":function(b){frameGame(b,"games/osnovy-python.html")},"Медова галявина":function(b){frameGame(b,"games/medova-halyavyna.html")},"Космічний ловець":function(b){frameGame(b,"games/kosmichnyi-lovets.html")},"Академія мишки й клавіш":function(b){frameGame(b,"games/spryntni-palchyky.html")},"Магічні слова":function(b){frameGame(b,"games/mahichni-slova.html")},"Сортувальник пристроїв":function(b){frameGame(b,"games/sortuvalnyk-prystroiv.html")},"Пригоди друзів":function(b){frameGame(b,"games/pryhody-druziv.html")},"Кристальний маршрут":function(b){frameGame(b,"games/krystalnyi-marshrut.html")}};
+var GAMES={"Робот у лабіринті":function(b){rounds(b,20,mz)},"Сортувальна машина":function(b){rounds(b,20,sorter())},"Блоки-кодери":function(b){rounds(b,20,bk)},"Піксельний художник":function(b){rounds(b,12,px)},"Клавіатурні перегони":function(b){rounds(b,20,kb)},"Цифровий мольберт":function(b){rounds(b,20,dw)},"Знайди закономірність":function(b){rounds(b,20,pt)},"Так чи ні?":qz(YNQ,1),"Безпечний інтернет":qz(SAF),"Вікторина: Соцмережі":qz(SN),"Вікторина: Онлайн-ігри":qz(OG),"Тест: Комп’ютер і пристрої":qz(T1),"Тест: Інформація та дані":qz(T2),"Тест: Алгоритми":qz(T3),"Тест: Безпека й інтернет":qz(T4),"Тест: Scratch (4 клас)":qz(SC),"Олімпіада · 1 клас":oly(1),"Олімпіада · 2 клас":oly(2),"Олімпіада · 3 клас":oly(3),"Олімпіада · 4 клас":oly(4),"Копіюй і вставляй":function(b){rounds(b,20,cp)},"Пропущені слова":function(b){rounds(b,20,gp)},"Stairbuilder":function(b){frameGame(b,"games/stairbuilder.html")},"Код повернення":function(b){frameGame(b,"games/kod-povernennia.html")},"Основи Python":function(b){frameGame(b,"games/osnovy-python.html")},"Медова галявина":function(b){frameGame(b,"games/medova-halyavyna.html")},"Космічний ловець":function(b){frameGame(b,"games/kosmichnyi-lovets.html")},"Академія мишки й клавіш":function(b){frameGame(b,"games/spryntni-palchyky.html")},"Магічні слова":function(b){frameGame(b,"games/mahichni-slova.html")},"Сортувальник пристроїв":function(b){frameGame(b,"games/sortuvalnyk-prystroiv.html")},"Пригоди друзів":function(b){frameGame(b,"games/pryhody-druziv.html")},"Кристальний маршрут":function(b){frameGame(b,"games/krystalnyi-marshrut.html")}};
 function frameGame(b,src){b.className="fr";var f=document.createElement("iframe");f.src=src;f.title="Гра";f.setAttribute("allow","fullscreen; autoplay");f.setAttribute("allowfullscreen","");
  f.onload=function(){try{f.contentWindow.focus()}catch(e){}};b.appendChild(f)}
 var cur="Усі", grid=document.getElementById("grid"), box=document.getElementById("filters");
