@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="пан Віталій">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; connect-src 'none'">
+<title>3D-розмальовки</title>
+<style>
+:root{--ink:#2C3550;--mute:#5E6782;--bg:#EEF0EA;--ok:#5E9A7C;--sun:#E9C46A}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid #7FA7C9;outline-offset:2px}
+#app{height:100%;display:flex;flex-direction:column}
+#top{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#E3E6DE;border-bottom:3px solid #CBD0C4;flex-wrap:wrap}
+#ttl{font-weight:800;font-size:1.15rem}
+#ttl small{display:block;font-weight:700;font-size:.85rem;color:var(--mute)}
+.sp{flex:1}
+#prog{display:flex;align-items:center;gap:8px;font-weight:800}
+#bar{width:min(220px,30vw);height:16px;border-radius:999px;border:3px solid var(--line,#2C3550);background:#fff;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .25s}
+#wrap{position:relative;flex:1;min-height:0;background:linear-gradient(#CFE3EC,#EEF0EA 75%)}
+#cv{width:100%;height:100%;display:block;touch-action:none}
+#camB{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:8px}
+#camB button{width:48px;height:48px;border-radius:14px;border:3px solid var(--ink);background:rgba(255,253,248,.92);font-weight:900;font-size:1.25rem;display:grid;place-items:center;padding:0}
+#tip{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#fff;border:3px solid var(--ink);border-radius:16px;padding:8px 16px;font-weight:800;font-size:1.05rem;box-shadow:0 4px 0 var(--ink);text-align:center;max-width:90%;pointer-events:none}
+#tip[hidden]{display:none}
+#pal{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:10px 12px 14px;background:#F6F4EE;border-top:3px solid #CBD0C4}
+.pc{position:relative;width:68px;height:68px;border-radius:50%;border:4px solid var(--ink);display:grid;place-items:center;font-weight:900;font-size:1.5rem;padding:0;box-shadow:0 4px 0 var(--ink);transition:transform .1s}
+.pc[aria-pressed=true]{transform:translateY(-6px) scale(1.08);box-shadow:0 0 0 5px var(--sun),0 8px 0 var(--ink)}
+.pc .left{position:absolute;bottom:-10px;right:-8px;min-width:26px;height:26px;border-radius:999px;background:#fff;border:3px solid var(--ink);font-size:.75rem;display:grid;place-items:center;padding:0 4px;color:var(--ink)}
+.pc.done{opacity:.55}
+.pc.done .left{background:var(--ok);color:#fff}
+.lbl{position:absolute;transform:translate(-50%,-50%);background:#fff;border:3px solid var(--ink);border-radius:12px;padding:4px 10px;font-weight:900;font-size:1rem;white-space:nowrap;pointer-events:none;box-shadow:0 3px 0 var(--ink);opacity:0;transition:opacity .5s}
+.lbl.on{opacity:1}
+#win{position:absolute;left:12px;top:12px;z-index:3;background:#fff;border:4px solid var(--ink);border-radius:20px;padding:12px 18px;box-shadow:0 6px 0 var(--ink);text-align:center;max-width:min(340px,70%)}
+#win[hidden]{display:none}
+#win h2{margin:0 0 4px;font-size:1.4rem}
+#win p{margin:0 0 10px;font-weight:700;line-height:1.35}
+.big{min-height:48px;padding:8px 20px;border-radius:14px;border:3px solid var(--ink);background:var(--sun);font-weight:900;font-size:1.05rem;box-shadow:0 4px 0 var(--ink)}
+.cf{position:absolute;width:10px;height:14px;pointer-events:none;border-radius:2px}
+@media (max-width:600px){.pc{width:54px;height:54px;font-size:1.2rem}#ttl{font-size:1rem}}
+#menuB{min-height:44px;padding:6px 14px;border-radius:14px;border:3px solid var(--ink);background:#fff;font-weight:900;font-size:1rem;box-shadow:0 3px 0 var(--ink)}
+#menu{position:fixed;inset:0;z-index:10;background:var(--bg);overflow:auto;padding:18px 16px 40px}
+#menu[hidden]{display:none}
+#menu .in{max-width:980px;margin:0 auto}
+#menu h1{margin:0 0 4px;font-size:1.8rem}
+#menu .sub{margin:0 0 18px;font-weight:700;color:var(--mute)}
+.sec{margin:0 0 20px}
+.sec h2{margin:0 0 10px;font-size:1.25rem}
+.sec h2 em{font-style:normal;font-size:.8rem;font-weight:800;background:#E3E6DE;border:2px solid #CBD0C4;border-radius:999px;padding:2px 10px;margin-left:8px;vertical-align:middle;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:#fff;border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink);padding:12px 10px 10px;text-align:center;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:150px}
+.card .ic{font-size:2.6rem;line-height:1.1}
+.card .nm{font-size:1rem}
+.card .pb{width:100%;height:10px;border-radius:999px;border:2px solid var(--ink);background:#F1F1EC;overflow:hidden;margin-top:auto}
+.card .pb i{display:block;height:100%;background:var(--ok)}
+.card .pt{font-size:.8rem;color:var(--mute)}
+.card:hover{transform:translateY(-2px)}
+.card.soon{opacity:.5;box-shadow:0 5px 0 #9aa0ad;border-color:#9aa0ad;cursor:default}
+.card.soon:hover{transform:none}
+#win .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#win .big.alt{background:#fff}
+@media (max-width:600px){#tip{font-size:.85rem;padding:6px 10px;max-width:70%}#menu h1{font-size:1.4rem}.grid{grid-template-columns:repeat(2,1fr)}.card{min-height:130px}.card .ic{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <button type="button" id="menuB" aria-label="Обрати модель">☰ Моделі</button>
+    <div id="ttl">3D-розмальовки<small id="mName"></small></div>
+    <span class="sp"></span>
+    <div id="prog"><div id="bar"><i id="barI"></i></div><span id="pct">0%</span></div>
+  </div>
+  <div id="wrap">
+    <canvas id="cv" aria-label="3D-модель із кубиків для розфарбовування"></canvas>
+    <div id="camB">
+      <button type="button" id="cL" aria-label="Повернути ліворуч">⟲</button>
+      <button type="button" id="cR" aria-label="Повернути праворуч">⟳</button>
+      <button type="button" id="cU" aria-label="Подивитися згори">⤒</button>
+      <button type="button" id="cD" aria-label="Подивитися знизу">⤓</button>
+      <button type="button" id="cZi" aria-label="Наблизити">＋</button>
+      <button type="button" id="cZo" aria-label="Віддалити">－</button>
+      <button type="button" id="cH" aria-label="Повернути модель на місце">⌂</button>
+    </div>
+    <div id="tip" hidden></div>
+    <div id="win" hidden><h2 id="wT"></h2><p id="wF"></p><div class="row"><button class="big" id="next" type="button">☰ Інші моделі</button><button class="big alt" id="again" type="button">↺ Ще раз</button></div></div>
+  </div>
+  <div id="pal"></div>
+</div>
+<div id="menu">
+  <div class="in">
+    <h1>3D-розмальовки 🎨</h1>
+    <p class="sub">Обери модель і розфарбуй кожен кубик за номером. Твій прогрес зберігається.</p>
+    <div id="secs"></div>
+  </div>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var PAL=[null,
+ {c:"#1B1E27",n:"чорний",dk:1},{c:"#B8C2CE",n:"сріблястий"},{c:"#1F6FFF",n:"синій",dk:1},{c:"#55C8FF",n:"блакитний"},
+ {c:"#9B4DFF",n:"фіолетовий",dk:1,gl:1},{c:"#FF3DA8",n:"рожевий",dk:1,gl:1},{c:"#FFFFFF",n:"білий"},{c:"#FFC52E",n:"жовтий"},
+ {c:"#22D37A",n:"зелений",gl:1},{c:"#FF6A2B",n:"помаранчевий",dk:1},
+ {c:"#E63946",n:"червоний",dk:1},{c:"#9A5B2E",n:"коричневий",dk:1},{c:"#2E9E4F",n:"темно-зелений",dk:1},{c:"#F5D7A8",n:"бежевий"},{c:"#FFB4CB",n:"світло-рожевий"},{c:"#7D8597",n:"сірий",dk:1}];
+function hex(h){var n=parseInt(h.slice(1),16);return[(n>>16&255)/255,(n>>8&255)/255,(n&255)/255]}
+/* ---------- помічники для моделей ---------- */
+function mkH(put,get){var H={get:get,
+ hs:function(x,y,z){var h=(x*73856093)^(y*19349663)^(z*83492791);h=(h^(h>>>13))*1274126177;return((h^(h>>>16))>>>0)},
+ ell:function(cx,cy,cz,rx,ry,rz,c){for(var x=Math.floor(cx-rx);x<=Math.ceil(cx+rx);x++)for(var y=Math.floor(cy-ry);y<=Math.ceil(cy+ry);y++)for(var z=Math.floor(cz-rz);z<=Math.ceil(cz+rz);z++){
+  var q=Math.pow((x-cx)/rx,2)+Math.pow((y-cy)/ry,2)+Math.pow((z-cz)/rz,2);if(q<=1){var k=typeof c==="function"?c(x,y,z,q):c;if(k)put(x,y,z,k)}}},
+ cyl:function(cx,cz,y0,y1,r,c){for(var y=y0;y<=y1;y++){var rr=typeof r==="function"?r(y):r;for(var x=Math.floor(cx-rr);x<=Math.ceil(cx+rr);x++)for(var z=Math.floor(cz-rr);z<=Math.ceil(cz+rr);z++){
+  var d=Math.hypot(x-cx,z-cz);if(d<=rr){var k=typeof c==="function"?c(x,y,z,d,rr):c;if(k)put(x,y,z,k)}}}},
+ line:function(pts,c){for(var i=0;i+1<pts.length;i++){var a=pts[i],b=pts[i+1],n=Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]),Math.abs(b[2]-a[2]))||1;
+  for(var t=0;t<=n;t++){var f=t/n;put(Math.round(a[0]+(b[0]-a[0])*f),Math.round(a[1]+(b[1]-a[1])*f),Math.round(a[2]+(b[2]-a[2])*f),c)}}},
+ front:function(x,y,c){for(var z=60;z>=-60;z--)if(get(x,y,z)){put(x,y,z,c);return z}return null},
+ eye:function(x,y){H.front(x,y,1);H.front(x,y+1,1)}};return H}
+/* ---------- моделі: кожна будує кубики через put/box і повертає підписи частин ---------- */
+var SECS=[
+ {id:"pc",t:"💻 Комп’ютер"},
+ {id:"in",t:"⌨️ Пристрої введення"},
+ {id:"out",t:"🖥 Пристрої виведення"},
+ {id:"mem",t:"💾 Пристрої збереження"},
+ {id:"ani",t:"🐾 Тварини"},
+ {id:"pla",t:"🌱 Рослини"},
+ {id:"food",t:"🍎 Їжа"},
+ {id:"fairy",t:"🧚 Казкові персонажі"}];
+var MODELS=[
+{id:"pc",sec:"pc",ic:"💻",name:"Персональний комп’ютер",win:"Комп’ютер готовий! 🎉",
+ fact:"Персональний комп’ютер складається з монітора, системного блока, клавіатури й мишки.",
+ build:function(put,box){
+  box(-1,32,7,26,0,0,1);
+  for(var sy=8;sy<=25;sy++)for(var sx=0;sx<=31;sx++)put(sx,sy,0,sy>=23?5:sy>=19?3:4);
+  for(var hx=0;hx<=31;hx++){var hh=10+Math.round(1.6*Math.sin(hx*.35)+1.2*Math.sin(hx*.13+1));for(var hy=9;hy<=hh;hy++)put(hx,hy,0,9)}
+  for(var ux=21;ux<=29;ux++)for(var uy=17;uy<=25;uy++){var ud=Math.hypot(ux-25,uy-21.2);if(ud<=2.6)put(ux,uy,0,8);else if(ud<=3.4&&uy>=19)put(ux,uy,0,10)}
+  box(3,14,13,20,0,0,7);box(3,14,20,20,0,0,2);put(13,20,0,10);put(12,20,0,8);put(11,20,0,9);
+  box(5,9,18,18,0,0,3);box(5,12,16,16,0,0,2);box(5,11,14,14,0,0,2);box(11,13,17,18,0,0,4);
+  box(0,31,8,8,0,0,1);put(13,8,0,3);put(15,8,0,8);put(17,8,0,10);put(19,8,0,9);put(29,8,0,7);put(30,8,0,7);
+  box(4,27,10,23,-1,-1,1);box(11,20,13,20,-2,-2,2);
+  box(14,17,1,16,-3,-3,2);box(11,20,0,0,-7,-1,2);
+  var TX0=37,TX1=43,TZ0=-8,TZ1=1;
+  box(TX0,TX1,0,19,TZ0,TZ1,1);
+  for(var y=1;y<=18;y++)for(var z=TZ0+1;z<=TZ1-1;z++)put(TX1,y,z,(y===1||y===18||z===TZ0+1||z===TZ1-1)?2:1);
+  [[14,-4],[9,-4]].forEach(function(f){for(var a=0;a<16;a++){var an=a/16*Math.PI*2;put(TX1,Math.round(f[0]+2.2*Math.sin(an)),Math.round(f[1]+2.2*Math.cos(an)),6)}put(TX1,f[0],f[1],7)});
+  box(TX1,TX1,4,4,-6,-1,2);box(TX1,TX1,5,5,-6,-1,5);box(TX1,TX1,16,17,-1,-1,9);box(TX1,TX1,16,17,-6,-6,9);
+  for(var y2=2;y2<=17;y2++)put(TX0+1,y2,TZ1,5);put(TX1-1,17,TZ1,7);box(TX0+3,TX1-2,15,15,TZ1,TZ1,2);
+  box(1,30,0,0,4,11,2);
+  for(var kz=5;kz<=9;kz+=2)for(var kx=2;kx<=29;kx+=2)if(!(kz===9&&kx>=9&&kx<=21))put(kx,1,kz,7);
+  box(9,21,1,1,9,9,7);for(var kx2=2;kx2<=29;kx2+=2)put(kx2,1,11,7);
+  box(33,35,0,0,6,10,7);box(33,35,1,1,7,9,7);put(34,2,8,7);put(34,2,7,1);put(34,1,6,1);
+  return{"Монітор":[15.5,28,0],"Системний блок":[40,21.5,-3],"Клавіатура":[15.5,2.5,12],"Мишка":[34,3.5,11]}}},
+
+{id:"kb",sec:"in",ic:"⌨️",name:"Клавіатура",win:"Клавіатура готова! 🎉",
+ fact:"Клавіатура — пристрій введення: нею ми вводимо в комп’ютер букви, цифри та команди.",
+ build:function(put,box){
+  box(0,31,0,0,0,12,1);                                   // чорна основа
+  box(0,31,1,1,0,0,2);box(0,31,1,1,12,12,2);box(0,0,1,1,0,12,2);box(31,31,1,1,0,12,2); // срібна рамка
+  put(2,2,1,10);                                           // Esc
+  [5,7,9,11,14,16,18,20,23,25,27].forEach(function(x){put(x,2,1,7)});
+  put(29,2,1,9);                                           // індикатор
+  for(var x=2;x<=24;x+=2)put(x,2,3,7);box(26,29,2,2,3,3,2); // цифри + Backspace
+  box(2,3,2,2,5,5,2);for(x=5;x<=23;x+=2)put(x,2,5,7);       // Tab + літери
+  box(2,4,2,2,7,7,2);for(x=6;x<=24;x+=2)put(x,2,7,7);       // Caps + літери
+  box(26,29,2,2,5,7,9);                                     // великий Enter
+  box(2,5,2,2,9,9,2);for(x=7;x<=21;x+=2)put(x,2,9,7);box(23,25,2,2,9,9,2); // Shift-и
+  put(28,2,9,8);                                            // ↑
+  box(2,3,2,2,11,11,2);put(5,2,11,2);box(7,21,2,2,11,11,3);put(23,2,11,2);   // Ctrl, Alt, Пробіл
+  put(26,2,11,8);put(28,2,11,8);put(30,2,11,8);              // ← ↓ →
+  return{"Esc":[2,4,1],"Enter":[27.5,4,6],"Пробіл":[14,4,11],"Стрілки":[28,4,10]}}},
+
+{id:"ms",sec:"in",ic:"🖱",name:"Мишка",win:"Мишка готова! 🎉",
+ fact:"Мишка — пристрій введення: вона передає комп’ютеру рухи руки та клацання кнопок.",
+ build:function(put){
+  var rx=5.6,ry=4.6,rz=8.2;
+  function inS(x,y,z){return x*x/(rx*rx)+y*y/(ry*ry)+z*z/(rz*rz)<=1}
+  for(var x=-6;x<=6;x++)for(var y=0;y<=5;y++)for(var z=-9;z<=9;z++){if(!inS(x,y,z))continue;
+   var c=2;if(y===0)c=1;else if(y===1)c=5;else if(z>=1&&Math.abs(x)<=4)c=(x===0?1:7);
+   put(x,y,z,c)}
+  var top=function(z){for(var y=5;y>=0;y--)if(inS(0,y,z))return y;return 0};
+  for(var wz=2;wz<=4;wz++)put(0,top(wz)+1,wz,1);           // коліщатко
+  put(0,top(-6)+1,-6,9);                                   // зелений вогник
+  return{"Ліва кнопка":[-3.5,6.5,5],"Права кнопка":[3.5,6.5,5],"Коліщатко":[0,7.5,3]}}},
+
+{id:"mic",sec:"in",ic:"🎙",name:"Мікрофон",win:"Мікрофон готовий! 🎉",
+ fact:"Мікрофон — пристрій введення: він перетворює наш голос на сигнал, який розуміє комп’ютер.",
+ build:function(put,box){
+  for(var x=-6;x<=6;x++)for(var z=-6;z<=6;z++){var d=Math.hypot(x,z);if(d<=5.4)put(x,0,z,1);if(d<=4.2)put(x,1,z,d<=1.2?2:1)}
+  box(0,0,2,9,0,0,2);                                      // ніжка
+  for(var y=10;y<=15;y++)for(x=-3;x<=3;x++)for(z=-3;z<=3;z++){var r=Math.hypot(x,z);
+   if(y===15?r<=3.2:r<=2.6)put(x,y,z,y===15?8:1)}           // корпус + золоте кільце
+  for(y=16;y<=24;y++)for(x=-5;x<=5;x++)for(z=-5;z<=5;z++){var s=Math.hypot(x,y-19.5,z);
+   if(s<=4.6)put(x,y,z,(y===18||y===21)?1:2)}               // сітка з чорними смужками
+  put(0,13,3,10);                                           // вогник
+  return{"Сітка":[0,26,0],"Корпус":[4.5,12.5,0],"Підставка":[0,2.5,6.5]}}},
+
+{id:"cam",sec:"in",ic:"📷",name:"Вебкамера",win:"Вебкамера готова! 🎉",
+ fact:"Вебкамера — пристрій введення: вона передає комп’ютеру зображення, наприклад під час відеоуроку.",
+ build:function(put,box){
+  for(var x=-8;x<=8;x++)for(var y=6;y<=12;y++)for(var z=-2;z<=1;z++){
+   if(Math.abs(x)===8&&(y===6||y===12))continue;put(x,y,z,1)}
+  for(x=-4;x<=4;x++)for(y=5;y<=13;y++){var d=Math.hypot(x,y-9);
+   if(d<=3.6){var c=d<=.8?1:d<=2.3?3:2;if(x===-1&&y===10)c=4;put(x,y,2,c)}}  // об’єктив
+  put(6,11,2,9);                                            // вогник
+  put(-6,9,2,2);put(-6,8,2,2);put(6,8,2,2);put(6,7,2,2);    // мікрофони
+  box(-1,1,3,5,-1,0,2);                                     // шия
+  box(-6,6,0,2,-4,2,1);box(-6,6,3,3,-4,-4,1);                // підставка-кліпса
+  return{"Об’єктив":[0,15,3],"Вогник":[7,13.5,3],"Підставка":[0,1,4]}}},
+
+{id:"gp",sec:"in",ic:"🎮",name:"Геймпад",win:"Геймпад готовий! 🎉",
+ fact:"Геймпад — пристрій введення для ігор: кнопки й стіки передають комп’ютеру наші команди.",
+ build:function(put,box){
+  function inB(x,z){if(Math.abs(x)<=8&&z>=-4&&z<=2&&!(Math.abs(x)>=8&&z===-4))return true;
+   return Math.hypot(Math.abs(x)-6.5,z-3.5)<=3.3}
+  for(var x=-10;x<=10;x++)for(var z=-5;z<=8;z++)if(inB(x,z))for(var y=0;y<=2;y++)put(x,y,z,y===0?1:7);
+  [[0,0],[-1,0],[1,0],[0,-1],[0,1]].forEach(function(o){put(-6+o[0],3,-1+o[1],1)});   // хрестовина
+  put(6,3,-3,9);put(8,3,-1,10);put(6,3,1,3);put(4,3,-1,8);                             // кнопки дій
+  [[-4,2],[4,2]].forEach(function(s){[[0,0],[-1,0],[1,0],[0,-1],[0,1]].forEach(function(o){put(s[0]+o[0],3,s[1]+o[1],1)});put(s[0],4,s[1],2)}); // стіки
+  box(-2,2,3,3,-3,-2,1);box(-2,2,3,3,-4,-4,5);                                         // тачпад + світлова смуга
+  put(-2,3,0,2);put(2,3,0,2);                                                         // малі кнопки
+  box(-8,-5,1,2,-5,-5,2);box(5,8,1,2,-5,-5,2);                                       // бампери
+  return{"Хрестовина":[-6,5.5,-1],"Кнопки":[6,5.5,-1],"Стіки":[-4,6.5,3]}}},
+{id:"mon",sec:"out",ic:"🖥",name:"Монітор",win:"Монітор готовий! 🎉",
+ fact:"Монітор — пристрій виведення: він показує нам на екрані тексти, малюнки й відео.",
+ build:function(put,box){
+  box(-1,24,5,19,0,0,1);                                    // рамка
+  for(var x=0;x<=23;x++)for(var y=6;y<=18;y++){var c=y>=11?4:3;
+   if(y===9&&(x%4===1||x%4===2))c=7;                         // хвилі
+   if(Math.hypot(x-19,y-15.5)<=2.3)c=8;                      // сонце
+   if(y>=10&&y<=11&&x>=6+(11-y)&&x<=14-(11-y))c=10;          // човен
+   if(y>=12&&y<=17&&x>=10&&x<=10+(17-y)*.8)c=7;               // вітрило
+   if(x===9&&y>=12&&y<=17)c=1;                               // щогла
+   if((y===16&&(x===3||x===4||x===5))||(y===17&&x===4))c=7;  // хмаринка
+   put(x,y,0,c)}
+  put(22,5,0,9);                                             // вогник
+  box(2,21,7,17,-1,-1,1);box(10,13,1,9,-2,-2,2);box(7,16,0,0,-5,1,2); // кришка, ніжка, підставка
+  return{"Екран":[11.5,21.5,0],"Вогник":[22,3,2],"Підставка":[11.5,-1.5,2]}}},
+
+{id:"prn",sec:"out",ic:"🖨",name:"Принтер",win:"Принтер готовий! 🎉",
+ fact:"Принтер — пристрій виведення: він друкує на папері те, що є в комп’ютері.",
+ build:function(put,box){
+  box(0,15,0,6,0,9,7);box(0,15,0,1,0,9,2);box(0,15,7,7,0,9,2);   // корпус
+  box(2,13,3,3,9,9,1);                                          // щілина
+  for(var i=0;i<5;i++)box(3,12,8+i,8+i,1-i,1-i,7);               // лоток з папером
+  box(3,12,2,2,10,14,7);                                         // надрукований аркуш
+  [6,3,8,9,4].forEach(function(c,j){box(4+j*2,5+j*2,2,2,12,13,c)}); // веселка на аркуші
+  box(10,14,7,7,7,8,1);put(11,7,7,4);put(12,7,7,4);put(13,7,8,9);put(14,7,8,10); // панель і кнопки
+  return{"Папір":[7.5,15,-3],"Аркуш":[7.5,5,15],"Кнопки":[12,10,8]}}},
+
+{id:"hp",sec:"out",ic:"🎧",name:"Навушники",win:"Навушники готові! 🎉",
+ fact:"Навушники — пристрій виведення: вони передають звук із комп’ютера тільки тобі.",
+ build:function(put){
+  for(var x=-9;x<=9;x++)for(var y=8;y<=17;y++){var d=Math.hypot(x,y-8);
+   if(d>=7.4&&d<=8.6)for(var z=-1;z<=1;z++)put(x,y,z,y<=10?2:(y>=15&&z===0?6:1))}   // дужка
+  [-1,1].forEach(function(s){for(var y=1;y<=9;y++)for(var z=-4;z<=4;z++){var r=Math.hypot(y-5,z);
+   if(r<=3.2)put(s*7,y,z,2);if(r<=3.6){put(s*8,y,z,1);put(s*9,y,z,r<=1.3?6:5)}}});  // чашки
+  return{"Дужка":[0,19.5,0],"Динамік":[11.5,5,0],"Амбушура":[-5,2,4]}}},
+
+{id:"spk",sec:"out",ic:"🔊",name:"Колонки",win:"Колонки готові! 🎉",
+ fact:"Колонки — пристрої виведення: вони виводять звук із комп’ютера так, що його чують усі.",
+ build:function(put,box){
+  [0,16].forEach(function(ox){box(ox,ox+5,0,13,0,4,1);
+   for(var x=0;x<=5;x++)for(var y=1;y<=12;y++){var c=0,d=Math.hypot(x-2.5,y-4),t=Math.hypot(x-2.5,y-10);
+    if(d<=1.6)c=3;else if(d<=2.6)c=2;if(t<=.8)c=9;else if(t<=1.7)c=2;if(c)put(ox+x,y,5,c)}
+   box(ox,ox+5,0,0,0,4,2)});
+  box(7,8,8,9,2,2,6);box(8,8,10,13,2,2,6);put(9,13,2,6);put(10,12,2,6);         // нота
+  box(11,12,6,7,2,2,5);box(14,14,8,7,2,2,5);box(12,12,8,11,2,2,5);box(14,14,8,11,2,2,5);box(13,14,6,7,2,2,5);box(12,14,11,11,2,2,5); // дві ноти
+  return{"Ліва колонка":[2.5,15.5,2],"Права колонка":[18.5,15.5,2],"Музика":[10.5,15,2]}}},
+
+{id:"prj",sec:"out",ic:"📽",name:"Проєктор",win:"Проєктор готовий! 🎉",
+ fact:"Проєктор — пристрій виведення: він показує зображення з комп’ютера на великому екрані.",
+ build:function(put,box){
+  box(0,13,1,5,0,9,7);box(0,13,1,1,0,9,2);                       // корпус
+  [[0,0],[13,0],[0,9],[13,9]].forEach(function(f){put(f[0],0,f[1],1)});
+  for(var x=1;x<=7;x++)for(var y=0;y<=6;y++){var d=Math.hypot(x-4,y-3);if(d<=2.6)put(x,y,-1,d<=.8?4:d<=1.7?3:2)} // об’єктив
+  for(var vz=1;vz<=8;vz+=2)box(13,13,2,4,vz,vz,1);              // решітка
+  put(9,6,6,9);put(10,6,6,10);put(11,6,6,2);                    // кнопки
+  box(-5,13,2,14,-13,-13,2);                                     // рамка екрана
+  for(x=-4;x<=12;x++)for(y=3;y<=13;y++){var c=7,s=Math.hypot(x-4,y-8);
+   if(s<=4.2)c=8;if((y===9||y===10)&&(x===2||x===6))c=1;if(y===6&&x>=2&&x<=6)c=1;if(y===7&&(x===1||x===7))c=1;put(x,y,-12,c)}
+  box(4,4,0,1,-13,-13,1);box(1,7,0,0,-14,-12,1);                 // ніжка екрана
+  [[-4,13],[12,13],[-4,3],[12,3]].forEach(function(t){for(var k=1;k<=8;k++){var f=k/9;put(Math.round(4+(t[0]-4)*f),Math.round(3+(t[1]-3)*f),Math.round(-2-9*f),8)}}); // промінь
+  return{"Об’єктив":[4,8,-1],"Екран":[4,16,-12],"Проєктор":[8,8,6]}}}
+];
+
+/* ---------- пристрої збереження ---------- */
+MODELS.push(
+{id:"usb",sec:"mem",ic:"🔑",name:"Флешка",win:"Флешка готова! 🎉",
+ fact:"Флешка — пристрій збереження: на ній можна принести файли з дому до школи.",
+ build:function(put,box){
+  box(0,13,0,3,0,6,3);                                       // корпус
+  box(3,10,3,3,1,5,7);put(5,3,3,3);put(7,3,3,3);put(9,3,3,3); // наліпка
+  put(12,3,3,9);                                             // вогник
+  box(14,19,1,2,1,5,2);put(16,2,2,1);put(16,2,4,1);put(18,2,2,1);put(18,2,4,1); // роз’єм USB
+  box(-3,-1,1,2,2,4,2);box(-2,-2,1,2,3,3,1);                 // вушко для брелока
+  return{"Роз’єм USB":[17,4.5,3],"Корпус":[5,6,3],"Вогник":[12,5.5,3]}}},
+
+{id:"hdd",sec:"mem",ic:"💿",name:"Жорсткий диск",win:"Жорсткий диск готовий! 🎉",
+ fact:"Жорсткий диск — пристрій збереження: усередині обертається диск, на який записуються файли.",
+ build:function(put,box,H){
+  box(0,15,0,1,0,19,1);                                      // корпус
+  [[1,1],[14,1],[1,18],[14,18]].forEach(function(s){put(s[0],2,s[1],2)});   // гвинтики
+  H.cyl(7.5,8,2,2,6.4,function(x,y,z,d){return d<=1.6?1:d<=2.2?16:2});     // пластина
+  H.cyl(7.5,8,3,3,1.4,1);
+  H.cyl(12.5,16,2,4,1.3,16);                                 // вісь голівки
+  H.line([[12,4,15],[11,4,13],[10,4,11],[9,4,10]],10);put(9,4,9,8);          // голівка
+  box(2,13,1,2,20,20,8);for(var x=3;x<=12;x+=3)put(x,2,20,1);               // роз’єм
+  return{"Диск":[4,5,4],"Голівка":[11,7,12],"Роз’єм":[7.5,5,21]}}},
+
+{id:"ssd",sec:"mem",ic:"💳",name:"SSD-накопичувач",win:"SSD готовий! 🎉",
+ fact:"SSD — пристрій збереження без рухомих частин: файли записуються в мікросхеми, тому він працює дуже швидко.",
+ build:function(put,box){
+  box(0,24,0,0,0,6,13);                                       // плата
+  box(2,8,1,1,1,5,1);box(4,6,1,1,2,4,7);                      // мікросхема з наліпкою
+  box(11,17,1,1,1,5,1);box(13,15,1,1,3,3,5);
+  box(19,21,1,1,2,4,1);                                        // контролер
+  for(var z=0;z<=6;z++)if(z!==2)put(25,0,z,8);                  // золоті контакти
+  put(-1,0,2,2);put(-1,0,4,2);put(-2,0,3,2);                    // гвинт
+  return{"Мікросхеми пам’яті":[9.5,3.5,3],"Контакти":[25,2.5,3]}}},
+
+{id:"sd",sec:"mem",ic:"🗂",name:"Карта пам’яті",win:"Карта пам’яті готова! 🎉",
+ fact:"Карта пам’яті — маленький пристрій збереження для фотоапаратів, телефонів і планшетів.",
+ build:function(put,box){
+  for(var x=0;x<=10;x++)for(var z=0;z<=14;z++){if(x-7>z)continue;put(x,0,z,3);put(x,1,z,3)}
+  box(1,9,1,1,5,13,7);                                          // наліпка
+  var S=["xxx","x..","xxx","..x","xxx"],D=["xx.","x.x","x.x","x.x","xx."];
+  for(var r=0;r<5;r++)for(var c=0;c<3;c++){if(S[r][c]==="x")put(2+c,1,7+r,1);if(D[r][c]==="x")put(6+c,1,7+r,1)}
+  for(x=1;x<=7;x+=2){put(x,1,1,8);put(x,1,2,8)}                 // контакти
+  put(-1,1,9,2);put(-1,1,10,2);                                 // перемикач захисту
+  return{"Контакти":[4,3.5,1],"Перемикач":[-2,3.5,9.5]}}},
+
+{id:"cloud",sec:"mem",ic:"☁️",name:"Хмарне сховище",win:"Хмара готова! 🎉",
+ fact:"Хмарне сховище — це комп’ютери в інтернеті, які зберігають наші файли. Відкрити їх можна з будь-якого пристрою.",
+ build:function(put,box,H){
+  [[0,8,0,9,5,4.5],[-7,6,0,5,3.5,4],[7,6,0,5.5,3.5,4],[-3,12,0,5,4.5,4],[4,12.5,0,4.5,4,4]].forEach(function(e){H.ell(e[0],e[1],e[2],e[3],e[4],e[5],function(x,y){return y>=4?(y<=4?4:7):0})});
+  var ar=function(cx,up,c){for(var y=6;y<=15;y++){var t=up?y-12:9-y;                      // t≥0 — голівка стрілки
+    for(var x=cx-3;x<=cx+3;x++){var dx=Math.abs(x-cx);if((t>=0&&dx<=3-t)||(t<0&&dx<=0.5+0.5*(x===cx)))H.front(x,y,c)}}};
+  ar(-4,true,9);ar(4,false,3);
+  return{"Хмара":[0,19,0],"Надіслати":[-4,2,5],"Завантажити":[4,2,5]}}}
+);
+
+/* ---------- тварини ---------- */
+function earT(put,s,x0,y0,c,inner){for(var r=0;r<4;r++)for(var k=0;k<4-r;k++){var x=s*(x0+k+(r>1?1:0));if(r>=3&&k>0)continue;for(var z=0;z<=1;z++)put(x,y0+r,z,(inner&&z===1&&r<2&&k>0&&k<3)?inner:c)}}
+MODELS.push(
+{id:"cat",sec:"ani",ic:"🐱",name:"Котик",win:"Котик готовий! 🎉",
+ fact:"Кіт — свійська тварина. У темряві він бачить значно краще за людину.",
+ build:function(put,box,H){
+  H.ell(0,6,0,4.5,5.5,4,function(x,y,z){return(z>=2&&Math.abs(x)<=2&&y<=9)?7:(z<-1&&y%3===0?12:10)});
+  H.ell(0,14,0.5,4.6,4,4,function(x,y,z){return(z>=3&&Math.abs(x)<=2&&y<=14)?7:(y>=16&&x%2===0&&z<2?12:10)});
+  earT(put,1,1,17,10,15);earT(put,-1,1,17,10,15);
+  H.ell(-2,1,3,1.6,1.2,1.8,7);H.ell(2,1,3,1.6,1.2,1.8,7);
+  H.line([[1,2,-4],[2,2,-6],[3,4,-7],[4,7,-7],[4,9,-6]],10);put(4,10,-6,7);put(4,10,-5,7);
+  H.eye(-2,15);H.eye(2,15);H.front(0,13,15);H.front(-1,12,1);H.front(1,12,1);
+  return{"Вушка":[0,22,0],"Хвіст":[5,12,-6],"Лапки":[0,0,6]}}},
+
+{id:"dog",sec:"ani",ic:"🐶",name:"Цуценя",win:"Цуценя готове! 🎉",
+ fact:"Собака — вірний друг людини. Вона чує звуки, яких ми навіть не помічаємо.",
+ build:function(put,box,H){
+  H.ell(0,6,0,4.5,5.5,4,function(x,y,z){return(z>=2&&Math.abs(x)<=2&&y<=8)?7:(x>1&&z<0&&y>4?12:14)});
+  H.ell(0,14,0.5,4.6,4,4,14);
+  for(var y=9;y<=10;y++)for(var x=-6;x<=6;x++)for(var z=-6;z<=6;z++)if(H.get(x,y,z))put(x,y,z,11);   // нашийник
+  H.ell(0,12.5,4,2.4,1.8,2,7);
+  H.ell(-4.8,13,0.5,1.3,3.2,2,12);H.ell(4.8,13,0.5,1.3,3.2,2,12);                                // вуха
+  H.front(2,16,12);H.front(3,16,12);H.front(3,15,12);H.front(2,17,12);
+  H.eye(-2,15);H.eye(2,15);H.front(0,13,1);H.front(-1,13,1);H.front(0,14,1);H.front(0,11,15);H.front(0,9,8);
+  H.ell(-2,1,3,1.6,1.2,1.8,7);H.ell(2,1,3,1.6,1.2,1.8,7);
+  H.line([[0,3,-4],[0,5,-6],[1,7,-7]],14);put(1,8,-7,12);
+  return{"Вушка":[-6,17,1],"Нашийник":[5,9,4],"Хвостик":[1,10.5,-7]}}},
+
+{id:"bunny",sec:"ani",ic:"🐰",name:"Зайчик",win:"Зайчик готовий! 🎉",
+ fact:"У зайця довгі вуха, щоб добре чути, і сильні задні лапи, щоб швидко тікати від лисиці.",
+ build:function(put,box,H){
+  H.ell(0,5,0,4,5,3.8,function(x,y,z){return(z>=2&&Math.abs(x)<=2&&y<=8)?7:16});
+  H.ell(0,12,0.5,3.8,3.5,3.5,function(x,y,z){return(z>=2.5&&Math.abs(x)<=1.5&&y<=12)?7:16});
+  [-1,1].forEach(function(s){H.ell(s*1.8,19,0,1.3,4.5,1,function(x,y,z){return(z>=1&&Math.abs(x-s*1.8)<1&&y>=16&&y<=21)?15:16})});
+  H.ell(0,4,-4.5,1.7,1.7,1.4,7);
+  H.ell(-2.5,0.5,3,1.6,1,2.4,7);H.ell(2.5,0.5,3,1.6,1,2.4,7);
+  H.eye(-1.5,13);H.eye(1.5,13);H.front(0,12,15);
+  for(var x=-3;x<=3;x++){var r=1.3*(x+4)/7;for(var y=-1;y<=3;y++)for(var z=5;z<=9;z++)if(Math.hypot(y-1,z-7)<=r+.2)put(x,y,z,10)}
+  put(-4,1,7,9);put(-5,2,7,9);put(-5,1,6,9);put(-5,1,8,9);                                       // морквина
+  return{"Вушка":[0,25,0],"Хвостик":[0,5,-7],"Морквинка":[0,4,8]}}},
+
+{id:"fox",sec:"ani",ic:"🦊",name:"Лисичка",win:"Лисичка готова! 🎉",
+ fact:"Лисиця живе в норі. Своїм пухнастим хвостом вона вкривається взимку, як ковдрою.",
+ build:function(put,box,H){
+  H.ell(0,6,0,4,5.5,3.8,function(x,y,z){return(z>=2&&Math.abs(x)<=2&&y<=9)?7:10});
+  H.ell(4.5,2,1,2.2,2,4.6,function(x,y,z){return z>=4?7:10});                                    // хвіст
+  H.ell(0,13.5,0.5,4.4,3.6,3.8,function(x,y,z){return(y<=13&&z>=1&&Math.abs(x)>=2)?7:10});
+  H.ell(0,12.5,4,1.8,1.5,2.6,function(x,y,z){return y<=12?7:10});
+  [-1,1].forEach(function(s){for(var r=0;r<5;r++)for(var k=0;k<5-r;k++){if(r>=3&&k>1)continue;var x=s*(1+k+(r>1?1:0));for(var z=0;z<=1;z++)put(x,16+r,z,r>=3?1:(z===1&&r<2&&k>0&&k<4?7:10))}});
+  H.ell(-2,1,3,1.4,1.2,1.6,1);H.ell(2,1,3,1.4,1.2,1.6,1);
+  H.eye(-2,14);H.eye(2,14);for(var z=12;z>=0;z--)if(H.get(0,13,z)){put(0,13,z+1,1);break}
+  return{"Вушка":[0,22.5,0],"Хвіст":[6,5,4],"Носик":[0,15,8]}}},
+
+{id:"owl",sec:"ani",ic:"🦉",name:"Сова",win:"Сова готова! 🎉",
+ fact:"Сова полює вночі. Вона може повернути голову майже назад, не повертаючи тіла.",
+ build:function(put,box,H){
+  box(-9,9,0,1,-1,1,12);H.ell(-9,3,0,2.5,2,2,13);H.ell(9,3,0,2.5,2,2,13);                      // гілка з листям
+  H.ell(0,10,0,5,7.5,4.5,function(x,y,z){if(y<2)return 0;if(z>=2.2&&Math.abs(x)<=3&&y<=10)return((y+Math.abs(x))%3===0&&y<9)?12:14;return Math.abs(x)>=4?16:12});
+  [-1,1].forEach(function(s){for(var y=8;y<=15;y++)for(var x=-5;x<=5;x++){var d=Math.hypot(x-s*2.2,y-12.5);if(d>2.4)continue;H.front(x,y,d<=.7?1:d<=1.5?8:7)}});
+  H.front(0,10,10);H.front(0,9,10);
+  [-1,1].forEach(function(s){put(s*3,18,0,12);put(s*4,19,0,12);put(s*3,18,-1,12)});
+  [-2,2].forEach(function(x){put(x-1,2,3,10);put(x,2,3,10);put(x+1,2,3,10);put(x,2,2,10)});
+  return{"Очі":[0,17,6],"Дзьоб":[1.5,8,6],"Гілка":[-8,-1,2]}}}
+);
+
+/* ---------- рослини ---------- */
+MODELS.push(
+{id:"sunf",sec:"pla",ic:"🌻",name:"Соняшник",win:"Соняшник готовий! 🎉",
+ fact:"Соняшник повертає голівку за сонцем, а з його насіння роблять олію.",
+ build:function(put,box,H){
+  H.ell(0,0,0,4,1.5,4,function(x,y){return y>=0?12:0});                                     // земля
+  box(0,0,1,15,0,0,13);
+  H.ell(-2.5,7,0,2.5,.8,1.6,9);H.ell(2.5,11,0,2.5,.8,1.6,9);                                   // листя
+  for(var x=-8;x<=8;x++)for(var y=10;y<=26;y++){var dx=x,dy=y-18,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx);
+   if(d<=3.4){put(x,y,1,(x+y)%2?12:1);put(x,y,0,12);put(x,y,-1,13)}
+   else if(d<=7.6&&Math.cos(12*a)>-.35){put(x,y,0,8);if(d<=5)put(x,y,-1,13)}}
+  return{"Пелюстки":[0,27.5,0],"Насіння":[0,18,3],"Стебло":[2,4,1]}}},
+
+{id:"cact",sec:"pla",ic:"🌵",name:"Кактус",win:"Кактус готовий! 🎉",
+ fact:"Кактус росте в пустелі. Він запасає воду в товстому стеблі, а колючки — це його листочки.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,5,function(y){return 3.4+y*.18},10);H.cyl(0,0,5,6,4.8,10);H.cyl(0,0,6,6,4,12);     // горщик і земля
+  var sp=function(x,y,z){return H.hs(x,y,z)%5===0?7:13};
+  H.cyl(0,0,7,16,2.5,sp);H.ell(0,16.5,0,2.5,1.6,2.5,sp);
+  box(-4,-3,10,11,-1,0,13);box(-6,-5,10,15,-1,0,13);put(-6,15,-1,7);put(-5,13,0,7);           // ліва гілка
+  box(3,4,8,9,-1,0,13);box(5,6,8,12,-1,0,13);put(6,10,0,7);
+  H.ell(0,18.5,0,1.6,1.2,1.6,6);put(0,19,0,8);
+  return{"Квітка":[0,21.5,0],"Колючки":[-6,17,0],"Горщик":[5.5,3,3]}}},
+
+{id:"fir",sec:"pla",ic:"🎄",name:"Ялинка",win:"Ялинка готова! 🎉",
+ fact:"Ялина — хвойне дерево. Її голочки залишаються зеленими навіть узимку.",
+ build:function(put,box,H){
+  box(-1,1,0,3,-1,1,12);
+  var balls=[11,8,3,6];
+  [[3,9,7],[8,14,5.5],[13,19,4]].forEach(function(t){H.cyl(0,0,t[0],t[1],function(y){return t[2]*(1-(y-t[0])/(t[1]-t[0]+1.4))+.4},
+    function(x,y,z,d,rr){var h=H.hs(x,y,z);return(rr-d<.9&&h%9===0)?balls[h%4]:13})});
+  put(0,20,0,8);put(0,21,0,8);put(-1,21,0,8);put(1,21,0,8);put(0,22,0,8);
+  box(4,6,0,2,3,5,11);box(5,5,0,2,3,5,8);box(4,6,2,2,4,4,8);
+  box(-6,-4,0,1,3,5,3);box(-6,-4,1,1,4,4,7);box(-5,-5,0,1,3,5,7);
+  return{"Зірка":[0,24.5,0],"Іграшки":[6,11,4],"Подарунки":[-1,1,7]}}},
+
+{id:"tulip",sec:"pla",ic:"🌷",name:"Тюльпани",win:"Тюльпани готові! 🎉",
+ fact:"Тюльпан виростає з цибулинки. Навесні він одним із перших прикрашає клумби.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,5,function(y){return 4+y*.15},function(x,y){return y===3?7:3});H.cyl(0,0,5,5,4.6,12);
+  [[-3.5,13,11],[0,16,6],[3.5,13,8]].forEach(function(f,i){var cx=Math.round(f[0]);
+   box(cx,cx,6,f[1]-1,0,0,13);H.ell(cx+(i%2?-1.5:1.5),9,0,.8,3.5,1.3,9);
+   for(var y=f[1];y<=f[1]+4;y++){var r=y===f[1]?1.4:2.2;for(var x=cx-3;x<=cx+3;x++)for(var z=-3;z<=3;z++){
+    if(Math.hypot(x-cx,z)>r)continue;if(y===f[1]+4&&(x===cx||z===0))continue;put(x,y,z,f[2])}}});
+  return{"Квіти":[0,22.5,0],"Листя":[5.5,10,1],"Вазон":[4.5,3,3]}}},
+
+{id:"apple",sec:"pla",ic:"🌳",name:"Яблуня",win:"Яблуня готова! 🎉",
+ fact:"Яблуня — фруктове дерево. Навесні вона цвіте, а восени на ній достигають яблука.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,8.4,9);
+  H.cyl(0,0,0,9,function(y){return y<2?1.9:1.3},12);H.line([[0,6,0],[-3,9,1]],12);H.line([[0,7,0],[3,10,-1]],12);
+  H.ell(0,14,0,7.5,5.5,7,function(x,y,z,q){var h=H.hs(x,y,z);if(q>.72&&h%13===0)return 11;return(y>=17&&h%3===0)?9:13});
+  H.ell(5,0,4,1.3,1.3,1.3,11);put(5,1,4,12);
+  return{"Крона":[0,21,0],"Стовбур":[2,3,2],"Яблучко":[5,3,6]}}}
+);
+
+/* ---------- їжа ---------- */
+MODELS.push(
+{id:"applef",sec:"food",ic:"🍎",name:"Яблуко",win:"Яблуко готове! 🎉",
+ fact:"Яблуко корисне: у ньому багато вітамінів. В Україні вирощують сотні сортів яблук.",
+ build:function(put,box,H){
+  var bite=function(x,y,z){return Math.hypot(x-6.5,y-6,z-1)};
+  H.ell(0,6,0,6,5.6,6,function(x,y,z){if(y>=10&&Math.hypot(x,z)<1.8)return 0;var b=bite(x,y,z);if(b<3.2)return 0;if(b<4.2)return 14;
+   return(Math.hypot(x+2.5,y-8.5,z-3.5)<1.6)?15:11});
+  box(0,0,10,13,0,0,12);H.ell(2.4,12.5,0,2,.7,1.2,9);
+  for(var k=0;k<2;k++)put(5,5+k*2,1,12);
+  return{"Хвостик":[0,15.5,0],"Листочок":[3.5,14.5,0],"Укус":[7,9,2]}}},
+
+{id:"melon",sec:"food",ic:"🍉",name:"Кавун",win:"Кавун готовий! 🎉",
+ fact:"Кавун майже весь складається з води, тому добре вгамовує спрагу. Ботаніки називають його ягодою.",
+ build:function(put){
+  var seeds=[[-5,-3],[-2,-6],[2,-6],[5,-3],[0,-3],[-3,-1],[3,-1],[-6,-1],[6,-1]];
+  for(var x=-10;x<=10;x++)for(var y=-10;y<=0;y++){var d=Math.hypot(x,y);if(d>10.2)continue;
+   for(var z=-2;z<=2;z++){var c=d>9.3?13:d>8.5?9:d>7.6?7:11;
+    if(c===11&&(z===2||z===-2||y===0)&&seeds.some(function(s){return s[0]===x&&s[1]===y}))c=1;put(x,y,z,c)}}
+  return{"Шкірка":[0,-12.5,0],"М’якуш":[0,2,0],"Насінинки":[-6,-1,4]}}},
+
+{id:"ice",sec:"food",ic:"🍦",name:"Морозиво",win:"Морозиво готове! 🎉",
+ fact:"Морозиво роблять із молока, вершків і цукру. Його заморожують, постійно перемішуючи.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,10,function(y){return .4+y*.31},function(x,y,z){return((x+y)%3===0||(z+y)%3===0)?12:14});
+  var spr=[3,8,9,6];
+  H.ell(0,13,0,4.2,3.5,4.2,function(x,y,z,q){var h=H.hs(x,y,z);return(q>.6&&h%11===0)?spr[h%4]:15});
+  [[-3,0],[2,3],[0,-4],[3,-2]].forEach(function(p,i){for(var y=10;y>=10-i%3;y--)put(p[0],y,p[1]+(p[1]>0?1:p[1]<0?-1:0),15)});
+  H.ell(0,18,0,3.4,2.8,3.4,function(x,y,z,q){var h=H.hs(x,y,z);return(q>.6&&h%9===0)?spr[h%4]:7});
+  H.ell(0,21.5,0,1.3,1.3,1.3,11);put(0,23,0,13);put(1,24,0,13);
+  return{"Ріжок":[4,5,2],"Кульки":[5.5,15,0],"Вишенька":[0,26,0]}}},
+
+{id:"cake",sec:"food",ic:"🧁",name:"Кекс",win:"Кекс готовий! 🎉",
+ fact:"Кекс печуть із борошна, яєць, масла й цукру, а зверху прикрашають кремом.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,5,function(y){return 4+y*.22},function(x,y,z){return(Math.floor((Math.atan2(z,x)+Math.PI)/(Math.PI/6))%2)?3:4});
+  H.cyl(0,0,6,6,5.4,12);
+  var spr=[11,8,9,3];
+  [[7,5,2],[9,4,1.8],[11,2.8,1.6]].forEach(function(e){H.ell(0,e[0],0,e[1],e[2],e[1],function(x,y,z,q){var h=H.hs(x,y,z);return(q>.55&&h%10===0)?spr[h%4]:15})});
+  H.ell(0,12.8,0,1.6,1.2,1.6,7);H.ell(0,14.6,0,1.2,1.2,1.2,11);put(0,16,0,13);
+  return{"Обгортка":[6,2,2],"Крем":[5.5,10,0],"Вишенька":[0,18.5,0]}}},
+
+{id:"pizza",sec:"food",ic:"🍕",name:"Піца",win:"Піца готова! 🎉",
+ fact:"Піца родом з Італії. Найпростіша — «Маргарита»: тісто, томатний соус, сир і базилік.",
+ build:function(put,box,H){
+  for(var z=0;z<=14;z++){var w=7.5*(1-z/15.5);for(var x=-8;x<=8;x++){if(Math.abs(x)>w)continue;
+   if(z<=1){put(x,0,z,12);put(x,1,z,12);put(x,2,z,12);continue}
+   put(x,0,z,14);put(x,1,z,Math.abs(x)>w-.5?11:8)}}
+  [[-3,4],[3,5],[0,9],[-1,3]].forEach(function(p){H.cyl(p[0],p[1],2,2,1.1,11)});
+  [[2,8],[-4,6],[4,3]].forEach(function(p){put(p[0],2,p[1],1)});
+  [[0,6],[-2,10],[2,2]].forEach(function(p){put(p[0],2,p[1],9);put(p[0]+1,2,p[1],9)});
+  return{"Скоринка":[0,5,0],"Сир":[-4,4,8],"Ковбаска":[3,5,5]}}}
+);
+
+/* ---------- казкові персонажі (народні казки й власні герої) ---------- */
+MODELS.push(
+{id:"kolobok",sec:"fairy",ic:"🟡",name:"Колобок",win:"Колобок готовий! 🎉",
+ fact:"Колобок — герой української народної казки. Він утік і від Зайця, і від Вовка, і від Ведмедя, але не від хитрої Лисиці.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,8.3,function(x,y,z,d){return(Math.abs(x)<=1&&z>0)?14:(H.hs(x,y,z)%11===0?6:9)});
+  H.ell(0,6,0,6,6,6,function(x,y){return y>=10?10:8});
+  H.eye(-2,7);H.eye(2,7);H.front(-2,9,7);H.front(2,9,7);
+  H.front(-4,5,15);H.front(4,5,15);
+  [[-2,4],[-1,3],[0,3],[1,3],[2,4]].forEach(function(p){H.front(p[0],p[1],11)});
+  return{"Очі":[0,15,4],"Усмішка":[0,1,8],"Стежка":[0,-1,10]}}},
+
+{id:"ryaba",sec:"fairy",ic:"🐔",name:"Курочка Ряба",win:"Курочка Ряба готова! 🎉",
+ fact:"У казці Курочка Ряба знесла не просте яєчко, а золоте. Ряба — означає строката, у цяточки.",
+ build:function(put,box,H){
+  for(var x=-7;x<=7;x++)for(var z=-7;z<=7;z++){var d=Math.hypot(x,z);if(d>6.6)continue;
+   put(x,0,z,12);if(d>=3.8)for(var y=1;y<=2;y++)put(x,y,z,H.hs(x,y,z)%3===0?12:14)}
+  var sp=function(x,y,z){return H.hs(x,y,z)%6===0?1:7};
+  H.ell(0,6,0,4.5,4,5.5,function(x,y,z){return y>=2?sp(x,y,z):0});
+  H.ell(0,9.5,-5,1.4,3,1.6,sp);
+  H.ell(0,11,3.5,2.6,2.6,2.6,7);
+  put(0,14,3,11);put(0,14,4,11);put(0,15,3,11);put(0,14,2,11);put(0,15,2,11);
+  put(0,11,6,8);put(0,11,7,8);put(0,10,6,11);
+  put(2,12,5,1);put(-2,12,5,1);
+  H.ell(8,2,4,1.5,2,1.5,8);
+  return{"Гребінець":[0,17.5,3],"Золоте яєчко":[8,6,4],"Гніздо":[-7,3,3]}}},
+
+{id:"mitten",sec:"fairy",ic:"🧤",name:"Рукавичка",win:"Рукавичка готова! 🎉",
+ fact:"У казці «Рукавичка» дід загубив рукавичку, і в ній оселилися мишка, жабка, зайчик, лисичка, вовчик, кабан і ведмідь.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,9.5,7);
+  H.ell(0,11,0,6,8,3.6,function(x,y){return y>=3?11:0});
+  H.ell(6.3,9,0,2,3.6,2.6,11);
+  H.ell(0,2,0,6.6,2.4,4.2,7);
+  for(var x=-4;x<=4;x+=2){H.front(x,7,8);H.front(x,16,3)}
+  [[2,12],[1,12],[3,12],[2,11],[2,13],[0,12],[4,12],[2,10],[2,14],[1,11],[3,13],[1,13],[3,11]].forEach(function(p){H.front(p[0],p[1],7)});
+  [[-4,11],[-3,11],[-4,12],[-3,12]].forEach(function(p){H.front(p[0],p[1],8)});
+  [[-5,10],[-2,10],[-5,13],[-2,13],[-5,11],[-5,12],[-2,11],[-2,12],[-4,13],[-3,13],[-4,10],[-3,10]].forEach(function(p){H.front(p[0],p[1],12)});
+  for(x=-1;x<=1;x++)for(var y=4;y<=6;y++)H.front(x,y,12);
+  return{"Віконце":[-3.5,15,5],"Дверцята":[0,8.5,5],"Сніжинка":[2,15.5,5]}}},
+
+{id:"castle",sec:"fairy",ic:"🏰",name:"Казковий замок",win:"Замок готовий! 🎉",
+ fact:"У казках у замках живуть королі й принцеси. Справжні замки будували з каменю, щоб захищатися від ворогів.",
+ build:function(put,box,H){
+  for(var x=-8;x<=8;x++)for(var z=-6;z<=6;z++){if(Math.abs(x)<8&&Math.abs(z)<6)continue;
+   for(var y=0;y<=7;y++)put(x,y,z,16);if((x+z)%2===0)put(x,8,z,16)}
+  box(-2,2,0,4,6,6,12);box(-1,1,5,5,6,6,12);put(0,2,6,8);
+  box(-4,4,0,12,-5,-1,2);[[-2,9],[2,9],[0,6],[-2,10],[2,10]].forEach(function(p){put(p[0],p[1],-1,p[1]===6?1:8)});
+  H.cyl(0,-3,13,17,function(y){return 4.4*(1-(y-13)/5.2)},3);box(0,0,18,20,-3,-3,1);box(1,2,19,20,-3,-3,6);
+  [[-8,-6],[8,-6],[-8,6],[8,6]].forEach(function(t,i){H.cyl(t[0],t[1],0,11,2.4,16);
+   H.cyl(t[0],t[1],12,16,function(y){return 3.2*(1-(y-12)/5.3)},i%2?11:3);
+   var zf=t[1]+(t[1]>0?2:-2);put(t[0],8,zf,1);put(t[0],9,zf,1)});
+  return{"Вежі":[-8,19,6],"Брама":[0,6.5,8],"Прапорець":[1.5,22.5,-3]}}},
+
+{id:"dragon",sec:"fairy",ic:"🐉",name:"Дракончик",win:"Дракончик готовий! 🎉",
+ fact:"Дракони живуть лише в казках і легендах. У різних народів вони бувають і грізними, і добрими.",
+ build:function(put,box,H){
+  H.ell(0,6,0,4.5,5.5,4,function(x,y,z){return(z>=2&&Math.abs(x)<=2.5)?(y%2?14:8):(H.hs(x,y,z)%7===0?13:9)});
+  H.ell(0,13.5,0.5,4,3.5,3.8,9);H.ell(0,12.3,3.8,2.6,1.8,1.9,9);
+  H.front(-1,13,1);H.front(1,13,1);
+  H.front(-3,15,7);H.front(-3,16,7);H.front(3,15,7);H.front(3,16,7);H.eye(-2,15);H.eye(2,15);
+  put(-2,17,0,8);put(-2,18,-1,8);put(2,17,0,8);put(2,18,-1,8);
+  for(var y=4;y<=16;y+=2)for(var z=-10;z<=4;z++)if(H.get(0,y,z)){put(0,y,z-1,10);break}
+  [-1,1].forEach(function(s){for(var y=7;y<=13;y++)for(var k=1;k<=1+(y-6);k++)put(s*k,y,-5,y===13||k===1+(y-6)?10:5)});
+  H.line([[0,2,-4],[2,1,-7],[5,1,-9],[7,2,-10]],9);H.line([[0,3,-4],[2,2,-7],[5,2,-9]],9);put(8,3,-10,10);put(8,2,-10,10);
+  H.ell(-2,1,3,1.6,1.2,1.8,9);H.ell(2,1,3,1.6,1.2,1.8,9);
+  return{"Крила":[7.5,15,-5],"Ріжки":[0,21,0],"Хвіст":[8,5.5,-10]}}}
+);
+
+/* ---------- збереження ---------- */
+function sget(id){try{return localStorage.getItem("fi_kub_"+id)}catch(_){return null}}
+function sset(id,v){try{localStorage.setItem("fi_kub_"+id,v)}catch(_){}}
+function progOf(m){var s=sget(m.id);if(!s)return 0;var n=0;for(var i=0;i<s.length;i++)if(s[i]==="1")n++;return s.length?n/s.length:0}
+/* ---------- стан моделі ---------- */
+var CUR=null,V={},parts={},keys=[],expList=[],exposed={},painted={},need=0,left={},done=0,sel=1,finished=false;
+var CEN=[0,0,0],SPAN=10,DIRS=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+function has(x,y,z){return(x+","+y+","+z) in V}
+/* ---------- WebGL ---------- */
+var cv=$("cv"),gl=cv.getContext("webgl",{antialias:true,alpha:true,premultipliedAlpha:false});
+var VS="attribute vec3 p;attribute vec3 n;attribute vec2 uv;attribute float dg;attribute vec4 col;uniform mat4 VP;varying vec3 vN;varying vec2 vUV;varying float vD;varying vec4 vC;void main(){vN=n;vUV=uv;vD=dg;vC=col;gl_Position=VP*vec4(p,1.0);}";
+var FS="precision mediump float;varying vec3 vN;varying vec2 vUV;varying float vD;varying vec4 vC;uniform sampler2D AT;uniform float SEL;uniform float T;uniform vec3 L;"+
+ "void main(){vec3 n=normalize(vN);float d=max(dot(n,L),0.0);float lt=0.70+0.42*d+0.06*n.y;vec3 c;"+
+ "if(vC.a>1.5){c=vC.rgb*1.12+0.08;}else if(vC.a>0.5){c=vC.rgb;}else{bool on=abs(vD-SEL)<0.5;vec3 base=on?mix(vec3(0.96,0.93,0.80),vec3(1.0,0.98,0.86),0.5+0.5*sin(T*5.0)):vec3(0.90,0.91,0.93);"+
+ "vec4 g=texture2D(AT,vec2((vD-1.0+vUV.x)/16.0,vUV.y));c=mix(base,on?vec3(0.20,0.22,0.32):vec3(0.45,0.48,0.56),g.a);}"+
+ "float e=min(min(vUV.x,1.0-vUV.x),min(vUV.y,1.0-vUV.y));c*=mix(0.78,1.0,smoothstep(0.0,0.07,e));gl_FragColor=vec4(c*lt,1.0);}";
+var A={},U={},B={},COL=null,faceOf={},nI=0,big=false,dirty=false;
+if(gl){
+ var sh=function(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o};
+ var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
+ ["p","n","uv","dg","col"].forEach(function(k){A[k]=gl.getAttribLocation(pr,k);B[k]=gl.createBuffer();gl.enableVertexAttribArray(A[k])});
+ ["VP","AT","SEL","T","L"].forEach(function(k){U[k]=gl.getUniformLocation(pr,k)});
+ B.i=gl.createBuffer();var EXT=gl.getExtension("OES_element_index_uint");
+ var ac=document.createElement("canvas");ac.width=1024;ac.height=64;var cx=ac.getContext("2d");cx.textAlign="center";cx.textBaseline="middle";cx.fillStyle="#000";
+ for(var i=1;i<=16;i++){cx.font=(i>9?"bold 36px":"bold 46px")+" Trebuchet MS, Segoe UI, sans-serif";cx.fillText(String(i),(i-1)*64+32,35)}
+ var tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,ac);gl.generateMipmap(gl.TEXTURE_2D);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+ gl.enable(gl.DEPTH_TEST);gl.uniform1i(U.AT,0);
+}
+var UVA={"1,0,0":[[0,0,-1],[0,1,0]],"-1,0,0":[[0,0,1],[0,1,0]],"0,1,0":[[1,0,0],[0,0,-1]],"0,-1,0":[[1,0,0],[0,0,1]],"0,0,1":[[1,0,0],[0,1,0]],"0,0,-1":[[-1,0,0],[0,1,0]]};
+function setCol(k){var c=hex(PAL[V[k]].c),on=painted[k]?(PAL[V[k]].gl?2:1):0;faceOf[k].forEach(function(b){for(var j=0;j<4;j++){COL[(b+j)*4]=c[0];COL[(b+j)*4+1]=c[1];COL[(b+j)*4+2]=c[2];COL[(b+j)*4+3]=on}})}
+function upload(k,data,n){gl.bindBuffer(gl.ARRAY_BUFFER,B[k]);gl.bufferData(gl.ARRAY_BUFFER,data,k==="col"?gl.DYNAMIC_DRAW:gl.STATIC_DRAW);gl.vertexAttribPointer(A[k],n,gl.FLOAT,false,0,0)}
+function buildMesh(){var P=[],Nn=[],UV=[],DG=[],I=[],nV=0;faceOf={};
+ expList.forEach(function(k){var p=k.split(",").map(Number);faceOf[k]=[];
+  DIRS.forEach(function(d){if(has(p[0]+d[0],p[1]+d[1],p[2]+d[2]))return;var ax=UVA[d.join(",")],u=ax[0],v=ax[1],b=nV;
+   [[0,0],[1,0],[1,1],[0,1]].forEach(function(q){var su=q[0]-.5,sv=q[1]-.5;P.push(p[0]+d[0]*.5+u[0]*su+v[0]*sv,p[1]+d[1]*.5+u[1]*su+v[1]*sv,p[2]+d[2]*.5+u[2]*su+v[2]*sv);Nn.push(d[0],d[1],d[2]);UV.push(q[0],q[1]);DG.push(V[k])});
+   I.push(b,b+1,b+2,b,b+2,b+3);faceOf[k].push(b);nV+=4})});
+ COL=new Float32Array(nV*4);expList.forEach(setCol);
+ if(!gl)return;
+ upload("p",new Float32Array(P),3);upload("n",new Float32Array(Nn),3);upload("uv",new Float32Array(UV),2);upload("dg",new Float32Array(DG),1);upload("col",COL,4);
+ big=nV>65535;gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,B.i);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,big?new Uint32Array(I):new Uint16Array(I),gl.STATIC_DRAW);nI=I.length}
+function upCol(){gl.bindBuffer(gl.ARRAY_BUFFER,B.col);gl.bufferSubData(gl.ARRAY_BUFFER,0,COL)}
+/* ---------- камера ---------- */
+function mul(a,b){var o=new Float32Array(16);for(var i=0;i<4;i++)for(var j=0;j<4;j++){var s=0;for(var k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o}
+function persp(fy,a,n,f){var t=1/Math.tan(fy/2);return new Float32Array([t/a,0,0,0,0,t,0,0,0,0,(f+n)/(n-f),-1,0,0,2*f*n/(n-f),0])}
+function look(e,t){var z=[e[0]-t[0],e[1]-t[1],e[2]-t[2]],l=Math.hypot(z[0],z[1],z[2]);z=[z[0]/l,z[1]/l,z[2]/l];var x=[z[2],0,-z[0]];l=Math.hypot(x[0],x[1],x[2])||1;x=[x[0]/l,x[1]/l,x[2]/l];var y=[z[1]*x[2]-z[2]*x[1],z[2]*x[0]-z[0]*x[2],z[0]*x[1]-z[1]*x[0]];
+ return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]),-(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]),-(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]),1])}
+function inv(a){var o=new Float32Array(16),
+ b00=a[0]*a[5]-a[1]*a[4],b01=a[0]*a[6]-a[2]*a[4],b02=a[0]*a[7]-a[3]*a[4],b03=a[1]*a[6]-a[2]*a[5],b04=a[1]*a[7]-a[3]*a[5],b05=a[2]*a[7]-a[3]*a[6],
+ b06=a[8]*a[13]-a[9]*a[12],b07=a[8]*a[14]-a[10]*a[12],b08=a[8]*a[15]-a[11]*a[12],b09=a[9]*a[14]-a[10]*a[13],b10=a[9]*a[15]-a[11]*a[13],b11=a[10]*a[15]-a[11]*a[14],
+ d=1/(b00*b11-b01*b10+b02*b09+b03*b08-b04*b07+b05*b06);
+ o[0]=(a[5]*b11-a[6]*b10+a[7]*b09)*d;o[1]=(a[2]*b10-a[1]*b11-a[3]*b09)*d;o[2]=(a[13]*b05-a[14]*b04+a[15]*b03)*d;o[3]=(a[10]*b04-a[9]*b05-a[11]*b03)*d;
+ o[4]=(a[6]*b08-a[4]*b11-a[7]*b07)*d;o[5]=(a[0]*b11-a[2]*b08+a[3]*b07)*d;o[6]=(a[14]*b02-a[12]*b05-a[15]*b01)*d;o[7]=(a[8]*b05-a[10]*b02+a[11]*b01)*d;
+ o[8]=(a[4]*b10-a[5]*b08+a[7]*b06)*d;o[9]=(a[1]*b08-a[0]*b10-a[3]*b06)*d;o[10]=(a[12]*b04-a[13]*b02+a[15]*b00)*d;o[11]=(a[9]*b02-a[8]*b04-a[11]*b00)*d;
+ o[12]=(a[5]*b07-a[4]*b09-a[6]*b06)*d;o[13]=(a[0]*b09-a[1]*b07+a[2]*b06)*d;o[14]=(a[13]*b01-a[12]*b03-a[14]*b00)*d;o[15]=(a[8]*b03-a[9]*b01+a[10]*b00)*d;return o}
+var BB=[0,0,0,1,1,1];function fitD(){var a=(cv.clientWidth||1)/(cv.clientHeight||1),P=persp(.7,a,.5,500),lo=2,hi=400;
+ for(var it=0;it<30;it++){var d=(lo+hi)/2,e=[CEN[0]+Math.sin(HOME.az)*Math.cos(HOME.el)*d,CEN[1]+Math.sin(HOME.el)*d,CEN[2]+Math.cos(HOME.az)*Math.cos(HOME.el)*d],M=mul(P,look(e,CEN)),ok=true;
+  for(var c=0;c<8&&ok;c++){var v=[c&1?BB[3]+.5:BB[0]-.5,c&2?BB[4]+.5:BB[1]-.5,c&4?BB[5]+.5:BB[2]-.5],o=[0,0,0,0];for(var i=0;i<4;i++)o[i]=M[i]*v[0]+M[4+i]*v[1]+M[8+i]*v[2]+M[12+i];
+   if(o[3]<=0||Math.abs(o[0]/o[3])>.86||Math.abs(o[1]/o[3])>.8)ok=false}
+  if(ok)hi=d;else lo=d}return hi}
+var HOME={az:.55,el:.42,dist:20},cam={az:.55,el:.42,dist:20,taz:.55,tel:.42,tdist:20,spin:0},VPm=null;
+function size(){var d=Math.min(window.devicePixelRatio||1,2),w=Math.round(cv.clientWidth*d),h=Math.round(cv.clientHeight*d);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}}
+function frame(ts){requestAnimationFrame(frame);if(!CUR||!$("menu").hidden)return;size();var t=ts/1000;
+ cam.az+=(cam.taz-cam.az)*.15;cam.el+=(cam.tel-cam.el)*.15;cam.dist+=(cam.tdist-cam.dist)*.15;if(cam.spin)cam.taz+=.008;
+ var eye=[CEN[0]+Math.sin(cam.az)*Math.cos(cam.el)*cam.dist,CEN[1]+Math.sin(cam.el)*cam.dist,CEN[2]+Math.cos(cam.az)*Math.cos(cam.el)*cam.dist];
+ VPm=mul(persp(.7,cv.width/cv.height,.5,500),look(eye,CEN));gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ gl.uniformMatrix4fv(U.VP,false,VPm);gl.uniform1f(U.SEL,sel);gl.uniform1f(U.T,t);var L=[.4,.85,.55],l=Math.hypot(L[0],L[1],L[2]);gl.uniform3f(U.L,L[0]/l,L[1]/l,L[2]/l);
+ if(dirty){upCol();dirty=false}gl.drawElements(gl.TRIANGLES,nI,big?gl.UNSIGNED_INT:gl.UNSIGNED_SHORT,0);
+ if(finished)placeLabels()}
+/* ---------- вибір кубика ---------- */
+function pick(cx_,cy_){if(!VPm)return null;var r=cv.getBoundingClientRect(),x=(cx_-r.left)/r.width*2-1,y=1-(cy_-r.top)/r.height*2,IV=inv(VPm);
+ function un(z){var v=[x,y,z,1],o=[0,0,0,0];for(var i=0;i<4;i++)o[i]=IV[i]*v[0]+IV[4+i]*v[1]+IV[8+i]*v[2]+IV[12+i]*v[3];return[o[0]/o[3],o[1]/o[3],o[2]/o[3]]}
+ var a=un(-1),b=un(1),d=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],l=Math.hypot(d[0],d[1],d[2]);d=[d[0]/l,d[1]/l,d[2]/l];
+ var best=null,bt=1e9;for(var n=0;n<expList.length;n++){var k=expList[n],p=k.split(",").map(Number),t0=-1e9,t1=1e9,ok=true;
+  for(var i=0;i<3&&ok;i++){var lo=p[i]-.5,hi=p[i]+.5;if(Math.abs(d[i])<1e-9){if(a[i]<lo||a[i]>hi)ok=false}else{var ta=(lo-a[i])/d[i],tb=(hi-a[i])/d[i];if(ta>tb){var s=ta;ta=tb;tb=s}t0=Math.max(t0,ta);t1=Math.min(t1,tb);if(t0>t1)ok=false}}
+  if(ok&&t0>0&&t0<bt){bt=t0;best=k}}return best}
+/* ---------- завантаження моделі ---------- */
+function loadModel(id){var m=MODELS.filter(function(x){return x.id===id})[0];if(!m)return;CUR=m;
+ V={};var P_=function(x,y,z,c){V[x+","+y+","+z]=c};parts=m.build(P_,function(x0,x1,y0,y1,z0,z1,c){for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++)for(var z=z0;z<=z1;z++)V[x+","+y+","+z]=c},mkH(P_,function(x,y,z){return V[x+","+y+","+z]}));
+ keys=Object.keys(V);var bb=[1e9,1e9,1e9,-1e9,-1e9,-1e9];keys.forEach(function(k){var p=k.split(",").map(Number);for(var i=0;i<3;i++){bb[i]=Math.min(bb[i],p[i]);bb[i+3]=Math.max(bb[i+3],p[i])}});
+ CEN=[(bb[0]+bb[3])/2,(bb[1]+bb[4])/2,(bb[2]+bb[5])/2];SPAN=Math.max(bb[3]-bb[0],bb[4]-bb[1],bb[5]-bb[2])+1;BB=bb;
+ exposed={};painted={};expList=[];need=0;done=0;left={};
+ keys.forEach(function(k){var p=k.split(",").map(Number);if(DIRS.some(function(d){return!has(p[0]+d[0],p[1]+d[1],p[2]+d[2])})){exposed[k]=1;expList.push(k)}else painted[k]=1});
+ need=expList.length;var s=sget(m.id);if(!s||s.length!==need)s="";
+ expList.forEach(function(k,i){if(s[i]==="1"){painted[k]=1;done++}else left[V[k]]=(left[V[k]]||0)+1});
+ buildMesh();clearFinish();
+ $("mName").textContent=m.name;document.title="3D-розмальовки — "+m.name;
+ sel=1;for(var c=1;c<PAL.length;c++)if(left[c]){sel=c;break}
+ $("menu").hidden=true;
+ HOME.dist=fitD();cam.az=cam.taz=HOME.az+.6;cam.el=cam.tel=HOME.el;cam.dist=HOME.dist*1.25;cam.taz=HOME.az;cam.tdist=HOME.dist;cam.spin=0;
+ buildPal();
+ if(done>=need)finish(true);else tip(done?"Продовжуємо! Обери колір і фарбуй кубики з таким самим номером 🎨":"Обери колір унизу й натискай на кубики з таким самим номером. Крути модель, потягнувши по порожньому місцю або двома пальцями")}
+var saveT=0;function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,400)}
+function saveNow(){if(!CUR)return;var s="";for(var i=0;i<expList.length;i++)s+=painted[expList[i]]?"1":"0";sset(CUR.id,s)}
+/* ---------- фарбування ---------- */
+function paint(k){if(!k||painted[k]||finished)return false;if(V[k]!==sel){tip("Цей кубик має номер "+V[k]+". Обери колір "+V[k]+" унизу 🎨",1);return false}
+ painted[k]=1;setCol(k);dirty=true;done++;left[sel]--;updUI();save();
+ if(!left[sel]){for(var c=1;c<PAL.length;c++)if(left[c]){selC(c);break}}
+ if(done>=need){saveNow();finish(false)}return true}
+function tip(t,warn){var e=$("tip");e.textContent=t;e.hidden=false;clearTimeout(tip.t);tip.t=setTimeout(function(){e.hidden=true},warn?2200:4500)}
+function updUI(){var p=need?Math.round(done/need*100):0;$("barI").style.width=p+"%";$("pct").textContent=p+"%";
+ [].forEach.call(document.querySelectorAll(".pc"),function(b){var c=+b.dataset.c,l=left[c]||0;b.querySelector(".left").textContent=l?l:"✓";b.classList.toggle("done",!l)})}
+function selC(c){sel=c;[].forEach.call(document.querySelectorAll(".pc"),function(x){x.setAttribute("aria-pressed",String(+x.dataset.c===c))})}
+function buildPal(){var used={};expList.forEach(function(k){used[V[k]]=1});var h="";
+ for(var c=1;c<PAL.length;c++){if(!used[c])continue;var dark=!!PAL[c].dk;
+  h+='<button type="button" class="pc" data-c="'+c+'" aria-pressed="'+(c===sel)+'" aria-label="Колір '+c+': '+PAL[c].n+'" style="background:'+PAL[c].c+';color:'+(dark?"#fff":"#2C3550")+'">'+c+'<span class="left"></span></button>'}
+ $("pal").innerHTML=h;[].forEach.call(document.querySelectorAll(".pc"),function(b){b.onclick=function(){selC(+b.dataset.c);if(!left[sel])tip("Колір "+sel+" уже розфарбовано ✓")}});updUI()}
+/* ---------- фінал ---------- */
+var labels=[];
+function clearFinish(){finished=false;labels.forEach(function(L){L[0].remove()});labels=[];$("win").hidden=true;[].forEach.call(document.querySelectorAll(".cf"),function(c){c.remove()})}
+function finish(quiet){finished=true;cam.spin=1;$("wT").textContent=CUR.win;$("wF").textContent=CUR.fact;$("win").hidden=false;
+ Object.keys(parts).forEach(function(n){var e=document.createElement("div");e.className="lbl";e.textContent=n;$("wrap").appendChild(e);labels.push([e,parts[n]]);setTimeout(function(){e.classList.add("on")},quiet?50:600)});
+ if(quiet)return;
+ var cs=["#E07A5F","#F2C14E","#5E9A7C","#8FCBEA","#C9A6E6"];for(var i=0;i<60;i++){(function(i){var c=document.createElement("div");c.className="cf";c.style.background=cs[i%5];c.style.left=(Math.random()*100)+"%";c.style.top="-20px";$("wrap").appendChild(c);
+  var x0=Math.random()*200-100,dur=1800+Math.random()*1400,t0=performance.now();(function an(t){var k=(t-t0)/dur;if(k>1){c.remove();return}c.style.transform="translate("+x0*k+"px,"+k*($("wrap").clientHeight+40)+"px) rotate("+k*720+"deg)";requestAnimationFrame(an)})(t0)})(i)}}
+function placeLabels(){var r=cv.getBoundingClientRect();labels.forEach(function(L){var p=L[1],v=[p[0],p[1],p[2],1],o=[0,0,0,0];for(var i=0;i<4;i++)o[i]=VPm[i]*v[0]+VPm[4+i]*v[1]+VPm[8+i]*v[2]+VPm[12+i]*v[3];
+  L[0].style.left=((o[0]/o[3]+1)/2*r.width)+"px";L[0].style.top=((1-o[1]/o[3])/2*r.height)+"px"})}
+$("again").onclick=function(){sset(CUR.id,"");loadModel(CUR.id)};
+$("next").onclick=function(){openMenu()};
+$("menuB").onclick=function(){saveNow();openMenu()};
+/* ---------- меню ---------- */
+function openMenu(){var h="";SECS.forEach(function(s){var ms=MODELS.filter(function(m){return m.sec===s.id});
+  h+='<section class="sec"><h2>'+s.t+(s.soon?'<em>скоро</em>':'')+'</h2><div class="grid">';
+  if(s.soon)h+='<div class="card soon" aria-disabled="true"><span class="ic">🔒</span><span class="nm">Готуємо нові моделі</span></div>';
+  ms.forEach(function(m){var p=Math.round(progOf(m)*100);h+='<button type="button" class="card" data-id="'+m.id+'"><span class="ic">'+m.ic+'</span><span class="nm">'+m.name+'</span><span class="pb"><i style="width:'+p+'%"></i></span><span class="pt">'+(p>=100?"Готово ✓":p?p+"%":"Почати")+'</span></button>'});
+  h+='</div></section>'});
+ $("secs").innerHTML=h;[].forEach.call(document.querySelectorAll("#secs .card[data-id]"),function(b){b.onclick=function(){loadModel(b.dataset.id)}});
+ $("menu").hidden=false;$("menu").scrollTop=0}
+/* ---------- керування ---------- */
+var down=null,PT={};
+function clampEl(v){return Math.max(-1.3,Math.min(1.45,v))}
+function two(){var k=Object.keys(PT);return k.length>=2?[PT[k[0]],PT[k[1]]]:null}
+cv.addEventListener("pointerdown",function(e){try{cv.setPointerCapture(e.pointerId)}catch(_){}PT[e.pointerId]={x:e.clientX,y:e.clientY};var t=two();
+ if(t){down={mode:"pinch",d0:Math.hypot(t[0].x-t[1].x,t[0].y-t[1].y)||1,dist:cam.tdist,mx:(t[0].x+t[1].x)/2,my:(t[0].y+t[1].y)/2,az:cam.taz,el:cam.tel};return}
+ var k=pick(e.clientX,e.clientY);if(k&&!painted[k]&&!finished){down={mode:"paint"};paint(k)}else down={mode:"rot",x:e.clientX,y:e.clientY,az:cam.taz,el:cam.tel}});
+cv.addEventListener("pointermove",function(e){if(PT[e.pointerId]){PT[e.pointerId].x=e.clientX;PT[e.pointerId].y=e.clientY}if(!down)return;
+ if(down.mode==="pinch"){var t=two();if(!t)return;var d=Math.hypot(t[0].x-t[1].x,t[0].y-t[1].y)||1,mx=(t[0].x+t[1].x)/2,my=(t[0].y+t[1].y)/2;
+  cam.tdist=Math.max(HOME.dist*.3,Math.min(HOME.dist*1.9,down.dist*down.d0/d));cam.taz=down.az-(mx-down.mx)*.008;cam.tel=clampEl(down.el+(my-down.my)*.006);return}
+ if(down.mode==="paint"){var k=pick(e.clientX,e.clientY);if(k&&!painted[k]&&V[k]===sel)paint(k)}
+ else{cam.taz=down.az-(e.clientX-down.x)*.008;cam.tel=clampEl(down.el+(e.clientY-down.y)*.006)}});
+function up(e){delete PT[e.pointerId];var n=Object.keys(PT).length;if(n===0)down=null;else if(down&&down.mode==="pinch"&&n===1){var k=Object.keys(PT)[0];down={mode:"rot",x:PT[k].x,y:PT[k].y,az:cam.taz,el:cam.tel}}}
+cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+cv.addEventListener("wheel",function(e){e.preventDefault();cam.tdist=Math.max(HOME.dist*.3,Math.min(HOME.dist*1.9,cam.tdist*(e.deltaY>0?1.1:.9)))},{passive:false});
+$("cL").onclick=function(){cam.taz-=Math.PI/4};$("cR").onclick=function(){cam.taz+=Math.PI/4};$("cU").onclick=function(){cam.tel=clampEl(cam.tel+.35)};$("cD").onclick=function(){cam.tel=clampEl(cam.tel-.35)};
+$("cZi").onclick=function(){cam.tdist=Math.max(HOME.dist*.3,cam.tdist*.85)};$("cZo").onclick=function(){cam.tdist=Math.min(HOME.dist*1.9,cam.tdist*1.15)};
+$("cH").onclick=function(){cam.taz=HOME.az;cam.tel=HOME.el;cam.tdist=HOME.dist};
+window.addEventListener("resize",function(){if(!CUR)return;var nd=fitD(),k=nd/HOME.dist;HOME.dist=nd;cam.tdist*=k});
+window.addEventListener("pagehide",saveNow);
+window.VOX={stop:function(){cam.spin=0;cam.taz=HOME.az;cam.az=HOME.az},load:loadModel,menu:openMenu,paintAll:function(frac){var n=0;expList.forEach(function(k,i){if(!painted[k]&&(frac==null||i%Math.round(1/frac)===0)){var s0=sel;sel=V[k];paint(k);sel=s0;n++}});return n},
+ st:function(){return{id:CUR&&CUR.id,need:need,done:done,finished:finished,cubes:keys.length}},models:MODELS.map(function(m){return m.id})};
+openMenu();
+if(!gl){$("secs").innerHTML='<p class="sub">На жаль, цей браузер не показує 3D-графіку.</p>'}
+else requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
