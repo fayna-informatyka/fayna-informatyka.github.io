@@ -156,6 +156,8 @@ function hit(o,e){if(!S||S.done||o.state!=="up")return;
  S.fed++;$("fedC").textContent=S.fed;hide(o,"fed");beep(660,.12);setTimeout(function(){beep(880,.14)},90);floatText(x-14,y-40,"🥕")}
 field.addEventListener("pointerdown",function(e){if(!S||S.done||!ov.hidden)return;if(e.target.closest&&e.target.closest("#hud"))return;
  if(e.pointerType==="mouse"&&e.button!==0)return;
+ var onCr=[].some.call(field.querySelectorAll(".cr svg"),function(v){var b=v.getBoundingClientRect();return e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom});
+ if(onCr)return;                                   // повторне клацання по зайчику, що вже ховається, — не помилка
  S.miss++;$("missC").textContent=S.miss;beep(220,.08,"triangle");var r=field.getBoundingClientRect(),m=document.createElement("div");m.className="miss";m.style.left=(e.clientX-r.left)+"px";m.style.top=(e.clientY-r.top)+"px";field.appendChild(m);
  requestAnimationFrame(function(){m.style.transform="scale(1.8)";m.style.opacity="0"});setTimeout(function(){m.remove()},500)});
 field.addEventListener("contextmenu",function(e){e.preventDefault()});
@@ -166,7 +168,8 @@ function loop(now){if(!S||S.done)return;raf=requestAnimationFrame(loop);var p=S.
   if(p.hog&&S.spawned>1&&!S.live.some(function(o){return o.hog})&&Math.random()<p.hog*1.4){if(spawn(true))S.hogs++}}}
  if(S.spawned>=p.N&&!S.live.some(function(o){return!o.hog})){S.live.forEach(function(o){hide(o,null)});finish()}}
 function stars(){var N=S.p.N,f=S.fed,m=S.miss;if(f<Math.ceil(N*.6))return 0;if(f===N&&m<=1)return 3;if(f>=Math.ceil(N*.8)&&m<=3)return 2;return 1}
-function finish(){S.done=true;cancelAnimationFrame(raf);var st=stars(),key=S.L+"-"+S.s;if(st>(best[key]||0)){best[key]=st;saveBest()}
+function finish(){S.done=true;cancelAnimationFrame(raf);var me=S;setTimeout(function(){if(S===me)showResult()},650)}
+function showResult(){var st=stars(),key=S.L+"-"+S.s;if(st>(best[key]||0)){best[key]=st;saveBest()}
  var s3="";for(var k=0;k<3;k++)s3+=k<st?"★":"☆";
  var msg=st===3?"Чудово! Усі зайчики ситі! 🎉":st===2?"Дуже добре! 👏":st===1?"Добре! Спробуй отримати більше зірок":"Зайчики ще голодні. Спробуй ще раз — у тебе вийде!";
  var nxt=S.s<14?'<button class="btn" id="nx" type="button">Далі → завдання '+(S.s+2)+'</button>':(S.L<2?'<button class="btn" id="nx" type="button">Далі → '+LV[S.L+1].n+' рівень</button>':'');
@@ -176,7 +179,7 @@ function finish(){S.done=true;cancelAnimationFrame(raf);var st=stars(),key=S.L+"
  ov.hidden=false;var L=S.L,s=S.s;
  if($("nx"))$("nx").onclick=function(){if(s<14)start(L,s+1);else start(L+1,0)};
  $("rp").onclick=function(){start(L,s)};$("mn").onclick=function(){menu(L)};(($("nx")&&st)?$("nx"):$("rp")).focus({preventScroll:true})}
-function menu(tab){if(S){S.done=true;cancelAnimationFrame(raf)}clearField();deco();$("lvN").textContent="";if(tab!=null)curTab=tab;
+function menu(tab){if(S){S.done=true;cancelAnimationFrame(raf);S=null}clearField();deco();$("lvN").textContent="";if(tab!=null)curTab=tab;
  var tabs=LV.map(function(l,i){var n=0;for(var s=0;s<15;s++)n+=best[i+"-"+s]||0;return '<button class="tab" role="tab" type="button" data-t="'+i+'" aria-selected="'+(i===curTab)+'">'+l.n+'<small>'+l.a+' · ★ '+n+'/45</small></button>'}).join("");
  var lv="";for(var s=0;s<15;s++){var b=best[curTab+"-"+s]||0,st="";for(var k=0;k<3;k++)st+=k<b?"★":"☆";
   lv+='<button class="lvb'+(b?' done':'')+'" type="button" data-s="'+s+'"><span class="no">'+(s+1)+'</span><span class="st" aria-label="'+b+' з 3 зірок">'+st+'</span></button>'}
@@ -192,7 +195,7 @@ function menu(tab){if(S){S.done=true;cancelAnimationFrame(raf)}clearField();deco
  [].forEach.call(ov.querySelectorAll("[data-s]"),function(b){b.onclick=function(){start(curTab,+b.dataset.s)}});
  $("go").onclick=function(){start(curTab,nx)};$("ab").onclick=intro;$("go").focus({preventScroll:true});
  if(window.matchMedia&&!matchMedia("(pointer:fine)").matches)$("tn").hidden=false}
-function intro(){if(S){S.done=true;cancelAnimationFrame(raf)}clearField();deco();$("lvN").textContent="";
+function intro(){if(S){S.done=true;cancelAnimationFrame(raf);S=null}clearField();deco();$("lvN").textContent="";
  ov.innerHTML='<div class="panel" role="dialog" aria-labelledby="ih"><h1 id="ih">Нагодуй зайчиків</h1><p>Тренажер для комп’ютерної мишки</p><div class="info">'+
  '<div class="ib"><h2>🎯 Мета гри</h2><p>На галявині з норок на кілька секунд виглядають зайчики. Встигни навести на зайчика вказівник і клацнути лівою кнопкою — тоді він отримає морквинку. Будь уважним: на складному рівні з норок визирають і їжачки, їх клацати не треба!</p></div>'+
  '<div class="ib"><h2>🖱 Які навички тренуються</h2><ul><li>Точне наведення вказівника миші на ціль</li><li>Клацання лівою кнопкою</li><li>Швидкість реакції</li><li>Уважність і самоконтроль: клацати лише тоді, коли треба</li></ul></div>'+
