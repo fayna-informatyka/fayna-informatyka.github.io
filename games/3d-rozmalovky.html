@@ -53,6 +53,7 @@ button:focus-visible{outline:4px solid #7FA7C9;outline-offset:2px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .card{background:#fff;border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink);padding:12px 10px 10px;text-align:center;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:150px}
 .card .ic{font-size:2.6rem;line-height:1.1}
+.card .ic img{width:84px;height:84px;display:block;margin:-10px auto -8px}
 .card .ic svg{width:2.2em;height:1.15em;display:block;margin:0 auto}
 .card .nm{font-size:1rem}
 .card .pb{width:100%;height:10px;border-radius:999px;border:2px solid var(--ink);background:#F1F1EC;overflow:hidden;margin-top:auto}
@@ -63,7 +64,7 @@ button:focus-visible{outline:4px solid #7FA7C9;outline-offset:2px}
 .card.soon:hover{transform:none}
 #win .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 #win .big.alt{background:#fff}
-@media (max-width:600px){#tip{font-size:.85rem;padding:6px 10px;max-width:70%}#menu h1{font-size:1.4rem}.grid{grid-template-columns:repeat(2,1fr)}.card{min-height:130px}.card .ic{font-size:2.1rem}}
+@media (max-width:600px){#tip{font-size:.85rem;padding:6px 10px;max-width:70%}#menu h1{font-size:1.4rem}.grid{grid-template-columns:repeat(2,1fr)}.card{min-height:130px}.card .ic{font-size:2.1rem}.card .ic img{width:70px;height:70px}}
 </style>
 </head>
 <body>
@@ -121,6 +122,7 @@ function mkH(put,get){var H={get:get,
 /* ---------- моделі: кожна будує кубики через put/box і повертає підписи частин ---------- */
 var SECS=[
  {id:"pc",t:"💻 Комп’ютер"},
+ {id:"hist",t:"🕰 Перші комп’ютери"},
  {id:"in",t:"⌨️ Пристрої введення"},
  {id:"out",t:"🖥 Пристрої виведення"},
  {id:"mem",t:"💾 Пристрої збереження"},
@@ -284,6 +286,69 @@ var MODELS=[
   [[-4,13],[12,13],[-4,3],[12,3]].forEach(function(t){for(var k=1;k<=8;k++){var f=k/9;put(Math.round(4+(t[0]-4)*f),Math.round(3+(t[1]-3)*f),Math.round(-2-9*f),8)}}); // промінь
   return{"Об’єктив":[4,8,-1],"Екран":[4,16,-12],"Проєктор":[8,8,6]}}}
 ];
+
+/* ---------- перші комп’ютери ---------- */
+MODELS.push(
+{id:"mesm",sec:"hist",ic:"🗄",name:"МЕОМ (Київ, 1950)",win:"МЕОМ готова! 🎉",
+ fact:"МЕОМ — перший комп’ютер у континентальній Європі. Її створили в Києві під керівництвом Сергія Лебедєва, і 1950 року вона запрацювала. Машина мала близько 6000 ламп і займала кімнату 60 м².",
+ build:function(put,box,H){
+  box(0,27,0,13,0,3,16);                                                    // шафи
+  for(var x=0;x<=27;x++)for(var y=0;y<=13;y++){var c=0;
+   if(x%7===0||y===0||y===13)c=1;else if(y>=2&&y<=11&&x%2===1&&y%2===0)c=(H.hs(x,y,4)%3===0)?10:8;else if(y===12)c=2;
+   if(c)put(x,y,4,c);else put(x,y,4,16)}
+  box(7,20,0,4,8,11,12);box(7,20,5,5,8,11,2);                               // пульт
+  [[9,9,11],[11,9,9],[13,9,3],[15,9,11],[17,9,9],[9,10,7],[12,10,7],[15,10,7],[18,10,7]].forEach(function(b){put(b[0],6,b[1],b[2])});
+  box(10,17,6,9,11,11,1);box(11,16,7,8,11,11,9);                            // екранчик
+  return{"Шафи з лампами":[13.5,16,2],"Пульт":[13.5,9,10]}}},
+
+{id:"eniac",sec:"hist",ic:"🗄",name:"ЕНІАК (США, 1945)",win:"ЕНІАК готовий! 🎉",
+ fact:"ЕНІАК — один із перших електронних комп’ютерів. Його збудували в США 1945 року. Він мав майже 18 тисяч ламп і важив близько 27 тонн.",
+ build:function(put,box,H){
+  var panel=function(x,z){var e=(x===0||x===28)?1:0;return e};
+  for(var x=0;x<=28;x++)for(var y=0;y<=12;y++){put(x,y,0,1);put(x,y,-1,1)}
+  for(var z=1;z<=10;z++)for(y=0;y<=12;y++){put(0,y,z,1);put(-1,y,z,1);put(28,y,z,1);put(29,y,z,1)}
+  for(x=1;x<=27;x++)for(y=1;y<=11;y++){var c=(x%5===0)?2:(y%3===0&&x%2===1)?7:(y%3===1&&x%2===0&&H.hs(x,y,1)%2)?10:0;if(c)put(x,y,1,c)}
+  for(z=2;z<=9;z++)for(y=1;y<=11;y++){if(z%4===0||(y%3===0&&z%2===1)){put(1,y,z,z%4===0?2:7);put(27,y,z,z%4===0?2:7)}}
+  H.line([[3,9,2],[6,5,3],[10,4,3],[13,9,2]],11);H.line([[15,10,2],[18,6,3],[22,6,3],[25,10,2]],3);H.line([[8,8,2],[11,3,3],[16,3,3],[19,8,2]],8);
+  box(11,17,0,2,5,8,16);box(12,16,3,3,6,7,7);                                // візок із перемикачами
+  return{"Панелі":[14,15,0],"Кабелі":[14,7,5],"Перемикачі":[14,5.5,7]}}},
+
+{id:"apple1",sec:"hist",ic:"🗄",name:"Apple I (1976)",win:"Apple I готовий! 🎉",
+ fact:"Apple I зібрали 1976 року Стів Возняк і Стів Джобс. Продавали лише плату без корпусу й клавіатури — за 666,66 долара. Корпус покупці робили самі, часто дерев’яний.",
+ build:function(put,box,H){
+  box(0,20,0,4,0,13,12);                                                     // дерев’яний корпус
+  for(var z=0;z<=6;z++)box(1,19,5,5+Math.floor(z/3),z,z,12);
+  box(1,19,6,7,7,12,12);
+  for(var r=0;r<3;r++)for(var x=2+(r%2);x<=17;x+=2)put(x,5+Math.floor((r*2+1)/3),r*2+1,(r===2&&x>=7&&x<=13)?7:1); // клавіші
+  put(2,6,5,1);
+  box(23,33,0,9,2,10,16);box(24,32,2,8,11,11,1);                             // телевізор-монітор
+  for(var l=0;l<4;l++)for(var c=0;c<5+l;c++)if(H.hs(c,l,0)%4)put(25+c,7-l,11,9);
+  put(32,1,11,10);
+  return{"Дерев’яний корпус":[10,10,6],"Клавіатура":[10,9,2],"Екран":[28,12,10]}}},
+
+{id:"ibmpc",sec:"hist",ic:"🖥",name:"IBM PC (1981)",win:"IBM PC готовий! 🎉",
+ fact:"IBM PC з’явився 1981 року. Програми завантажували з дискет, а екран показував зелені літери на чорному тлі.",
+ build:function(put,box,H){
+  box(0,22,0,5,0,14,14);                                                     // системний блок
+  box(12,20,3,3,15,15,1);box(12,20,1,1,15,15,1);put(19,3,15,16);put(19,1,15,16); // дисководи
+  box(2,4,1,1,15,15,9);
+  box(3,19,6,18,2,12,14);box(5,17,8,16,13,13,1);                             // монітор
+  var txt=["xx.x.xx","x.....x","xxx.x..","x.x..xx"];
+  txt.forEach(function(r,i){for(var c=0;c<r.length;c++)if(r[c]==="x")put(6+c,15-i*2,13,9)});put(14,9,13,9);
+  box(1,21,0,1,18,24,14);for(var kr=0;kr<3;kr++)for(var kx=2;kx<=20;kx+=2)put(kx,2,19+kr*2,(kr===2&&kx>=8&&kx<=14)?7:16);
+  return{"Системний блок":[-2,6,8],"Дисководи":[16,6,17],"Монітор":[11,21,7],"Клавіатура":[11,4,25]}}},
+
+{id:"mac84",sec:"hist",ic:"🖥",name:"Macintosh (1984)",win:"Macintosh готовий! 🎉",
+ fact:"Macintosh представив Стів Джобс 1984 року. Це був один із перших домашніх комп’ютерів, яким керували мишкою, клацаючи на значки.",
+ build:function(put,box,H){
+  box(0,12,0,17,0,11,14);box(1,11,0,1,12,12,14);                             // корпус
+  box(2,10,7,15,12,12,16);box(3,9,8,14,12,12,7);                             // екран
+  box(3,9,14,14,12,12,1);box(4,8,12,12,12,12,1);box(4,8,9,9,12,12,1);box(4,4,10,11,12,12,1);box(8,8,10,11,12,12,1);put(9,10,12,16);put(3,10,12,16);
+  box(6,10,4,4,12,12,1);                                                     // щілина для дискети
+  box(0,12,0,0,15,20,14);for(var r=0;r<3;r++)for(var x=1;x<=11;x+=2)put(x,1,16+r*2,r===2&&x>=3&&x<=9?7:16); // клавіатура
+  box(15,17,0,1,15,19,14);put(16,2,15,16);                                   // мишка з однією кнопкою
+  return{"Екран":[6,19,12],"Дискета":[8,2,14],"Мишка":[16,4,18]}}}
+);
 
 /* ---------- пристрої збереження ---------- */
 MODELS.push(
@@ -585,6 +650,409 @@ MODELS.push(
   return{"Крила":[7.5,15,-5],"Ріжки":[0,21,0],"Хвіст":[8,5.5,-10]}}}
 );
 
+/* ---------- тварини: ще 10 ---------- */
+function legs4(H,xs,zs,h,r,c,hoof){[-1,1].forEach(function(sx){[-1,1].forEach(function(sz){H.cyl(sx*xs,sz*zs,0,h,r,function(x,y){return(hoof&&y===0)?hoof:c})})})}
+MODELS.push(
+{id:"bear",sec:"ani",ic:"🐻",name:"Ведмедик",win:"Ведмедик готовий! 🎉",
+ fact:"Ведмідь узимку спить у барлозі, а навесні прокидається дуже голодним. Він любить мед і ягоди.",
+ build:function(put,box,H){
+  H.ell(0,6,0,5,6,4.5,function(x,y,z){return(z>=2.2&&Math.abs(x)<=2.5&&y<=9)?14:12});
+  H.ell(0,15,0.5,4.8,4.2,4.2,12);
+  [-1,1].forEach(function(s){H.ell(s*3.6,18.6,0,1.6,1.6,1,function(x,y,z){return z>=1&&Math.abs(x-s*3.6)<1?14:12})});
+  H.ell(0,13.8,4,2.3,1.8,1.6,14);H.front(0,14,1);H.front(-1,14,1);H.front(1,14,1);H.front(0,13,1);
+  H.eye(-2,16);H.eye(2,16);
+  H.ell(-2.2,1,3.2,1.8,1.3,2,12);H.ell(2.2,1,3.2,1.8,1.3,2,12);
+  H.ell(-5,8,2,1.4,3,1.5,12);H.ell(5,8,2,1.4,3,1.5,12);
+  H.ell(5.5,4,3.5,1.8,1.8,1.8,8);put(5,6,3,10);put(6,6,4,10);                 // горщик із медом
+  return{"Вушка":[0,22,0],"Мордочка":[0,12,8],"Мед":[7,7,4]}}},
+
+{id:"pig",sec:"ani",ic:"🐷",name:"Свинка",win:"Свинка готова! 🎉",
+ fact:"Свиня — розумна тварина. Вона добре відчуває запахи своїм п’ятачком і може знаходити їжу під землею.",
+ build:function(put,box,H){
+  legs4(H,2.5,3.5,2,1,15,12);
+  H.ell(0,5,0,4.5,4,6.5,15);H.ell(0,7,6.5,3.6,3.3,3,15);
+  for(var x=-2;x<=2;x++)for(var y=5;y<=8;y++)if(Math.hypot(x,y-6.5)<=2)put(x,y,9,6);
+  put(-1,7,10,1);put(1,7,10,1);put(-2,9,9,1);put(2,9,9,1);
+  [-1,1].forEach(function(s){put(s*2,10,6,6);put(s*3,10,6,6);put(s*3,11,5,6);put(s*2,10,5,6)});
+  H.line([[0,6,-7],[1,7,-8],[0,8,-8],[-1,7,-8]],15);
+  return{"П’ятачок":[0,10.5,10],"Вушка":[0,13.5,5],"Хвостик":[0,10.5,-8]}}},
+
+{id:"cow",sec:"ani",ic:"🐮",name:"Корівка",win:"Корівка готова! 🎉",
+ fact:"Корова дає молоко, з якого роблять сир, масло й кефір. За день вона може з’їсти цілу гору трави.",
+ build:function(put,box,H){
+  var spot=function(x,y,z){return(Math.sin(x*.9)+Math.sin(y*1.1+1)+Math.sin(z*.7+2)>1.2)?1:7};
+  legs4(H,2.5,4.5,4,1.2,7,1);
+  H.ell(0,7,0,4.5,3.8,7,spot);H.ell(0,3.5,-2,1.6,1,1.6,15);
+  H.ell(0,10,7.5,3,3,3,spot);H.ell(0,8.8,10,2.4,1.6,1.4,15);put(-1,9,11,1);put(1,9,11,1);
+  [-1,1].forEach(function(s){put(s*2,13,7,14);put(s*3,14,7,14);put(s*3,11,6,1);put(s*4,11,6,1)});
+  H.eye(-2,11);H.eye(2,11);
+  H.line([[0,8,-7],[1,5,-8],[1,3,-8]],7);put(1,2,-8,1);
+  H.cyl(4,9,0,0,1.2,7);put(4,1,9,8);                                          // ромашка поруч
+  return{"Плямки":[0,13,-2],"Ріжки":[0,16.5,7],"Хвіст":[2,6,-9]}}},
+
+{id:"peng",sec:"ani",ic:"🐧",name:"Пінгвін",win:"Пінгвін готовий! 🎉",
+ fact:"Пінгвін — птах, який не літає, зате чудово плаває. Під водою крила працюють у нього як ласти.",
+ build:function(put,box,H){
+  H.ell(0,7,0,4.5,7,4,function(x,y,z){return(z>=1.6&&Math.abs(x)<=3&&y<=11)?7:1});
+  H.ell(-4.6,7,0,1,4,2,1);H.ell(4.6,7,0,1,4,2,1);
+  [-1.5,1.5].forEach(function(x){H.front(Math.round(x),12,7);H.front(Math.round(x),11,7)});H.front(-2,12,1);H.front(2,12,1);
+  var z=H.front(0,10,1);put(0,10,z+1,10);put(0,10,z+2,10);put(0,9,z+1,10);
+  H.ell(-2,0,2,1.6,.6,2.2,10);H.ell(2,0,2,1.6,.6,2.2,10);
+  H.cyl(0,0,-1,-1,6.5,4);H.ell(5,0,4,1,.8,2,16);                                  // крижина і рибка
+  return{"Дзьоб":[0,12.5,8],"Крильця":[-6,10,0],"Лапки":[0,2,6]}}},
+
+{id:"frog",sec:"ani",ic:"🐸",name:"Жабка",win:"Жабка готова! 🎉",
+ fact:"Жаба народжується пуголовком у воді, а потім виростає й виходить на суходіл. Вона ловить комах довгим язиком.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,7.5,function(x,y,z){return(x>2&&z>2&&Math.abs(x-z)<2)?0:13});
+  H.ell(0,3,0,5,3,4.5,function(x,y,z){return(y<=1&&z>=2)?14:9});
+  [-1,1].forEach(function(s){H.ell(s*2.6,6,2.4,1.8,1.8,1.8,9);for(var dx=-1;dx<=1;dx++)for(var dy=-1;dy<=1;dy++)H.front(s*3+dx,6+dy,(dx===0&&dy===0)?1:7);
+   H.ell(s*4.6,1,-1.5,2,1.3,3,9);H.ell(s*2.6,0,3.8,1.3,.6,1.6,9)});
+  for(var x=-3;x<=3;x++)H.front(x,2,11);
+  return{"Очі":[0,9.5,3],"Лапки":[5,3,-2],"Листок":[-6,0,5]}}},
+
+{id:"turtle",sec:"ani",ic:"🐢",name:"Черепаха",win:"Черепаха готова! 🎉",
+ fact:"Черепаха носить свій дім на спині: міцний панцир захищає її від ворогів. Деякі черепахи живуть понад 100 років.",
+ build:function(put,box,H){
+  H.ell(0,1.5,7.2,1.9,1.9,2.4,9);put(-1,2,9,1);put(1,2,9,1);
+  [-1,1].forEach(function(s){[-1,1].forEach(function(t){H.ell(s*4,0.6,t*4,1.6,1.2,1.6,9)})});H.line([[0,1,-6],[0,1,-8]],9);
+  H.ell(0,2,0,5.5,4.5,6.5,function(x,y,z){if(y<1)return 0;if(y===1)return 12;return((x+z+20)%4===0||(x-z+20)%4===0)?9:13});
+  return{"Панцир":[0,8,0],"Голова":[0,5,9],"Лапки":[6,2,5]}}},
+
+{id:"chick",sec:"ani",ic:"🐥",name:"Курча",win:"Курча готове! 🎉",
+ fact:"Курча вилуплюється з яйця через 21 день. Воно вже вміє ходити й пищить, кличучи маму-курку.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,2,function(y){return y===0?3.2:3.9},function(x,y,z,d){return(y===0||d>3)?((y===2&&(x+z)%2)?0:7):0});
+  H.ell(0,4.5,0,3.5,3.5,3.5,8);H.ell(0,8.8,1,2.6,2.6,2.6,8);
+  H.ell(-3.6,4.5,0,.8,2,2,8);H.ell(3.6,4.5,0,.8,2,2,8);
+  var z=H.front(0,8,8);put(0,8,z+1,10);put(0,8,z+2,10);H.front(-1,9,1);H.front(1,9,1);
+  put(0,11,1,8);put(1,12,1,8);put(-1,11,0,8);
+  return{"Шкаралупка":[5,1,3],"Дзьобик":[0,7,6],"Чубчик":[0,14,1]}}},
+
+{id:"eleph",sec:"ani",ic:"🐘",name:"Слоник",win:"Слоник готовий! 🎉",
+ fact:"Слон — найбільша суходільна тварина. Хоботом він п’є воду, бере їжу й навіть обіймає слоненят.",
+ build:function(put,box,H){
+  legs4(H,2.8,4,4,1.6,16,14);
+  H.ell(0,7,0,5,4.5,6.5,16);H.ell(0,10,6.5,3.8,3.6,3.3,16);
+  [-1,1].forEach(function(s){H.ell(s*4.6,10,5,.8,3.5,2.8,function(x,y,z){return z>=6?15:16});put(s*2,11,9,1);put(s*1,7,9,7);put(s*1,6,10,7)});
+  H.line([[0,9,9],[0,6,10],[0,3,11],[0,3,12],[0,4,13]],16);H.line([[1,9,9],[1,6,10],[1,4,11]],16);H.line([[-1,9,9],[-1,6,10],[-1,4,11]],16);
+  H.line([[0,6,-6],[0,4,-8]],16);put(0,3,-8,1);
+  return{"Хобот":[0,1,14],"Вуха":[6.5,15,5],"Бивні":[3,5,11]}}},
+
+{id:"fish",sec:"ani",ic:"🐟",name:"Рибка",win:"Рибка готова! 🎉",
+ fact:"Риби дихають зябрами: вони беруть кисень просто з води. Плавці допомагають їм керувати рухом.",
+ build:function(put,box,H){
+  H.ell(0,7,0,2,4,6.5,function(x,y,z){return(Math.abs(z-2.5)<.7||Math.abs(z+2)<.7)?7:(Math.abs(z-2.5)<1.4||Math.abs(z+2)<1.4)?1:10});
+  for(var z=-10;z<=-6;z++){var w=(-6-z)+1;for(var y=7-w;y<=7+w;y++){put(0,y,z,10);if(z===-10)put(0,y,z,1)}}
+  for(z=-3;z<=3;z++)for(y=11;y<=11+(3-Math.abs(z))/2;y++)put(0,Math.round(y),z,10);
+  put(2,8,4,1);put(-2,8,4,1);put(0,5,7,11);
+  put(1,13,6,4);put(0,15,7,4);put(1,17,6,4);
+  H.ell(0,0,0,7,1,7,function(x,y){return y<=0?14:0});H.line([[4,1,-3],[4,4,-3],[5,6,-3]],13);H.line([[-4,1,2],[-5,4,2]],13);
+  return{"Хвіст":[0,15,-9],"Бульбашки":[2,19,7],"Водорості":[5,8,-3]}}},
+
+{id:"hedge",sec:"ani",ic:"🦔",name:"Їжачок",win:"Їжачок готовий! 🎉",
+ fact:"У їжачка на спині понад 5000 голочок. Коли йому страшно, він згортається в колючий клубок.",
+ build:function(put,box,H){
+  H.ell(0,4,0,4.5,3.8,5.5,function(x,y,z){if(y<1)return 0;return H.hs(x,y,z)%3===0?1:12});
+  H.ell(0,3,5,2.2,2,2.6,14);H.ell(-2,.5,2.5,1,.6,1.2,14);H.ell(2,.5,2.5,1,.6,1.2,14);
+  var z=H.front(0,3,14);put(0,3,z+1,1);H.front(-1,4,1);H.front(1,4,1);
+  H.ell(0,8.6,-1,1.7,1.7,1.7,11);put(0,10,-1,12);put(1,11,-1,9);
+  return{"Голочки":[0,10,-5],"Носик":[0,6,9],"Яблучко":[0,13,-1]}}}
+);
+
+/* ---------- рослини: ще 10 ---------- */
+function flowerHead(put,cx,cy,cz,rc,rp,cc,pc,n){for(var x=-9;x<=9;x++)for(var y=-9;y<=9;y++){var d=Math.hypot(x,y),a=Math.atan2(y,x);
+ if(d<=rc){put(cx+x,cy+y,cz+1,cc);put(cx+x,cy+y,cz,cc)}else if(d<=rp&&Math.cos(n*a)>-.3)put(cx+x,cy+y,cz,pc)}}
+MODELS.push(
+{id:"daisy",sec:"pla",ic:"🌼",name:"Ромашка",win:"Ромашка готова! 🎉",
+ fact:"Ромашка росте на луках і в полі. З її квіток заварюють корисний чай.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,0,4,9);box(0,0,1,12,0,0,13);H.ell(-2,5,0,2.2,.7,1.3,9);H.ell(2,8,0,2.2,.7,1.3,9);
+  flowerHead(put,0,16,0,2.2,6.2,8,7,8);
+  box(5,5,1,7,-2,-2,13);flowerHead(put,5,9,-2,1.2,3.4,8,7,6);
+  return{"Пелюстки":[0,24,0],"Серединка":[0,16,4],"Листочки":[-4,6,1]}}},
+
+{id:"rose",sec:"pla",ic:"🌹",name:"Троянда",win:"Троянда готова! 🎉",
+ fact:"Троянда — одна з найулюбленіших квітів у світі. На її стеблі є гострі шипи, які захищають рослину.",
+ build:function(put,box,H){
+  box(0,0,0,13,0,0,13);[[1,3],[-1,6],[1,9]].forEach(function(t){put(t[0],t[1],0,12)});
+  H.ell(-2.5,5,0,2.4,.7,1.5,9);H.ell(2.5,8,0,2.4,.7,1.5,9);
+  H.ell(0,16,0,3.4,3,3.4,function(x,y,z){if(y<14)return 11;var a=Math.atan2(z,x),r=Math.hypot(x,z);return(Math.round(a*1.2+r*1.4)%2)?11:6});
+  H.ell(0,13.5,0,2,1,2,13);
+  return{"Пелюстки":[0,21,0],"Шипи":[2,4,0],"Листя":[4.5,10,1]}}},
+
+{id:"dand",sec:"pla",ic:"🌼",name:"Кульбаба",win:"Кульбаба готова! 🎉",
+ fact:"Кульбаба спершу цвіте жовтим, а потім перетворюється на пухнасту кульку. Вітер розносить її насінини-парашутики.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,0,6,9);
+  [[-1,1],[1,-1],[2,2],[-2,-2]].forEach(function(l){H.line([[0,1,0],[l[0]*2,1,l[1]*2],[l[0]*3,2,l[1]*3]],13)});
+  box(-3,-3,1,10,0,0,13);H.ell(-3,12,0,2.6,1.8,2.6,8);put(-3,13,0,10);
+  box(3,3,1,13,0,0,13);H.ell(3,17,0,3.6,3.6,3.6,function(x,y,z,q){return(q>.6&&H.hs(x,y,z)%3===0)?0:(q<.3?16:7)});
+  [[7,20,1],[9,21,0],[8,23,-1]].forEach(function(p){put(p[0],p[1],p[2],7)});
+  return{"Квітка":[-3,15.5,0],"Пушок":[3,22,0],"Парашутики":[9,23,0]}}},
+
+{id:"birch",sec:"pla",ic:"🌳",name:"Береза",win:"Береза готова! 🎉",
+ fact:"Береза — єдине дерево з білою корою. Навесні з неї збирають солодкий березовий сік.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,7,9);
+  H.cyl(0,0,0,13,function(y){return y<3?1.6:1.1},function(x,y,z){return(H.hs(x,y>>1,z)%4===0&&y%2===0)?1:7});
+  H.line([[0,9,0],[-3,12,1]],7);H.line([[0,10,0],[3,13,-1]],7);
+  [[0,16,0,4.5,4,4.5],[-3.5,13.5,1,3.2,3.4,3],[3.5,14,-1,3.2,3.4,3],[0,19,0,3,2.5,3]].forEach(function(e){H.ell(e[0],e[1],e[2],e[3],e[4],e[5],function(x,y,z){return H.hs(x,y,z)%4===0?13:9})});
+  return{"Біла кора":[2.5,4,2],"Листя":[0,23,0]}}},
+
+{id:"palm",sec:"pla",ic:"🌴",name:"Пальма",win:"Пальма готова! 🎉",
+ fact:"Пальми ростуть у теплих краях. На кокосовій пальмі достигають кокоси з солодким молоком усередині.",
+ build:function(put,box,H){
+  H.ell(0,0,0,8,1.6,7,function(x,y){return y>=0?14:0});H.cyl(0,0,-1,-1,10,function(x,y,z,d){return d>7.5?4:0});
+  for(var y=1;y<=15;y++){var ox=Math.round(y*y*.012);H.cyl(ox,0,y,y,1.2,y%2?12:14)}
+  var tx=3,ty=16;
+  [[1,0],[-1,0],[0,1],[0,-1],[.7,.7],[-.7,-.7]].forEach(function(d){var pts=[[tx,ty,0]];for(var k=1;k<=7;k++)pts.push([Math.round(tx+d[0]*k),Math.round(ty+1-k*k*.08),Math.round(d[1]*k)]);
+   H.line(pts,13);pts.forEach(function(p,i){if(i>1&&i<7)put(p[0]+(d[1]!==0?1:0),p[1],p[2]+(d[0]!==0?1:0),9)})});
+  H.ell(2,14.6,1,1.1,1.1,1.1,12);H.ell(4,14.6,-1,1.1,1.1,1.1,12);
+  return{"Листя":[3,21,0],"Кокоси":[3,12,3],"Острівець":[-6,2,4]}}},
+
+{id:"kalyna",sec:"pla",ic:"🌿",name:"Калина",win:"Калина готова! 🎉",
+ fact:"Калина — один із символів України. Її червоні ягоди достигають восени й висять на кущі навіть узимку.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,6,9);
+  H.line([[0,0,0],[0,6,0],[-3,10,1],[-5,12,1]],12);H.line([[0,6,0],[3,10,-1],[5,13,0]],12);H.line([[0,8,0],[0,13,1]],12);
+  [[-5,13,1],[5,14,0],[0,15,1],[-2,10,3],[3,11,2]].forEach(function(l){H.ell(l[0],l[1],l[2],2.2,1.2,2,function(x,y,z){return H.hs(x,y,z)%5===0?9:13})});
+  [[-4,9,3],[4,10,3],[0,11,4],[-6,10,1],[6,11,0]].forEach(function(b){H.ell(b[0],b[1],b[2],1.8,1.8,1.6,function(x,y,z){return(x+y+z)%2===0?11:0});put(b[0],b[1]+2,b[2],12)});
+  return{"Ягоди":[0,8,6],"Листя":[0,18,1],"Гілки":[-6,6,1]}}},
+
+{id:"corn",sec:"pla",ic:"🌽",name:"Кукурудза",win:"Кукурудза готова! 🎉",
+ fact:"Кукурудза — дуже висока рослина: вона буває вищою за дорослу людину. З її зерен роблять пластівці й попкорн.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,5,12);box(0,0,0,21,0,0,13);
+  [[1,4,8,-1],[-1,7,9,1],[1,11,7,1],[-1,14,7,-1]].forEach(function(l){var pts=[];for(var k=0;k<=l[2];k++)pts.push([l[0]*k,l[1]+Math.round(k*1.2-k*k*.12),l[3]*Math.round(k*.3)]);H.line(pts,9)});
+  H.ell(2,11,1.5,1.4,3.5,1.4,function(x,y,z){return(x+y+z)%2?8:10});
+  H.line([[1,7,1],[2,9,2],[3,13,2]],9);
+  for(var t=0;t<4;t++)H.line([[0,22,0],[[-2,2,0,0][t],24,[0,0,-2,2][t]]],14);
+  return{"Качан":[4.5,11,2],"Листя":[-8,13,1],"Волоть":[0,26.5,0]}}},
+
+{id:"pumpk",sec:"pla",ic:"🎃",name:"Гарбуз",win:"Гарбуз готовий! 🎉",
+ fact:"Гарбуз — одна з найбільших ягід, які вирощують люди. З нього варять кашу й печуть пироги.",
+ build:function(put,box,H){
+  for(var x=-8;x<=8;x++)for(var y=0;y<=10;y++)for(var z=-8;z<=8;z++){var a=Math.atan2(z,x),k=1-.09*(1+Math.cos(8*a))/2;
+   var q=Math.pow(x/(7*k),2)+Math.pow((y-5)/5,2)+Math.pow(z/(7*k),2);if(q<=1)put(x,y,z,Math.cos(8*a)>.8?12:10)}
+  box(0,0,10,12,0,0,13);put(1,13,0,13);put(-1,11,1,13);
+  H.ell(3,10,2,2.4,.6,1.8,9);H.line([[-1,11,0],[-3,12,-1],[-4,11,-2],[-3,10,-3]],13);
+  return{"Хвостик":[0,15.5,0],"Листок":[4,12,3]}}},
+
+{id:"wheat",sec:"pla",ic:"🌾",name:"Пшениця",win:"Колоски готові! 🎉",
+ fact:"З зерен пшениці мелють борошно й печуть хліб. Україна вирощує дуже багато пшениці для всього світу.",
+ build:function(put,box,H){
+  var st=[[0,0],[-2,1],[2,-1],[-1,-2],[1,2],[-3,-1],[3,1]];
+  st.forEach(function(s,i){var tx=s[0]*1.8,tz=s[1]*1.8,top=14+(i%3);H.line([[s[0]*.6,0,s[1]*.6],[s[0]*.4,6,s[1]*.4],[tx,top,tz]],14);
+   H.ell(Math.round(tx),top+3,Math.round(tz),.9,3,.9,function(x,y){return y%2?8:14})});
+  for(var y=5;y<=7;y++)for(var x=-2;x<=2;x++)for(var z=-2;z<=2;z++)if(Math.hypot(x,z)>1.4&&Math.hypot(x,z)<2.6)put(x,y,z,y<6?8:3);
+  H.cyl(4,4,0,0,0.6,3);put(4,1,4,13);put(4,2,4,13);H.ell(4,3,4,1,1,1,3);
+  return{"Колоски":[0,22,0],"Стрічка":[3,6,3],"Волошка":[5,6,5]}}},
+
+{id:"oak",sec:"pla",ic:"🌰",name:"Дуб",win:"Дуб готовий! 🎉",
+ fact:"Дуб — могутнє дерево, яке може жити понад тисячу років. Його плоди називаються жолуді.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,9,9);H.cyl(0,0,0,9,function(y){return y<2?2.8:2},12);
+  H.line([[0,8,0],[-4,11,1]],12);H.line([[0,8,0],[4,12,-1]],12);
+  [[0,15,0,6.5,4.5,6],[-5,12.5,1,3.5,3,3.5],[5,13,-1,3.5,3,3.5],[0,18,0,4,2.5,4]].forEach(function(e){H.ell(e[0],e[1],e[2],e[3],e[4],e[5],function(x,y,z,q){var h=H.hs(x,y,z);return(q>.7&&h%17===0)?12:(h%5===0?9:13)})});
+  H.ell(6,0,5,1,1.3,1,12);put(6,2,5,14);H.ell(-5,0,6,1,1.3,1,12);put(-5,2,6,14);
+  return{"Крона":[0,22,0],"Стовбур":[3,4,2],"Жолуді":[6,4,6]}}}
+);
+
+/* ---------- їжа: ще 10 ---------- */
+MODELS.push(
+{id:"banana",sec:"food",ic:"🍌",name:"Банан",win:"Банан готовий! 🎉",
+ fact:"Банани ростуть великими гронами на високій рослині. У банані багато калію, корисного для серця й м’язів.",
+ build:function(put,box,H){
+  for(var a=200;a<=340;a+=4){var t=a*Math.PI/180,cx=Math.round(Math.cos(t)*9),cy=Math.round(10+Math.sin(t)*7);
+   var r=1.9*Math.sin((a-195)/150*Math.PI)+.3,end=a<=208||a>=332;H.ell(cx,cy,0,r,r,r,end?12:8)}
+  return{"Шкірка":[0,0,3],"Кінчики":[-9,6,0]}}},
+
+{id:"pear",sec:"food",ic:"🍐",name:"Груша",win:"Груша готова! 🎉",
+ fact:"Груша — соковитий фрукт, родич яблука. Груші бувають зелені, жовті й навіть червонуваті.",
+ build:function(put,box,H){
+  var c=function(x,y,z){return(Math.hypot(x+2,y-5,z-3)<2.2)?8:9};
+  H.ell(0,4.5,0,4.6,4.6,4.6,c);H.ell(0,9,0,2.9,3.6,2.9,c);
+  box(0,0,12,14,0,0,12);H.ell(1.8,13.5,0,1.8,.6,1,13);
+  return{"Хвостик":[0,16.5,0],"Листочок":[3,15.5,0]}}},
+
+{id:"straw",sec:"food",ic:"🍓",name:"Полуниця",win:"Полуниця готова! 🎉",
+ fact:"У полуниці насінинки ростуть не всередині, а зовні — на її поверхні.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,10,function(y){return y<=7?.8+y*.5:4.3-(y-7)*.55},function(x,y,z,d,rr){return(rr-d<.9&&H.hs(x,y,z)%5===0)?8:11});
+  for(var k=0;k<6;k++){var a=k/6*Math.PI*2;H.line([[0,11,0],[Math.round(Math.cos(a)*3),11,Math.round(Math.sin(a)*3)],[Math.round(Math.cos(a)*4),10,Math.round(Math.sin(a)*4)]],13)}
+  box(0,0,12,13,0,0,13);
+  return{"Насінинки":[5,6,3],"Листочки":[0,15.5,0]}}},
+
+{id:"carrot",sec:"food",ic:"🥕",name:"Морква",win:"Морква готова! 🎉",
+ fact:"Морква росте під землею. Вона корисна для очей, бо в ній є речовина, з якої організм робить вітамін А.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,12,function(y){return .5+y*.18},function(x,y,z,d,rr){return(y%3===0&&rr-d<.8&&H.hs(x,y,z)%2)?12:10});
+  [[0,0],[-1,1],[1,-1],[1,1],[-1,-1]].forEach(function(d,i){H.line([[0,13,0],[d[0]*2,16+i%2,d[1]*2],[d[0]*3,19+i%3,d[1]*3]],i%2?9:13)});
+  return{"Корінь":[3.5,6,2],"Бадилля":[0,23,0]}}},
+
+{id:"cheese",sec:"food",ic:"🧀",name:"Сир",win:"Сир готовий! 🎉",
+ fact:"Твердий сир роблять із молока. Дірки в ньому з’являються від бульбашок газу, поки сир дозріває.",
+ build:function(put,box,H){
+  var holes=[[2,4,9,1.8],[-3,2,6,1.6],[4,3,3,2],[0,5,2,1.5],[-5,3,1,1.6],[6,1,7,1.3]];
+  for(var z=0;z<=11;z++){var w=(11-z)*.75+.5;for(var x=-9;x<=9;x++){if(Math.abs(x)>w)continue;for(var y=0;y<=5;y++){var c=8,skip=false;
+   holes.forEach(function(h){var d=Math.hypot(x-h[0],y-h[1],z-h[2]);if(d<h[3])skip=true;else if(d<h[3]+.9)c=10});if(!skip)put(x,y,z,c)}}}
+  return{"Дірочки":[4,7,4]}}},
+
+{id:"bread",sec:"food",ic:"🍞",name:"Паляниця на рушнику",win:"Паляниця готова! 🎉",
+ fact:"Паляниця — традиційний український хліб. Хліб на вишитому рушнику — знак гостинності: так зустрічають дорогих гостей.",
+ build:function(put,box,H){
+  for(var x=-10;x<=10;x++)for(var z=-6;z<=6;z++){var e=Math.abs(z)===6||Math.abs(x)===10,o=(Math.abs(z)>=5&&(x+z)%2===0)||(Math.abs(x)>=9&&(x+z)%2===0);put(x,-1,z,o?11:7)}
+  H.ell(0,3,0,7,4,5,function(x,y,z){if(y<0)return 0;if(y<=1)return 14;if(Math.abs(z+1)<=.6&&y>=4)return 14;return 12});
+  return{"Паляниця":[0,9,0],"Рушник":[-9,1,6]}}},
+
+{id:"donut",sec:"food",ic:"🍩",name:"Пончик",win:"Пончик готовий! 🎉",
+ fact:"Пончики смажать в олії, а зверху поливають глазур’ю й посипають кольоровою посипкою.",
+ build:function(put,box,H){
+  var spr=[3,8,9,7,11];
+  for(var x=-8;x<=8;x++)for(var y=-3;y<=3;y++)for(var z=-8;z<=8;z++){var d=Math.hypot(x,z)-4.8;if(d*d+y*y>2.6*2.6)continue;
+   var h=H.hs(x,y,z);put(x,y+3,z,y>=1?((y>=2&&h%7===0)?spr[h%5]:15):14)}
+  return{"Глазур":[0,8,0],"Тісто":[7,2,4]}}},
+
+{id:"varen",sec:"food",ic:"🥟",name:"Вареники",win:"Вареники готові! 🎉",
+ fact:"Вареники — улюблена українська страва. Їх ліплять із тіста й начиняють картоплею, сиром або вишнями.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,9.5,function(x,y,z,d){return d>8.4?3:7});
+  [[-4,-3],[3,-4],[-1,3],[5,3]].forEach(function(v){for(var x=-3;x<=3;x++)for(var z=0;z<=3;z++){var d=Math.hypot(x,z);if(d>3.2)continue;
+   var hy=d<2?2:1;for(var y=0;y<=hy;y++)put(v[0]+x,y,v[1]+z-1,14)}});
+  H.ell(-1,1.5,-2,1.6,1.2,1.6,7);put(-1,3,-2,9);put(0,2,-1,9);put(4,3,1,9);
+  return{"Вареники":[0,6,0],"Сметана":[-1,5,-2],"Тарілка":[8,1,6]}}},
+
+{id:"eggs",sec:"food",ic:"🍳",name:"Яєчня",win:"Яєчня готова! 🎉",
+ fact:"Яйця — поживна їжа: у них багато білка. Жовток жовтий, а білок під час смаження стає білим.",
+ build:function(put,box,H){
+  H.cyl(0,0,0,0,8.5,1);H.cyl(0,0,1,2,8.8,function(x,y,z,d){return d>7.9?1:0});box(9,16,1,1,-1,1,12);
+  [[-3,-1],[3,2]].forEach(function(e){for(var x=-4;x<=4;x++)for(var z=-4;z<=4;z++){var d=Math.hypot(x,z)+Math.sin(Math.atan2(z,x)*3)*.6;if(d<=3.6)put(e[0]+x,1,e[1]+z,7)}
+   H.ell(e[0],2,e[1],1.6,1,1.6,function(x,y){return y>=2?8:0})});
+  return{"Жовток":[3,5,2],"Сковорідка":[13,3,0]}}},
+
+{id:"cakeb",sec:"food",ic:"🎂",name:"Торт",win:"Торт готовий! 🎉",
+ fact:"Торт печуть на свята. Свічок на святковому торті ставлять стільки, скільки років іменинникові.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,8.6,2);
+  H.cyl(0,0,0,5,7,function(x,y){return y===5?7:(y===2?11:15)});
+  H.cyl(0,0,6,9,4.6,function(x,y){return y===9?15:7});
+  for(var k=0;k<8;k++){var a=k/8*Math.PI*2;H.ell(Math.round(Math.cos(a)*5.8),6,Math.round(Math.sin(a)*5.8),.9,.9,.9,11)}
+  [[-2,0,3],[2,0,9],[0,-2,5]].forEach(function(c){box(c[0],c[0],10,12,c[1],c[1],c[2]);put(c[0],13,c[1],8);put(c[0],14,c[1],10)});
+  return{"Свічки":[0,17,0],"Полуниці":[6,8,4],"Крем":[7.5,5,3]}}}
+);
+
+/* ---------- казкові персонажі: ще 10 ---------- */
+MODELS.push(
+{id:"unic",sec:"fairy",ic:"🦄",name:"Єдиноріг",win:"Єдиноріг готовий! 🎉",
+ fact:"Єдиноріг — казковий кінь із чарівним рогом на лобі. У легендах його ріг міг лікувати від хвороб.",
+ build:function(put,box,H){
+  [-1,1].forEach(function(sx){[-1,1].forEach(function(sz){H.cyl(sx*2,sz*4,0,5,1,function(x,y){return y===0?5:7})})});
+  H.ell(0,7,0,3.5,3.2,6,7);H.ell(0,11,5.5,2.1,3.2,2.1,7);H.ell(0,13.5,7.5,2,2,3,7);
+  put(-1,14,10,15);put(1,14,10,15);put(-2,14,8,1);put(2,14,8,1);put(-1,16,6,7);put(1,16,6,7);
+  for(var y=15;y<=19;y++)put(0,y,8,y%2?8:7);put(0,15,9,8);
+  var rb=[11,10,8,9,3,5];for(var k=0;k<7;k++){put(0,15-k,5-Math.round(k*.6),rb[k%6]);put(0,15-k,4-Math.round(k*.6),rb[(k+1)%6])}
+  for(k=0;k<7;k++)put(0,8-k,-7-Math.round(k*.4),rb[k%6]);for(k=0;k<6;k++)put(1,8-k,-7-Math.round(k*.4),rb[(k+2)%6]);
+  return{"Чарівний ріг":[0,22,8],"Райдужна грива":[-2,15,3],"Хвіст":[0,1,-11]}}},
+
+{id:"firebird",sec:"fairy",ic:"🔥",name:"Жар-птиця",win:"Жар-птиця готова! 🎉",
+ fact:"Жар-птиця — чарівна птаха зі слов’янських казок. Її пір’я світиться, як вогонь, а сама вона любить золоті яблука.",
+ build:function(put,box,H){
+  box(-6,6,5,5,-1,1,12);H.ell(-5,3.6,0,1.3,1.3,1.3,8);H.ell(5,3.6,0,1.3,1.3,1.3,8);put(-5,5,0,12);put(5,5,0,12);
+  H.ell(0,8,0,2.8,3,4,function(x,y){return y>=9?8:10});H.ell(0,12,3,2,2,2,8);
+  H.ell(-3,9,-1,.8,2.5,3,11);H.ell(3,9,-1,.8,2.5,3,11);
+  var z=H.front(0,12,8);put(0,12,z+1,10);put(0,11,z+1,10);put(-1,13,4,1);put(1,13,4,1);
+  [[-1,0],[0,1],[1,0]].forEach(function(c,i){H.line([[0,14,3],[c[0],16+c[1],2+i]],10);put(c[0],17+c[1],2+i,11)});
+  [-4,-2,0,2,4].forEach(function(tx,i){var pts=[[0,7,-3],[Math.round(tx*.5),5,-8],[tx,3+Math.abs(i-2)%2,-13]];H.line(pts,i%2?11:10);
+   H.ell(tx,3,-13,1.1,1.1,1.1,5);put(tx,3,-12,8)});
+  return{"Вогняне пір’я":[0,12,-13],"Корона":[0,20,3],"Золоті яблука":[-5,0,2]}}},
+
+{id:"hut",sec:"fairy",ic:"🛖",name:"Хатинка на курячих ніжках",win:"Хатинка готова! 🎉",
+ fact:"Хатинка на курячих ніжках — казкова хата, яка вміє повертатися. Щоб увійти, їй кажуть: «Хатинко, стань до лісу задом, а до мене передом!»",
+ build:function(put,box,H){
+  [-1,1].forEach(function(s){box(s*3,s*3,1,7,0,0,10);box(s*3-1,s*3+1,0,0,0,2,10);put(s*3,0,-1,10);box(s*3,s*3,4,5,1,1,10)});
+  for(var y=8;y<=14;y++)box(-5,5,y,y,-4,4,y%2?12:14);
+  for(y=15;y<=20;y++)box(-6,6,y,y,-(5-(y-15)),5-(y-15),8);
+  box(-1,1,8,11,5,5,12);put(1,9,5,8);
+  [-1,1].forEach(function(s){box(s*6,s*6,10,12,-1,1,4);put(s*6,11,0,7)});
+  box(3,4,17,22,-2,-1,16);
+  return{"Курячі ніжки":[5,2,3],"Двері":[0,13,6],"Димар":[3.5,25,-1.5]}}},
+
+{id:"coach",sec:"fairy",ic:"🎃",name:"Карета-гарбуз",win:"Карета готова! 🎉",
+ fact:"У казках добра чарівниця може перетворити звичайний гарбуз на розкішну карету для балу.",
+ build:function(put,box,H){
+  for(var x=-7;x<=7;x++)for(var y=3;y<=14;y++)for(var z=-7;z<=7;z++){var a=Math.atan2(x,z),k=1-.08*(1+Math.cos(8*a))/2;
+   var q=Math.pow(x/(6*k),2)+Math.pow((y-8.5)/5,2)+Math.pow(z/(7*k),2);if(q<=1)put(x,y,z,Math.cos(8*a)>.85?8:10)}
+  [-1,1].forEach(function(s){for(var y=7;y<=11;y++)for(var z=-2;z<=2;z++){if(Math.hypot(y-9,z)<=2.3){var c=Math.hypot(y-9,z)>1.5?8:4;for(var x=7;x>=0;x--)if(H.get(s*x,y,z)){put(s*x,y,z,c);break}}}});
+  [-1,1].forEach(function(sx){[-1,1].forEach(function(sz){for(var y=0;y<=6;y++)for(var z=-3;z<=3;z++){var d=Math.hypot(y-3,z);if(d<=3.2&&(d>2.3||Math.abs(y-3)<.5||Math.abs(z)<.5))put(sx*7,y,sz*4+z,8)}})});
+  box(0,0,14,15,0,0,13);put(1,16,0,13);put(-1,15,1,9);
+  return{"Віконце":[8,13,0],"Золоті колеса":[8,-1,5],"Хвостик":[0,18,0]}}},
+
+{id:"chest",sec:"fairy",ic:"💰",name:"Скриня зі скарбами",win:"Скриня готова! 🎉",
+ fact:"У казках скарби ховали в скринях, а мапу до них малювали пірати. Хрестиком на мапі позначали, де копати.",
+ build:function(put,box,H){
+  box(-6,6,0,5,-4,4,12);[-4,4].forEach(function(x){box(x,x,0,5,-4,4,8)});box(-6,6,0,0,-4,4,8);
+  box(-1,1,3,5,5,5,8);put(0,4,5,1);
+  box(-6,6,6,12,-6,-5,12);box(-6,6,6,6,-6,-5,8);[-4,4].forEach(function(x){box(x,x,6,12,-6,-5,8)});
+  var gem=[11,3,9,5];H.ell(0,6,0,5.5,2.6,3.6,function(x,y,z){if(y<6)return 0;var h=H.hs(x,y,z);return h%9===0?gem[h%4]:8});
+  return{"Скарби":[0,11,1],"Замок":[0,7.5,6],"Кришка":[0,15,-5]}}},
+
+{id:"gnome",sec:"fairy",ic:"🧙",name:"Гномик",win:"Гномик готовий! 🎉",
+ fact:"У казках гноми живуть під землею чи в лісі, вміло працюють і бережуть свої скарби.",
+ build:function(put,box,H){
+  H.ell(-2,1,1,1.4,1,2,12);H.ell(2,1,1,1.4,1,2,12);
+  H.ell(0,6,0,3.6,4,3,function(x,y){return y===5?1:3});var z=H.front(0,5,8);
+  H.ell(-3.6,6,1,1,2.4,1,3);H.ell(3.6,6,1,1,2.4,1,3);
+  H.ell(0,12,.5,2.8,2.4,2.6,14);
+  H.ell(0,9.5,2,3,3,2,function(x,y){return y<=11?7:0});
+  H.ell(0,11.6,3.4,.9,.9,.9,15);H.front(-1,13,1);H.front(1,13,1);
+  H.cyl(0,0,14,21,function(y){return 3.2*(1-(y-14)/8.3)},11);put(0,22,-1,11);
+  return{"Ковпак":[0,25,0],"Борода":[0,6,6],"Чобітки":[4,0,3]}}},
+
+{id:"snowman",sec:"fairy",ic:"⛄",name:"Сніговик",win:"Сніговик готовий! 🎉",
+ fact:"Сніговика ліплять зі снігу взимку. Найкраще ліпиться вологий сніг, коли на вулиці близько нуля градусів.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,7.5,4);
+  H.ell(0,4,0,5,4.6,5,7);H.ell(0,11,0,3.8,3.5,3.8,7);H.ell(0,16.5,0,2.8,2.6,2.8,7);
+  for(var y=8;y<=9;y++)for(var x=-4;x<=4;x++)for(var z=-4;z<=4;z++)if(Math.hypot(x,z)<=3.9&&Math.hypot(x,z)>=2.4)put(x,y+5-1,z,11);
+  box(2,2,10,12,3,4,11);
+  H.front(0,11,1);H.front(0,9,1);H.front(0,6,1);H.front(-1,17,1);H.front(1,17,1);
+  var z=H.front(0,16,10);put(0,16,z+1,10);put(0,16,z+2,10);
+  H.cyl(0,0,19,22,2.2,3);H.cyl(0,0,19,19,3,3);
+  H.line([[3,12,0],[6,14,0],[7,16,0]],12);H.line([[-3,12,0],[-6,13,0],[-7,15,1]],12);
+  return{"Відерце":[0,25,0],"Шарф":[4,8,4],"Ніс-морквинка":[0,15,6]}}},
+
+{id:"goat",sec:"fairy",ic:"🐐",name:"Коза-Дереза",win:"Коза-Дереза готова! 🎉",
+ fact:"Коза-Дереза — героїня української народної казки. Вона була хитра й зухвала, але її прогнав маленький Рак-неборак.",
+ build:function(put,box,H){
+  [-1,1].forEach(function(sx){[-1,1].forEach(function(sz){H.cyl(sx*2,sz*3.5,0,5,.8,function(x,y){return y===0?1:16})})});
+  H.ell(0,7.5,0,3.4,3.2,5.5,function(x,y){return y<=5?7:16});H.ell(0,11,5.5,2,2.6,2.2,16);H.ell(0,11.5,7.5,1.8,1.8,2.4,16);
+  H.ell(0,8.6,8.5,.9,1.6,.9,7);put(-1,12,9,1);put(1,12,9,1);
+  [-1,1].forEach(function(s){H.line([[s,13,6],[s*2,15,5],[s*2,16,3],[s*2,15,2]],14);put(s*3,12,6,16);put(s*4,12,6,16)});
+  put(0,10,-5,16);put(0,11,-5,16);
+  return{"Ріжки":[0,19,4],"Борідка":[0,5,10],"Ратички":[3,-1,4]}}},
+
+{id:"ripka",sec:"fairy",ic:"🥬",name:"Ріпка",win:"Ріпка готова! 🎉",
+ fact:"У казці «Ріпка» дід, баба, онучка, Жучка, кішка й мишка разом витягли велику ріпку. Разом — ми сила!",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,0,9,function(x,y,z){return H.hs(x,y,z)%4===0?14:12});
+  H.ell(0,7,0,6,6,6,function(x,y){return y>=9?5:7});H.line([[0,1,0],[0,-1,0]],7);
+  [[0,1],[1,0],[0,-1],[-1,0],[.7,.7]].forEach(function(d,i){var pts=[[0,12,0]];for(var k=1;k<=6;k++)pts.push([Math.round(d[0]*k*.9),12+k*1.4,Math.round(d[1]*k*.9)]);H.line(pts,13);
+   pts.forEach(function(p,j){if(j>2){put(p[0]+(d[1]?1:0),p[1],p[2]+(d[0]?1:0),9);put(p[0]-(d[1]?1:0),p[1],p[2]-(d[0]?1:0),9)}})});
+  return{"Бадилля":[0,23,0],"Ріпка":[7,9,3],"Грядка":[-7,1,6]}}},
+
+{id:"mushh",sec:"fairy",ic:"🍄",name:"Будиночок-гриб",win:"Будиночок готовий! 🎉",
+ fact:"У казках у будиночках-грибах живуть лісові чарівні істоти: гноми, феї та мурахи.",
+ build:function(put,box,H){
+  H.cyl(0,0,-1,-1,8.5,function(x,y,z){return H.hs(x,y,z)%13===0?8:9});
+  H.cyl(0,0,0,9,3.6,14);
+  for(var y=0;y<=4;y++)for(var x=-1;x<=1;x++)if(!(y===4&&x!==0))H.front(x,y,12);H.front(1,2,8);
+  [[-2,7],[2,7]].forEach(function(w){H.front(w[0],w[1],4)});
+  H.ell(0,11,0,7.5,4.5,7.5,function(x,y,z){if(y<9)return 0;if(y===9)return 14;var s=[[3,13,4],[-4,12,4],[0,15,0],[5,12,-2],[-2,13,-5],[0,12,6],[-5,13,0]];
+   for(var i=0;i<s.length;i++)if(Math.hypot(x-s[i][0],y-s[i][1],z-s[i][2])<1.7)return 7;return 11});
+  return{"Шапочка":[0,18,0],"Дверцята":[0,6,6],"Віконця":[-4,9,5]}}}
+);
+
 /* ---------- збереження ---------- */
 function sget(id){try{return localStorage.getItem("fi_kub_"+id)}catch(_){return null}}
 function sset(id,v){try{localStorage.setItem("fi_kub_"+id,v)}catch(_){}}
@@ -640,7 +1108,7 @@ function inv(a){var o=new Float32Array(16),
  o[4]=(a[6]*b08-a[4]*b11-a[7]*b07)*d;o[5]=(a[0]*b11-a[2]*b08+a[3]*b07)*d;o[6]=(a[14]*b02-a[12]*b05-a[15]*b01)*d;o[7]=(a[8]*b05-a[10]*b02+a[11]*b01)*d;
  o[8]=(a[4]*b10-a[5]*b08+a[7]*b06)*d;o[9]=(a[1]*b08-a[0]*b10-a[3]*b06)*d;o[10]=(a[12]*b04-a[13]*b02+a[15]*b00)*d;o[11]=(a[9]*b02-a[8]*b04-a[11]*b00)*d;
  o[12]=(a[5]*b07-a[4]*b09-a[6]*b06)*d;o[13]=(a[0]*b09-a[1]*b07+a[2]*b06)*d;o[14]=(a[13]*b01-a[12]*b03-a[14]*b00)*d;o[15]=(a[8]*b03-a[9]*b01+a[10]*b00)*d;return o}
-var BB=[0,0,0,1,1,1];function fitD(){var a=(cv.clientWidth||1)/(cv.clientHeight||1),P=persp(.7,a,.5,500),lo=2,hi=400;
+var BB=[0,0,0,1,1,1];function fitD(a0){var a=a0||(cv.clientWidth||1)/(cv.clientHeight||1),P=persp(.7,a,.5,500),lo=2,hi=400;
  for(var it=0;it<30;it++){var d=(lo+hi)/2,e=[CEN[0]+Math.sin(HOME.az)*Math.cos(HOME.el)*d,CEN[1]+Math.sin(HOME.el)*d,CEN[2]+Math.cos(HOME.az)*Math.cos(HOME.el)*d],M=mul(P,look(e,CEN)),ok=true;
   for(var c=0;c<8&&ok;c++){var v=[c&1?BB[3]+.5:BB[0]-.5,c&2?BB[4]+.5:BB[1]-.5,c&4?BB[5]+.5:BB[2]-.5],o=[0,0,0,0];for(var i=0;i<4;i++)o[i]=M[i]*v[0]+M[4+i]*v[1]+M[8+i]*v[2]+M[12+i];
    if(o[3]<=0||Math.abs(o[0]/o[3])>.86||Math.abs(o[1]/o[3])>.8)ok=false}
@@ -662,12 +1130,28 @@ function pick(cx_,cy_){if(!VPm)return null;var r=cv.getBoundingClientRect(),x=(c
   for(var i=0;i<3&&ok;i++){var lo=p[i]-.5,hi=p[i]+.5;if(Math.abs(d[i])<1e-9){if(a[i]<lo||a[i]>hi)ok=false}else{var ta=(lo-a[i])/d[i],tb=(hi-a[i])/d[i];if(ta>tb){var s=ta;ta=tb;tb=s}t0=Math.max(t0,ta);t1=Math.min(t1,tb);if(t0>t1)ok=false}}
   if(ok&&t0>0&&t0<bt){bt=t0;best=k}}return best}
 /* ---------- завантаження моделі ---------- */
-function loadModel(id){var m=MODELS.filter(function(x){return x.id===id})[0];if(!m)return;CUR=m;
- V={};var P_=function(x,y,z,c){V[x+","+y+","+z]=c};parts=m.build(P_,function(x0,x1,y0,y1,z0,z1,c){for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++)for(var z=z0;z<=z1;z++)V[x+","+y+","+z]=c},mkH(P_,function(x,y,z){return V[x+","+y+","+z]}));
- keys=Object.keys(V);var bb=[1e9,1e9,1e9,-1e9,-1e9,-1e9];keys.forEach(function(k){var p=k.split(",").map(Number);for(var i=0;i<3;i++){bb[i]=Math.min(bb[i],p[i]);bb[i+3]=Math.max(bb[i+3],p[i])}});
+function buildV(m){V={};var P_=function(x,y,z,c){V[x+","+y+","+z]=c};return m.build(P_,function(x0,x1,y0,y1,z0,z1,c){for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++)for(var z=z0;z<=z1;z++)V[x+","+y+","+z]=c},mkH(P_,function(x,y,z){return V[x+","+y+","+z]}))}
+function prep(){keys=Object.keys(V);var bb=[1e9,1e9,1e9,-1e9,-1e9,-1e9];keys.forEach(function(k){var p=k.split(",").map(Number);for(var i=0;i<3;i++){bb[i]=Math.min(bb[i],p[i]);bb[i+3]=Math.max(bb[i+3],p[i])}});
  CEN=[(bb[0]+bb[3])/2,(bb[1]+bb[4])/2,(bb[2]+bb[5])/2];SPAN=Math.max(bb[3]-bb[0],bb[4]-bb[1],bb[5]-bb[2])+1;BB=bb;
- exposed={};painted={};expList=[];need=0;done=0;left={};
- keys.forEach(function(k){var p=k.split(",").map(Number);if(DIRS.some(function(d){return!has(p[0]+d[0],p[1]+d[1],p[2]+d[2])})){exposed[k]=1;expList.push(k)}else painted[k]=1});
+ exposed={};painted={};expList=[];keys.forEach(function(k){var p=k.split(",").map(Number);if(DIRS.some(function(d){return!has(p[0]+d[0],p[1]+d[1],p[2]+d[2])})){exposed[k]=1;expList.push(k)}else painted[k]=1})}
+/* ---------- мініатюри моделей для меню ---------- */
+var TH={},thQ=[],thFB=null,thTX=null,TS=160;
+function thumb(m){CUR=null;buildV(m);prep();expList.forEach(function(k){painted[k]=1});buildMesh();
+ if(!thFB){thFB=gl.createFramebuffer();thTX=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,thTX);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,TS,TS,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);var rb=gl.createRenderbuffer();gl.bindRenderbuffer(gl.RENDERBUFFER,rb);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,TS,TS);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,thFB);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,thTX,0);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,rb);gl.bindTexture(gl.TEXTURE_2D,tex)}
+ gl.bindFramebuffer(gl.FRAMEBUFFER,thFB);gl.viewport(0,0,TS,TS);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ var d=fitD(1)*.86,eye=[CEN[0]+Math.sin(HOME.az)*Math.cos(HOME.el)*d,CEN[1]+Math.sin(HOME.el)*d,CEN[2]+Math.cos(HOME.az)*Math.cos(HOME.el)*d];
+ gl.uniformMatrix4fv(U.VP,false,mul(persp(.7,1,.5,500),look(eye,CEN)));gl.uniform1f(U.SEL,-9);gl.uniform1f(U.T,0);var L=[.4,.85,.55],l=Math.hypot(L[0],L[1],L[2]);gl.uniform3f(U.L,L[0]/l,L[1]/l,L[2]/l);
+ gl.drawElements(gl.TRIANGLES,nI,big?gl.UNSIGNED_INT:gl.UNSIGNED_SHORT,0);
+ var px=new Uint8Array(TS*TS*4);gl.readPixels(0,0,TS,TS,gl.RGBA,gl.UNSIGNED_BYTE,px);gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+ var c2=document.createElement("canvas");c2.width=c2.height=TS;var x2=c2.getContext("2d"),im=x2.createImageData(TS,TS);
+ for(var y=0;y<TS;y++)im.data.set(px.subarray((TS-1-y)*TS*4,(TS-y)*TS*4),y*TS*4);x2.putImageData(im,0,0);return c2.toDataURL("image/png")}
+function thStep(){if($("menu").hidden||!thQ.length)return;var m=thQ.shift();if(!TH[m.id]){try{TH[m.id]=thumb(m)}catch(e){TH[m.id]="x"}}
+ var b=document.querySelector('#secs .card[data-id="'+m.id+'"] .ic');if(b&&TH[m.id]!=="x")b.innerHTML='<img alt="" src="'+TH[m.id]+'">';setTimeout(thStep,0)}
+function loadModel(id){var m=MODELS.filter(function(x){return x.id===id})[0];if(!m)return;CUR=m;
+ parts=buildV(m);
+ prep();need=0;done=0;left={};
  need=expList.length;var s=sget(m.id);if(!s||s.length!==need)s="";
  expList.forEach(function(k,i){if(s[i]==="1"){painted[k]=1;done++}else left[V[k]]=(left[V[k]]||0)+1});
  buildMesh();clearFinish();
@@ -718,10 +1202,10 @@ var ICONS={
 function openMenu(){var h="";SECS.forEach(function(s){var ms=MODELS.filter(function(m){return m.sec===s.id});
   h+='<section class="sec"><h2>'+s.t+(s.soon?'<em>скоро</em>':'')+'</h2><div class="grid">';
   if(s.soon)h+='<div class="card soon" aria-disabled="true"><span class="ic">🔒</span><span class="nm">Готуємо нові моделі</span></div>';
-  ms.forEach(function(m){var p=Math.round(progOf(m)*100),ic=ICONS[m.id]||m.ic;h+='<button type="button" class="card" data-id="'+m.id+'"><span class="ic">'+ic+'</span><span class="nm">'+m.name+'</span><span class="pb"><i style="width:'+p+'%"></i></span><span class="pt">'+(p>=100?"Готово ✓":p?p+"%":"Почати")+'</span></button>'});
+  ms.forEach(function(m){var p=Math.round(progOf(m)*100),ic=(TH[m.id]&&TH[m.id]!=="x")?'<img alt="" src="'+TH[m.id]+'">':(ICONS[m.id]||m.ic);h+='<button type="button" class="card" data-id="'+m.id+'"><span class="ic">'+ic+'</span><span class="nm">'+m.name+'</span><span class="pb"><i style="width:'+p+'%"></i></span><span class="pt">'+(p>=100?"Готово ✓":p?p+"%":"Почати")+'</span></button>'});
   h+='</div></section>'});
  $("secs").innerHTML=h;[].forEach.call(document.querySelectorAll("#secs .card[data-id]"),function(b){b.onclick=function(){loadModel(b.dataset.id)}});
- $("menu").hidden=false;$("menu").scrollTop=0}
+ $("menu").hidden=false;$("menu").scrollTop=0;if(gl){thQ=MODELS.filter(function(m){return!TH[m.id]});setTimeout(thStep,50)}}
 /* ---------- керування ---------- */
 var down=null,PT={};
 function clampEl(v){return Math.max(-1.3,Math.min(1.45,v))}
