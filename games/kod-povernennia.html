@@ -111,11 +111,6 @@ body.dragging-cmd,body.dragging-cmd *{cursor:grabbing!important}
   box-shadow:0 0 24px rgba(98,227,255,.35)}
 .primary.stop{background:var(--danger);box-shadow:0 0 24px rgba(255,107,129,.35);color:#1a0509}
 #btnRun{flex:1}
-#btnCert{color:var(--amber,#f2b23a)}
-.certprev{width:100%;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.45);display:block;margin-top:10px}
-.card:has(.certprev){max-width:640px}
-#certPrint{display:none}
-@media print{body>*:not(#certPrint){display:none!important}#certPrint{display:block!important}#certPrint img{width:100%;height:auto}@page{size:A4 landscape;margin:0}html,body{background:#fff!important;height:auto!important;overflow:visible!important}}
 /* Draft (чернетка): write the whole route freely, find repeated groups, turn them into functions.
    Wide screens show it in the panel; phones and portrait tablets open it as a full-screen sheet. */
 .draft{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;border:1px dashed rgba(150,180,230,.3);background:rgba(8,12,24,.45);min-height:0}
@@ -350,7 +345,7 @@ h1 em{font-style:normal;color:var(--neon);text-shadow:0 0 22px rgba(98,227,255,.
       <div class="stages" id="stageTabs"></div>
       <div class="stageinfo" id="stageInfo"></div>
       <div class="levels" id="levelGrid"></div>
-      <div class="menu-foot"><span id="who"></span><span class="links"><button class="linkbtn" id="btnCert" data-i18n="certBtn" hidden>🎓 Сертифікат</button><button class="linkbtn" id="btnWho" data-i18n="switchPlayer">Змінити гравця</button><button class="linkbtn" id="btnCode" data-i18n="myCode">Мій код</button></span></div>
+      <div class="menu-foot"><span id="who"></span><span class="links"><button class="linkbtn" id="btnWho" data-i18n="switchPlayer">Змінити гравця</button><button class="linkbtn" id="btnCode" data-i18n="myCode">Мій код</button></span></div>
     </div>
   </div>
   <div id="modal" hidden><div class="card" id="card"></div></div>
@@ -817,10 +812,6 @@ const I18N = {
     stageReward: n => `Нагорода етапу ${n}`, levelDone: n => `Рівень ${n} пройдено`, partInBag: 'Деталь у кошику', didYouKnow: 'Чи знаєш ти?',
     stat: (u, o) => `Команд у програмі: ${u} · найкоротше відоме рішення: ${o}`, menu: 'Меню', replay: 'Повторити', next: 'Далі',
     capStage: (s, name) => `Етап ${s} · ${name}`, capFlying: 'Деталі збираються до ракети…', capPart: (s, i) => `Етап ${s} · деталь ${i} з 20`, capDone: s => `Етап ${s} зібрано!`,
-    certBtn: '🎓 Сертифікат', certGet: '🎓 Отримати сертифікат', certH: 'Твій сертифікат', certName: 'ІМ’Я НА СЕРТИФІКАТІ',
-    certNote: 'Можна вписати справжнє ім’я — воно потрапить лише на картинку й нікуди не надсилається.', certDownload: 'Завантажити', certPrint: 'Друкувати', certBad: 'Це ім’я не підходить для сертифіката.',
-    cTitle: 'СЕРТИФІКАТ', cRank: 'Пілот Місяця', cGiven: 'засвідчує, що', cFor: 'пройшов(-ла) всі 100 рівнів гри «Код повернення»: склав(-ла) програми для космонавта, зібрав(-ла) ракету зі 100 деталей і повернув(-ла) його на Землю.',
-    cStars: x => `★ ${x} з 300 зірок`, cSkills: 'Навички: алгоритми · функції · пошук помилок', cSign: 'Підпис учителя', cDate: 'Дата', cSite: 'Файна Інформатика',
     liftoff: 'Старт!', finEyebrow: 'Місію виконано · 100 / 100 деталей', finH: 'Курс на Землю',
     finP: 'Усі запчастини на місці. Двигуни на кристалах-паливі вивели ракету з поверхні Місяця, і космонавт повертається додому.',
     summary: 'Підсумок', starsTotal: x => `Зірок зібрано: ${x} з 300`, toMenu: 'До меню',
@@ -870,10 +861,6 @@ const I18N = {
     stageReward: n => `Stage ${n} reward`, levelDone: n => `Level ${n} complete`, partInBag: 'Part collected', didYouKnow: 'Did you know?',
     stat: (u, o) => `Commands in your program: ${u} · shortest known solution: ${o}`, menu: 'Menu', replay: 'Replay', next: 'Next',
     capStage: (s, name) => `Stage ${s} · ${name}`, capFlying: 'The parts are flying to the rocket…', capPart: (s, i) => `Stage ${s} · part ${i} of 20`, capDone: s => `Stage ${s} complete!`,
-    certBtn: '🎓 Certificate', certGet: '🎓 Get your certificate', certH: 'Your certificate', certName: 'NAME ON THE CERTIFICATE',
-    certNote: 'You can type your real name — it only goes onto the picture and is never sent anywhere.', certDownload: 'Download', certPrint: 'Print', certBad: 'This name can’t go on a certificate.',
-    cTitle: 'CERTIFICATE', cRank: 'Moon Pilot', cGiven: 'This certifies that', cFor: 'has completed all 100 levels of “Return Code”: wrote programs for the astronaut, built a 100-part rocket and flew home to Earth.',
-    cStars: x => `★ ${x} of 300 stars`, cSkills: 'Skills: algorithms · functions · debugging', cSign: 'Teacher’s signature', cDate: 'Date', cSite: 'Fayna Informatyka',
     liftoff: 'Liftoff!', finEyebrow: 'Mission complete · 100 / 100 parts', finH: 'Heading for Earth',
     finP: 'Every part is in place. Engines running on fuel crystals lifted the rocket off the Moon, and the astronaut is on the way home.',
     summary: 'Summary', starsTotal: x => `Stars earned: ${x} of 300`, toMenu: 'Back to menu',
@@ -3265,96 +3252,7 @@ async function launchSequence() {
   modal(`<p class="eyebrow">${t('finEyebrow')}</p><h2>${t('finH')}</h2>
     <p>${t('finP')}</p>
     <div class="reward"><b>${t('summary')}</b>${t('starsTotal', Object.values(save.done).reduce((a, b) => a + b, 0))}</div>`,
-    [{ label: t('toMenu'), fn: () => { resetRocket(); showMenu(); } },
-     { label: t('certGet'), primary: true, fn: () => { resetRocket(); showMenu(); setTimeout(certModal, 50); } }]);
-}
-/* ---------------- certificate (drawn locally; the name never leaves the device) ---------------- */
-async function drawCert(name) {
-  const W = 2000, H = 1414, c = document.createElement('canvas'); c.width = W; c.height = H;
-  const x = c.getContext('2d'), NAVY = '#16226e', CY = '#0f8fb3', AMB = '#f29d12', INK = '#1d2540', MUT = '#5b6684';
-  try { await Promise.all(['900 120px Unbounded', '700 60px Unbounded', '800 40px Manrope', '600 30px Manrope'].map(f => document.fonts.load(f, 'АБВabc'))); } catch (e) { }
-  const DSP = '"Unbounded","Manrope",system-ui,sans-serif', TXT = '"Manrope",system-ui,sans-serif';
-  x.fillStyle = '#fbfaf5'; x.fillRect(0, 0, W, H);
-  const gl = x.createRadialGradient(W * .5, H * .35, 100, W * .5, H * .4, 1100); gl.addColorStop(0, 'rgba(98,227,255,.10)'); gl.addColorStop(1, 'rgba(98,227,255,0)'); x.fillStyle = gl; x.fillRect(0, 0, W, H);
-  x.strokeStyle = NAVY; x.lineWidth = 14; x.strokeRect(40, 40, W - 80, H - 80);
-  x.strokeStyle = AMB; x.lineWidth = 4; x.strokeRect(70, 70, W - 140, H - 140);
-  const star = (cx, cy, r, col) => { x.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.closePath(); x.fillStyle = col; x.fill(); };
-  [[150, 160, 18], [230, 120, 10], [1850, 150, 16], [1770, 210, 9], [140, 1260, 12], [1860, 1250, 18], [1790, 1300, 9]].forEach(([a, b, r], i) => star(a, b, r, i % 2 ? CY : AMB));
-  // moon (left), earth (right), dotted flight path with a rocket
-  x.fillStyle = '#d9dbe3'; x.beginPath(); x.arc(240, 520, 95, 0, 7); x.fill(); x.fillStyle = '#c4c7d2'; [[205, 490, 20], [270, 560, 14], [250, 470, 10]].forEach(([a, b, r]) => { x.beginPath(); x.arc(a, b, r, 0, 7); x.fill(); });
-  const eg = x.createRadialGradient(1740, 500, 20, 1760, 520, 110); eg.addColorStop(0, '#6fd2ff'); eg.addColorStop(1, '#1d6fc4'); x.fillStyle = eg; x.beginPath(); x.arc(1760, 520, 105, 0, 7); x.fill();
-  x.fillStyle = '#4fc27d'; x.beginPath(); x.ellipse(1730, 490, 40, 26, .5, 0, 7); x.fill(); x.beginPath(); x.ellipse(1795, 560, 30, 18, -.4, 0, 7); x.fill();
-  x.setLineDash([4, 18]); x.lineCap = 'round'; x.strokeStyle = 'rgba(22,34,110,.4)'; x.lineWidth = 6; x.beginPath(); x.moveTo(340, 470); x.bezierCurveTo(560, 380, 620, 470, 760, 470); x.moveTo(1240, 470); x.bezierCurveTo(1400, 470, 1450, 380, 1650, 470); x.stroke(); x.setLineDash([]);
-  const C = (txt, y, font, col) => { x.font = font; x.fillStyle = col; x.textAlign = 'center'; x.fillText(txt, W / 2, y); };
-  C(t('cSite').toUpperCase(), 175, `800 34px ${TXT}`, CY);
-  C(t('cTitle'), 300, `900 118px ${DSP}`, NAVY);
-  C(t('cRank'), 405, `700 64px ${DSP}`, AMB);
-  C(t('cGiven'), 575, `600 38px ${TXT}`, MUT);
-  let fs = 112; x.font = `700 ${fs}px ${DSP}`; while (x.measureText(name).width > 1300 && fs > 50) { fs -= 4; x.font = `700 ${fs}px ${DSP}`; }
-  C(name, 715, `700 ${fs}px ${DSP}`, INK);
-  x.strokeStyle = 'rgba(22,34,110,.35)'; x.lineWidth = 3; x.beginPath(); x.moveTo(500, 755); x.lineTo(1500, 755); x.stroke();
-  x.font = `600 38px ${TXT}`; x.fillStyle = INK; x.textAlign = 'center';
-  const lines = []; let ln = '';
-  for (const w of t('cFor').split(' ')) { const tr = ln ? ln + ' ' + w : w; if (x.measureText(tr).width > 1380) { lines.push(ln); ln = w; } else ln = tr; } lines.push(ln);
-  lines.forEach((l, i) => x.fillText(l, W / 2, 830 + i * 54));
-  const stars = Object.values(save.done).reduce((a, b) => a + b, 0);
-  C(t('cStars', stars), 1012, `800 44px ${TXT}`, AMB);
-  C(t('cSkills'), 1068, `600 32px ${TXT}`, MUT);
-  const months = LANG === 'uk' ? ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const d = new Date(), ds = LANG === 'uk' ? `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}` : `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-  x.textAlign = 'center'; x.fillStyle = INK; x.font = `700 36px ${TXT}`; x.fillText(ds, 420, 1238);
-  x.strokeStyle = 'rgba(22,34,110,.45)'; x.lineWidth = 3; x.beginPath(); x.moveTo(250, 1260); x.lineTo(590, 1260); x.moveTo(1410, 1260); x.lineTo(1750, 1260); x.stroke();
-  x.fillStyle = MUT; x.font = `600 26px ${TXT}`; x.fillText(t('cDate'), 420, 1300); x.fillText(t('cSign'), 1580, 1300);
-  // seal with a rocket
-  x.save(); x.translate(1000, 1232);
-  x.fillStyle = NAVY; x.beginPath(); x.arc(0, 0, 104, 0, 7); x.fill();
-  x.strokeStyle = AMB; x.lineWidth = 6; x.beginPath(); x.arc(0, 0, 90, 0, 7); x.stroke();
-  x.fillStyle = '#fff'; x.font = `700 20px ${DSP}`; x.fillText('100 / 100', 0, 68);
-  x.font = `700 12px ${DSP}`; x.fillText(LANG === 'uk' ? 'КОД ПОВЕРНЕННЯ' : 'RETURN CODE', 0, -56);
-  x.save(); x.scale(.62, .62); x.translate(0, 10);
-  x.fillStyle = '#ff8a3d'; x.beginPath(); x.moveTo(-14, 52); x.lineTo(0, 86); x.lineTo(14, 52); x.fill();
-  x.fillStyle = AMB; x.beginPath(); x.moveTo(-24, 30); x.lineTo(-44, 62); x.lineTo(-20, 54); x.fill(); x.beginPath(); x.moveTo(24, 30); x.lineTo(44, 62); x.lineTo(20, 54); x.fill();
-  x.fillStyle = '#fff'; x.beginPath(); x.moveTo(0, -70); x.quadraticCurveTo(34, -30, 26, 56); x.lineTo(-26, 56); x.quadraticCurveTo(-34, -30, 0, -70); x.fill();
-  x.fillStyle = '#62e3ff'; x.beginPath(); x.arc(0, -10, 13, 0, 7); x.fill(); x.restore(); x.restore();
-  // the rocket flying between moon and earth
-  x.save(); x.translate(1000, 455); x.rotate(Math.PI / 2);
-  x.fillStyle = '#ff8a3d'; x.beginPath(); x.moveTo(-14, 52); x.lineTo(0, 92); x.lineTo(14, 52); x.fill();
-  x.fillStyle = NAVY; x.beginPath(); x.moveTo(-24, 34); x.lineTo(-44, 66); x.lineTo(-20, 56); x.fill(); x.beginPath(); x.moveTo(24, 34); x.lineTo(44, 66); x.lineTo(20, 56); x.fill();
-  x.fillStyle = '#fff'; x.strokeStyle = NAVY; x.lineWidth = 6; x.beginPath(); x.moveTo(0, -70); x.quadraticCurveTo(34, -30, 26, 56); x.lineTo(-26, 56); x.quadraticCurveTo(-34, -30, 0, -70); x.fill(); x.stroke();
-  x.fillStyle = '#62e3ff'; x.beginPath(); x.arc(0, -8, 13, 0, 7); x.fill(); x.stroke(); x.restore();
-  return c;
-}
-let certCanvas = null, certSeq = 0;
-function certModal() {
-  const p = curProfile();
-  modal(`<h2>${t('certH')}</h2><label class="fld"><span>${t('certName')}</span><input id="certIn" maxlength="40" autocomplete="off" value="${escapeHtml(p && !nickProblem(p.nick) ? p.nick : '')}"></label>
-    <p class="hintline">${t('certNote')}</p><p class="err" id="err" role="alert"></p><img id="certImg" class="certprev" alt="">`,
-    [{ label: t('certPrint'), check: () => { certOut('print'); return false; } },
-     { label: t('certDownload'), check: () => { certOut('png'); return false; } },
-     { label: t('done'), primary: true }]);
-  let timer = 0;
-  $('certIn').oninput = () => { clearTimeout(timer); timer = setTimeout(certPreview, 250); };
-  certPreview();
-}
-async function certPreview() {
-  const v = ($('certIn')?.value || '').replace(/\s+/g, ' ').trim(), seq = ++certSeq;
-  if (v && nickIsBad(v)) { certCanvas = null; $('err').textContent = t('certBad'); return; }
-  $('err').textContent = '';
-  const c = await drawCert(v || '______________');
-  if (seq !== certSeq) return;
-  certCanvas = c;
-  if ($('certImg')) $('certImg').src = c.toDataURL('image/jpeg', .85);
-}
-function certOut(kind) {
-  if (!certCanvas) return;
-  SFX.play('ui');
-  if (kind === 'png') {
-    certCanvas.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = (LANG === 'uk' ? 'sertyfikat-kod-povernennia' : 'certificate-return-code') + '.png'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }, 'image/png');
-  } else {
-    let box = $('certPrint'); if (!box) { box = document.createElement('div'); box.id = 'certPrint'; document.body.appendChild(box); }
-    box.innerHTML = `<img src="${certCanvas.toDataURL('image/png')}" alt="">`;
-    setTimeout(() => window.print(), 150);
-  }
+    [{ label: t('toMenu'), primary: true, fn: () => { resetRocket(); showMenu(); } }]);
 }
 function resetRocket() {
   ROCKET.root.position.copy(ROCKET_POS); ROCKET.flames.forEach(f => f.visible = false); ROCKET.engineLight.intensity = 0;
@@ -3486,7 +3384,6 @@ function showMenu() {
 }
 function renderMenu() {
   const dc = doneCount(), nl = nextLevel();
-  $('btnCert').hidden = !save.done[100];
   $('pfill').style.width = dc + '%';
   $('ptext').innerHTML = t('partsCount', dc);
   const all = dc >= 100;
@@ -3517,7 +3414,6 @@ $('btnRun').onclick = run;
 $('btnClear').onclick = () => { if (running) return; if (program[activeRow].length) SFX.play('clear'); program[activeRow] = []; if (activeRow === 'draft') draftSel = null; saveDraft(); renderProgram(); };
 $('btnSpeed').onclick = () => { SFX.play('ui'); speed = speed === 1 ? 2 : speed === 2 ? 3 : 1; $('btnSpeed').textContent = '×' + speed; };
 $('btnWho').onclick = () => { SFX.play('ui'); logout(); };
-$('btnCert').onclick = () => { SFX.play('ui'); certModal(); };
 $('btnBoard').onclick = () => { SFX.play('ui'); boardModal(); };
 $('btnCode').onclick = () => { SFX.play('ui'); codeModal(); };
 
