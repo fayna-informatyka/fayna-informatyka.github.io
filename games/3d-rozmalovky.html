@@ -89,6 +89,7 @@ button:focus-visible{outline:4px solid #7FA7C9;outline-offset:2px}
       <button type="button" id="cD" aria-label="Подивитися знизу">⤓</button>
       <button type="button" id="cZi" aria-label="Наблизити">＋</button>
       <button type="button" id="cZo" aria-label="Віддалити">－</button>
+      <button type="button" id="cF" aria-label="Знайти кубик вибраного кольору">🔍</button>
       <button type="button" id="cH" aria-label="Повернути модель на місце">⌂</button>
     </div>
     <div id="tip" hidden></div>
@@ -1120,7 +1121,7 @@ MODELS.push(
  build:function(put,box,H){
   H.cyl(0,0,-1,0,9,function(x,y,z){return H.hs(x,y,z)%4===0?14:12});
   H.ell(0,7,0,6,6,6,function(x,y){return y>=9?5:7});H.line([[0,1,0],[0,-1,0]],7);
-  [[0,1],[1,0],[0,-1],[-1,0],[.7,.7]].forEach(function(d,i){var pts=[[0,12,0]];for(var k=1;k<=6;k++)pts.push([Math.round(d[0]*k*.9),12+k*1.4,Math.round(d[1]*k*.9)]);H.line(pts,13);
+  [[0,1],[1,0],[0,-1],[-1,0],[.7,.7]].forEach(function(d,i){var pts=[[0,12,0]];for(var k=1;k<=6;k++)pts.push([Math.round(d[0]*k*.9),Math.round(12+k*1.4),Math.round(d[1]*k*.9)]);H.line(pts,13);
    pts.forEach(function(p,j){if(j>2){put(p[0]+(d[1]?1:0),p[1],p[2]+(d[0]?1:0),9);put(p[0]-(d[1]?1:0),p[1],p[2]-(d[0]?1:0),9)}})});
   return{"Бадилля":[0,23,0],"Ріпка":[7,9,3],"Грядка":[-7,1,6]}}},
 
@@ -1196,12 +1197,12 @@ var BB=[0,0,0,1,1,1];function fitD(a0){var a=a0||(cv.clientWidth||1)/(cv.clientH
   for(var c=0;c<8&&ok;c++){var v=[c&1?BB[3]+.5:BB[0]-.5,c&2?BB[4]+.5:BB[1]-.5,c&4?BB[5]+.5:BB[2]-.5],o=[0,0,0,0];for(var i=0;i<4;i++)o[i]=M[i]*v[0]+M[4+i]*v[1]+M[8+i]*v[2]+M[12+i];
    if(o[3]<=0||Math.abs(o[0]/o[3])>.86||Math.abs(o[1]/o[3])>.8)ok=false}
   if(ok)hi=d;else lo=d}return hi}
-var HOME={az:.55,el:.42,dist:20},cam={az:.55,el:.42,dist:20,taz:.55,tel:.42,tdist:20,spin:0},VPm=null;
+var HOME={az:.55,el:.42,dist:20},cam={az:.55,el:.42,dist:20,taz:.55,tel:.42,tdist:20,spin:0,c:[0,0,0],tc:[0,0,0]},VPm=null;
 function size(){var d=Math.min(window.devicePixelRatio||1,2),w=Math.round(cv.clientWidth*d),h=Math.round(cv.clientHeight*d);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}}
 function frame(ts){requestAnimationFrame(frame);if(!CUR||!$("menu").hidden)return;size();var t=ts/1000;
  cam.az+=(cam.taz-cam.az)*.15;cam.el+=(cam.tel-cam.el)*.15;cam.dist+=(cam.tdist-cam.dist)*.15;if(cam.spin)cam.taz+=.008;
- var eye=[CEN[0]+Math.sin(cam.az)*Math.cos(cam.el)*cam.dist,CEN[1]+Math.sin(cam.el)*cam.dist,CEN[2]+Math.cos(cam.az)*Math.cos(cam.el)*cam.dist];
- VPm=mul(persp(.7,cv.width/cv.height,.5,500),look(eye,CEN));gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ for(var ci=0;ci<3;ci++)cam.c[ci]+=(cam.tc[ci]-cam.c[ci])*.12;var C=cam.c,eye=[C[0]+Math.sin(cam.az)*Math.cos(cam.el)*cam.dist,C[1]+Math.sin(cam.el)*cam.dist,C[2]+Math.cos(cam.az)*Math.cos(cam.el)*cam.dist];
+ VPm=mul(persp(.7,cv.width/cv.height,.5,500),look(eye,C));gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
  gl.uniformMatrix4fv(U.VP,false,VPm);gl.uniform1f(U.SEL,sel);gl.uniform1f(U.T,t);var L=[.4,.85,.55],l=Math.hypot(L[0],L[1],L[2]);gl.uniform3f(U.L,L[0]/l,L[1]/l,L[2]/l);
  if(dirty){upCol();dirty=false}gl.drawElements(gl.TRIANGLES,nI,big?gl.UNSIGNED_INT:gl.UNSIGNED_SHORT,0);
  if(finished)placeLabels()}
@@ -1216,7 +1217,19 @@ function pick(cx_,cy_){if(!VPm)return null;var r=cv.getBoundingClientRect(),x=(c
 function buildV(m){V={};var P_=function(x,y,z,c){V[x+","+y+","+z]=c};return m.build(P_,function(x0,x1,y0,y1,z0,z1,c){for(var x=x0;x<=x1;x++)for(var y=y0;y<=y1;y++)for(var z=z0;z<=z1;z++)V[x+","+y+","+z]=c},mkH(P_,function(x,y,z){return V[x+","+y+","+z]}))}
 function prep(){keys=Object.keys(V);var bb=[1e9,1e9,1e9,-1e9,-1e9,-1e9];keys.forEach(function(k){var p=k.split(",").map(Number);for(var i=0;i<3;i++){bb[i]=Math.min(bb[i],p[i]);bb[i+3]=Math.max(bb[i+3],p[i])}});
  CEN=[(bb[0]+bb[3])/2,(bb[1]+bb[4])/2,(bb[2]+bb[5])/2];SPAN=Math.max(bb[3]-bb[0],bb[4]-bb[1],bb[5]-bb[2])+1;BB=bb;
- exposed={};painted={};expList=[];keys.forEach(function(k){var p=k.split(",").map(Number);if(DIRS.some(function(d){return!has(p[0]+d[0],p[1]+d[1],p[2]+d[2])})){exposed[k]=1;expList.push(k)}else painted[k]=1})}
+ exposed={};painted={};expList=[];VDIR={};keys.forEach(function(k){var p=k.split(",").map(Number);var d=DIRS.some(function(d){return!has(p[0]+d[0],p[1]+d[1],p[2]+d[2])})?visDir(p,bb):null;
+  if(d){exposed[k]=1;expList.push(k);VDIR[k]=d}else painted[k]=1})}
+/* кубик рахується, лише якщо його справді видно хоч під якимсь кутом камери */
+var VD=[],VDIR={};for(var el_=-1.2;el_<=1.45;el_+=.3)for(var az_=0;az_<Math.PI*2-1e-6;az_+=Math.PI/12)VD.push([Math.sin(az_)*Math.cos(el_),Math.sin(el_),Math.cos(az_)*Math.cos(el_)]);
+VD.sort(function(a,b){return Math.abs(a[1]-.45)-Math.abs(b[1]-.45)});
+function clearRay(p,d,bb){var x=p[0],y=p[1],z=p[2],st=[],tm=[],td=[],P=[x,y,z];
+ for(var i=0;i<3;i++){st[i]=d[i]>0?1:d[i]<0?-1:0;td[i]=st[i]?1/Math.abs(d[i]):Infinity;tm[i]=st[i]?.5/Math.abs(d[i]):Infinity}
+ for(var n=0;n<400;n++){var m=tm[0]<=tm[1]?(tm[0]<=tm[2]?0:2):(tm[1]<=tm[2]?1:2);
+  for(var j=0;j<3;j++)if(j!==m&&Math.abs(tm[j]-tm[m])<1e-6){var Q=P.slice();Q[j]+=st[j];if(has(Q[0],Q[1],Q[2]))return false}  // ребро/кут — обережно
+  P[m]+=st[m];tm[m]+=td[m];
+  if(P[0]<bb[0]-1||P[0]>bb[3]+1||P[1]<bb[1]-1||P[1]>bb[4]+1||P[2]<bb[2]-1||P[2]>bb[5]+1)return true;
+  if(has(P[0],P[1],P[2]))return false}return false}
+function visDir(p,bb,all){var R=[];for(var i=0;i<VD.length;i++){if(clearRay(p,VD[i],bb)){if(!all)return VD[i];R.push(VD[i])}}return all?R:null}
 /* ---------- мініатюри моделей для меню ---------- */
 var TH={},thQ=[],thFB=null,thTX=null,TS=160;
 function thumb(m){CUR=null;buildV(m);prep();expList.forEach(function(k){painted[k]=1});buildMesh();
@@ -1241,7 +1254,7 @@ function loadModel(id){var m=MODELS.filter(function(x){return x.id===id})[0];if(
  $("mName").textContent=m.name;document.title="3D-розмальовки — "+m.name;
  sel=1;for(var c=1;c<PAL.length;c++)if(left[c]){sel=c;break}
  $("menu").hidden=true;
- HOME.dist=fitD();cam.az=cam.taz=HOME.az+.6;cam.el=cam.tel=HOME.el;cam.dist=HOME.dist*1.25;cam.taz=HOME.az;cam.tdist=HOME.dist;cam.spin=0;
+ HOME.dist=fitD();cam.az=cam.taz=HOME.az+.6;cam.el=cam.tel=HOME.el;cam.dist=HOME.dist*1.25;cam.taz=HOME.az;cam.tdist=HOME.dist;cam.spin=0;cam.c=CEN.slice();cam.tc=CEN.slice();
  buildPal();
  if(done>=need)finish(true);else tip(done?"Продовжуємо! Обери колір і фарбуй кубики з таким самим номером 🎨":"Обери колір унизу й натискай на кубики з таким самим номером. Крути модель, потягнувши по порожньому місцю або двома пальцями")}
 var saveT=0;function save(){clearTimeout(saveT);saveT=setTimeout(saveNow,400)}
@@ -1310,10 +1323,15 @@ cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
 cv.addEventListener("wheel",function(e){e.preventDefault();cam.tdist=Math.max(HOME.dist*.3,Math.min(HOME.dist*1.9,cam.tdist*(e.deltaY>0?1.1:.9)))},{passive:false});
 $("cL").onclick=function(){cam.taz-=Math.PI/4};$("cR").onclick=function(){cam.taz+=Math.PI/4};$("cU").onclick=function(){cam.tel=clampEl(cam.tel+.35)};$("cD").onclick=function(){cam.tel=clampEl(cam.tel-.35)};
 $("cZi").onclick=function(){cam.tdist=Math.max(HOME.dist*.3,cam.tdist*.85)};$("cZo").onclick=function(){cam.tdist=Math.min(HOME.dist*1.9,cam.tdist*1.15)};
-$("cH").onclick=function(){cam.taz=HOME.az;cam.tel=HOME.el;cam.tdist=HOME.dist};
+$("cH").onclick=function(){cam.taz=HOME.az;cam.tel=HOME.el;cam.tdist=HOME.dist;cam.tc=CEN.slice()};
+var findI=0;$("cF").onclick=function(){if(!CUR||finished)return;var L=expList.filter(function(k){return!painted[k]&&V[k]===sel});
+ if(!L.length){tip("Колір "+sel+" уже розфарбовано ✓ Обери інший колір",1);return}
+ var k=L[findI++%L.length],p=k.split(",").map(Number),cd=[Math.sin(cam.taz)*Math.cos(cam.tel),Math.sin(cam.tel),Math.cos(cam.taz)*Math.cos(cam.tel)],d=VDIR[k],bd=-9;
+ visDir(p,BB,true).forEach(function(q){var s=q[0]*cd[0]+q[1]*cd[1]+q[2]*cd[2];if(s>bd){bd=s;d=q}});cam.spin=0;cam.tc=p;var na=Math.atan2(d[0],d[2]);while(na-cam.taz>Math.PI)na-=2*Math.PI;while(na-cam.taz<-Math.PI)na+=2*Math.PI;cam.taz=na;cam.tel=clampEl(Math.asin(d[1]));
+ cam.tdist=Math.max(8,HOME.dist*.45);tip("Ось кубик із номером "+sel+"! Залишилось "+L.length+". Натисни 🔍 ще раз, щоб знайти наступний")};
 window.addEventListener("resize",function(){if(!CUR)return;var nd=fitD(),k=nd/HOME.dist;HOME.dist=nd;cam.tdist*=k});
 window.addEventListener("pagehide",saveNow);
-window.VOX={stop:function(){cam.spin=0;cam.taz=HOME.az;cam.az=HOME.az},load:loadModel,menu:openMenu,paintAll:function(frac){var n=0;expList.forEach(function(k,i){if(!painted[k]&&(frac==null||i%Math.round(1/frac)===0)){var s0=sel;sel=V[k];paint(k);sel=s0;n++}});return n},
+window.VOX={snap:function(){cam.az=cam.taz;cam.el=cam.tel;cam.dist=cam.tdist;cam.c=cam.tc.slice()},pickC:function(){var r=cv.getBoundingClientRect();var k=pick(r.left+r.width/2,r.top+r.height/2);return k?[k,V[k],!!painted[k]]:null},sel:function(c){selC(c)},left:function(){return JSON.parse(JSON.stringify(left))},stop:function(){cam.spin=0;cam.taz=HOME.az;cam.az=HOME.az},load:loadModel,menu:openMenu,paintAll:function(frac){var n=0;expList.forEach(function(k,i){if(!painted[k]&&(frac==null||i%Math.round(1/frac)===0)){var s0=sel;sel=V[k];paint(k);sel=s0;n++}});return n},
  st:function(){return{id:CUR&&CUR.id,need:need,done:done,finished:finished,cubes:keys.length}},models:MODELS.map(function(m){return m.id})};
 openMenu();
 if(!gl){$("secs").innerHTML='<p class="sub">На жаль, цей браузер не показує 3D-графіку.</p>'}
